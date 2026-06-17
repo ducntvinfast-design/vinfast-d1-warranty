@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản Trị Bảo Hành | VinFast Đồng Văn Cống</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg:#F0F4F8; --surface:#FFF; --surface2:#F5F7FA; --surface3:#EAEEf4;
+  --border:#D6DCE8; --border2:#C5CDD8;
+  --vf:#0055CC; --vf-dim:rgba(0,85,204,0.10);
+  --ok:#059669; --ok-dim:rgba(5,150,105,0.10);
+  --warn:#D97706; --warn-dim:rgba(217,119,6,0.12);
+  --danger:#DC2626; --danger-dim:rgba(220,38,38,0.10);
+  --text:#111827; --muted:#6B7280; --dim:#374151;
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:13px;}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:#FFF;border-right:1px solid var(--border);display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.06);}
+.sb-brand{padding:16px 14px 12px;border-bottom:1px solid var(--border);}
+.sb-tag{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--vf);text-transform:uppercase;margin-bottom:3px;}
+.sb-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+.sb-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.sb-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;color:var(--dim);font-size:12px;font-weight:500;transition:all 0.15s;border:1px solid transparent;}
+.nav-item:hover{background:#EEF2F8;color:var(--text);}
+.nav-item.active{background:var(--vf-dim);color:var(--vf);border-color:rgba(0,85,204,0.2);}
+.nav-icon{font-size:15px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:9px;}
+.nav-badge.warn{background:var(--warn);}
+.nav-badge.ok{background:var(--ok);}
+.sb-footer{padding:12px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);}
+.sb-date{font-weight:600;color:var(--dim);font-size:11px;}
+
+/* TOPBAR */
+.topbar{height:50px;background:#FFF;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+.topbar-title{font-size:14px;font-weight:700;color:var(--text);}
+.topbar-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.topbar-sub{font-size:11px;color:var(--muted);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.content{flex:1;overflow-y:auto;padding:18px;}
+
+/* PANES */
+.pane{display:none;}
+.pane.active{display:block;}
+
+/* KPI STRIP */
+.kpi-strip{display:flex;gap:12px;margin-bottom:16px;}
+.kpi{background:#FFF;border:1px solid var(--border);border-radius:10px;padding:14px 16px;flex:1;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.danger::before{background:var(--danger);}
+.kpi.warn::before{background:var(--warn);}
+.kpi.ok::before{background:var(--ok);}
+.kpi.blue::before{background:var(--vf);}
+.kpi-val{font-size:26px;font-weight:700;line-height:1;}
+.kpi.danger .kpi-val{color:var(--danger);}
+.kpi.warn .kpi-val{color:var(--warn);}
+.kpi.ok .kpi-val{color:var(--ok);}
+.kpi.blue .kpi-val{color:var(--vf);}
+.kpi-label{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sec-title{font-size:13px;font-weight:700;color:var(--text);}
+.sec-line{flex:1;height:1px;background:var(--border);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all 0.15s;}
+.btn-primary{background:var(--vf);color:#FFF;}
+.btn-primary:hover{background:#003FA3;}
+.btn-ghost{background:transparent;color:var(--dim);border-color:var(--border);}
+.btn-ghost:hover{background:#EEF2F8;}
+.btn-ok{background:var(--ok);color:#FFF;}
+.btn-ok:hover{background:#047857;}
+.btn-warn{background:var(--warn);color:#FFF;}
+.btn-sm{padding:4px 9px;font-size:11px;}
+
+/* TABLE */
+.tbl-wrap{background:#FFF;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.tbl-wrap table{width:100%;border-collapse:collapse;}
+.tbl-wrap th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--muted);background:#F5F7FA;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
+.tbl-wrap td{padding:9px 11px;border-bottom:1px solid #F0F0F4;font-size:12px;vertical-align:middle;}
+.tbl-wrap tbody tr:last-child td{border-bottom:none;}
+.tbl-wrap tbody tr:hover{background:#F5F8FF;}
+.tbl-wrap tbody tr.r-danger{background:rgba(220,38,38,0.04);box-shadow:inset 3px 0 0 var(--danger);}
+.tbl-wrap tbody tr.r-warn{background:rgba(217,119,6,0.04);box-shadow:inset 3px 0 0 var(--warn);}
+.tbl-wrap tbody tr.r-ok{background:rgba(5,150,105,0.03);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap;}
+.badge-ok{background:rgba(5,150,105,0.12);color:#065F46;}
+.badge-warn{background:rgba(217,119,6,0.12);color:#92400E;}
+.badge-danger{background:rgba(220,38,38,0.12);color:#7F1D1D;}
+.badge-blue{background:rgba(0,85,204,0.10);color:#1E3A8A;}
+.badge-gray{background:#F0F0F4;color:#4B5563;}
+.badge-purple{background:rgba(124,58,237,0.10);color:#4C1D95;}
+
+/* MONO */
+.mono{font-family:var(--mono);font-size:11px;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid.g3{grid-template-columns:1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:11px;font-weight:600;color:var(--dim);}
+.form-input{background:#F9FAFC;border:1px solid var(--border2);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--text);font-family:'Inter',sans-serif;transition:border 0.15s;outline:none;color-scheme:light;}
+.form-input:focus{border-color:var(--vf);background:#FFF;}
+.form-textarea{resize:vertical;min-height:70px;}
+select.form-input{cursor:pointer;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,0.45);z-index:100;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:#FFF;border:1px solid var(--border);border-radius:12px;width:860px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.15);}
+.modal-sm{width:500px;}
+.modal-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:#FFF;z-index:3;}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{margin-left:auto;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;}
+.modal-close:hover{color:var(--danger);}
+.modal-body{padding:20px;}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* IMPORT ZONE */
+.drop-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:#FAFBFD;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--vf);background:var(--vf-dim);}
+.drop-icon{font-size:36px;margin-bottom:8px;}
+.drop-label{font-size:13px;font-weight:600;color:var(--dim);}
+.drop-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* PROGRESS BAR */
+.prog-wrap{background:#E5E7EB;border-radius:99px;height:6px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:99px;transition:width 0.4s;}
+.prog-bar.ok{background:var(--ok);}
+.prog-bar.warn{background:var(--warn);}
+.prog-bar.danger{background:var(--danger);}
+
+/* ALERT BOX */
+.alert-box{background:#FFF;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.alert-box-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;background:rgba(220,38,38,0.05);color:var(--danger);}
+.alert-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #F4F5F8;font-size:12px;}
+.alert-item:last-child{border-bottom:none;}
+.alert-item:hover{background:#F8F9FC;}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999;}
+.toast{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;animation:slideIn 0.25s;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.toast-ok{background:#ECFDF5;border:1px solid #059669;color:#065F46;}
+.toast-err{background:#FEF2F2;border:1px solid #DC2626;color:#7F1D1D;}
+.toast-info{background:#EFF6FF;border:1px solid #2563EB;color:#1E3A8A;}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:14px 0;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:#F0F4F8;}
+::-webkit-scrollbar-thumb{background:#C8D0DC;border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:#A0AABB;}
+
+/* CHIP */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:10px;font-size:10px;border:1px solid;}
+.chip-blue{border-color:rgba(0,85,204,0.3);color:var(--vf);background:var(--vf-dim);}
+.chip-ok{border-color:rgba(5,150,105,0.3);color:var(--ok);background:var(--ok-dim);}
+.chip-warn{border-color:rgba(217,119,6,0.3);color:var(--warn);background:var(--warn-dim);}
+.chip-danger{border-color:rgba(220,38,38,0.3);color:var(--danger);background:var(--danger-dim);}
+.chip-gray{border-color:var(--border2);color:var(--muted);background:#F5F5F8;}
+
+/* TABLE OVERFLOW */
+.tbl-scroll{overflow-x:auto;}
+
+/* FLEX UTILS */
+.flex{display:flex;}.gap4{gap:4px;}.gap8{gap:8px;}.gap12{gap:12px;}.gap16{gap:16px;}
+.items-center{align-items:center;}.flex-1{flex:1;}.justify-end{justify-content:flex-end;}
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}.mb8{margin-bottom:8px;}
+.fw7{font-weight:700;}.fs11{font-size:11px;}.fc-muted{color:var(--muted);}
+
+/* ROLE TAG */
+.role-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.role-kt{background:rgba(124,58,237,0.10);color:#4C1D95;border:1px solid rgba(124,58,237,0.25);}
+.role-kho{background:rgba(217,119,6,0.10);color:#92400E;border:1px solid rgba(217,119,6,0.25);}
+.role-cv{background:var(--vf-dim);color:#1E3A8A;border:1px solid rgba(0,85,204,0.25);}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-tag">VinFast 3S</div>
+    <div class="sb-name">Quản Trị Bảo Hành</div>
+    <div class="sb-sub">Đồng Văn Cống</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-item active" onclick="goPane('p-dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="goPane('p-ycbh')">
+      <span class="nav-icon">📋</span> DS Yêu Cầu BH
+      <span class="nav-badge" id="badge-ycbh">0</span>
+    </div>
+    <div class="nav-item" onclick="goPane('p-import')">
+      <span class="nav-icon">⬆️</span> Import DMS
+    </div>
+    <div class="nav-item" onclick="goPane('p-ketoan')">
+      <span class="nav-icon">💳</span> Kế Toán
+      <span class="nav-badge warn" id="badge-kt">0</span>
+    </div>
+    <div class="nav-item" onclick="goPane('p-kho')">
+      <span class="nav-icon">📦</span> Kho Phụ Tùng
+      <span class="nav-badge warn" id="badge-kho">0</span>
+    </div>
+    <div class="nav-item" onclick="goPane('p-quydinh')">
+      <span class="nav-icon">📖</span> Quy Định VF
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-date" id="sb-date"></div>
+    <div style="margin-top:2px;">VF_HM13.1 | ĐC 06/05/2026</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="tb-title">Dashboard</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-sub" id="tb-sub">Tổng quan bảo hành</span>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="goPane('p-import')">⬆️ Import DMS</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Thêm YCBH</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="p-dashboard" class="pane active">
+      <div class="kpi-strip">
+        <div class="kpi blue"><div class="kpi-val" id="kpi-total">0</div><div class="kpi-label">Tổng YCBH</div></div>
+        <div class="kpi danger"><div class="kpi-val" id="kpi-qh">0</div><div class="kpi-label">⚠️ Sắp/Quá Hạn</div></div>
+        <div class="kpi warn"><div class="kpi-val" id="kpi-chuaTT">0</div><div class="kpi-label">💳 Chưa TT VF</div></div>
+        <div class="kpi warn"><div class="kpi-val" id="kpi-kho-pend">0</div><div class="kpi-label">📦 Kho chưa xác nhận</div></div>
+        <div class="kpi ok"><div class="kpi-val" id="kpi-ok">0</div><div class="kpi-label">✅ Đã TT VF</div></div>
+      </div>
+
+      <div id="alert-section"></div>
+
+      <div class="sec-hdr"><span class="sec-title">📋 YCBH gần nhất</span><div class="sec-line"></div></div>
+      <div class="tbl-wrap tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Số YCBH</th><th>Xe</th><th>Ngày ĐXBH</th><th>Ngày PD</th>
+            <th>Tiền PD (đ)</th><th>TT Kế Toán</th><th>TT Kho PT</th><th>Trạng thái</th>
+          </tr></thead>
+          <tbody id="dash-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DS YCBH ===== -->
+    <div id="p-ycbh" class="pane">
+      <div class="flex gap8 mb8 items-center">
+        <input class="form-input" style="width:260px" placeholder="🔍 Tìm YCBH / VIN / WO..." id="search-ycbh" oninput="renderYCBH()">
+        <select class="form-input" style="width:160px" id="filter-tt" onchange="renderYCBH()">
+          <option value="">-- Tất cả TT --</option>
+          <option value="Hoàn thành">Hoàn thành</option>
+          <option value="Hủy">Hủy</option>
+        </select>
+        <select class="form-input" style="width:160px" id="filter-kt" onchange="renderYCBH()">
+          <option value="">-- TT Kế Toán --</option>
+          <option value="chuaTT">Chưa TT VF</option>
+          <option value="dangBK">Đang trong BK</option>
+          <option value="daTT">Đã TT VF</option>
+        </select>
+        <div class="flex-1"></div>
+        <span class="fs11 fc-muted" id="ycbh-count">0 bản ghi</span>
+      </div>
+      <div class="tbl-wrap tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th>
+            <th>Số YCBH</th><th>Số Khung</th><th>Tên Xe</th><th>WO</th>
+            <th>Ngày ĐXBH</th><th>Ngày SC</th><th>Ngày PD</th>
+            <th>Tiền PD (đ)</th><th>TT DMS</th>
+            <th>TT Kế Toán</th><th>TT Kho PT</th><th>Thao tác</th>
+          </tr></thead>
+          <tbody id="ycbh-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== IMPORT DMS ===== -->
+    <div id="p-import" class="pane">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;max-width:900px;">
+        <div>
+          <div class="sec-hdr mb8"><span class="sec-title">⬆️ Import file DMS (.xlsx)</span><div class="sec-line"></div></div>
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()" ondragover="ev.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="onDrop(event)">
+            <div class="drop-icon">📂</div>
+            <div class="drop-label">Kéo thả hoặc bấm chọn file</div>
+            <div class="drop-sub">Hỗ trợ: <strong>1_Active_Warranty_claim_*.xlsx</strong> từ DMS VinFast</div>
+          </div>
+          <input type="file" id="file-inp" accept=".xlsx" style="display:none" onchange="onFileSelect(this)">
+          <div class="mt12">
+            <div class="sec-hdr mb8"><span class="sec-title">⚙️ Tùy chọn import</span><div class="sec-line"></div></div>
+            <div class="form-group mb8">
+              <label class="form-label">Khi trùng Số YCBH:</label>
+              <select class="form-input" id="dup-mode">
+                <option value="skip">Bỏ qua (giữ bản ghi cũ)</option>
+                <option value="update" selected>Cập nhật (ghi đè từ DMS)</option>
+                <option value="add">Thêm mới (tạo bản sao)</option>
+              </select>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;">
+              <input type="checkbox" id="auto-kho" checked>
+              Tự động tạo bản ghi kho phụ tùng từ cột "Phụ tùng chính"
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="sec-hdr mb8"><span class="sec-title">📋 Cột DMS được map</span><div class="sec-line"></div></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Cột DMS</th><th>Trường hệ thống</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Số yêu cầu bảo hành</td><td>Số YCBH</td></tr>
+                <tr><td class="mono">Số khung</td><td>VIN</td></tr>
+                <tr><td class="mono">Lệnh sửa chữa</td><td>WO</td></tr>
+                <tr><td class="mono">Tên xe</td><td>Tên xe</td></tr>
+                <tr><td class="mono">Ngày ĐXBH</td><td>Ngày ĐXBH</td></tr>
+                <tr><td class="mono">Ngày Sửa chữ</td><td>Ngày sửa chữa</td></tr>
+                <tr><td class="mono">Ngày phê duyệt</td><td>Ngày phê duyệt</td></tr>
+                <tr><td class="mono">Trạng thái</td><td>Trạng thái DMS</td></tr>
+                <tr><td class="mono">Tổng tiền yêu cầu được phê duyệt</td><td>Tiền phê duyệt</td></tr>
+                <tr><td class="mono">Phụ tùng chính</td><td>Mã PT → Kho</td></tr>
+                <tr><td class="mono">Tên Phụ tùng chính</td><td>Tên PT → Kho</td></tr>
+                <tr><td class="mono">Lý do hủy</td><td>Lý do hủy</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt16" id="import-preview" style="display:none">
+        <div class="sec-hdr mb8"><span class="sec-title">🔍 Preview dữ liệu</span><div class="sec-line"></div>
+          <button class="btn btn-primary btn-sm" onclick="confirmImport()">✅ Xác nhận Import</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-preview').style.display='none'">Hủy</button>
+        </div>
+        <div id="import-stats" class="flex gap8 mb8"></div>
+        <div class="tbl-wrap tbl-scroll" style="max-height:320px;overflow-y:auto;">
+          <table><thead id="prev-head"></thead><tbody id="prev-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== KẾ TOÁN ===== -->
+    <div id="p-ketoan" class="pane">
+      <div class="flex gap8 mb8 items-center">
+        <span class="role-tag role-kt">👤 Module: Kế Toán</span>
+        <div class="flex-1"></div>
+        <button class="btn btn-ghost btn-sm" id="btn-mark-all-tt" onclick="markAllTT()" style="display:none">✅ Đánh dấu đã TT tất cả đã chọn</button>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi danger"><div class="kpi-val" id="kt-chuaTT">0</div><div class="kpi-label">Chưa TT VF</div></div>
+        <div class="kpi warn"><div class="kpi-val" id="kt-dangBK">0</div><div class="kpi-label">Đang trong BK</div></div>
+        <div class="kpi ok"><div class="kpi-val" id="kt-daTT">0</div><div class="kpi-label">Đã TT VF</div></div>
+        <div class="kpi blue"><div class="kpi-val" id="kt-total-val">0</div><div class="kpi-label">Tổng tiền PD (đ)</div></div>
+      </div>
+
+      <div class="flex gap8 mb8 items-center">
+        <input class="form-input" style="width:220px" placeholder="🔍 Tìm YCBH / VIN..." id="search-kt" oninput="renderKT()">
+        <select class="form-input" style="width:160px" id="filter-kt2" onchange="renderKT()">
+          <option value="">-- Tất cả --</option>
+          <option value="chuaTT">Chưa TT VF</option>
+          <option value="dangBK">Đang trong BK</option>
+          <option value="daTT">Đã TT VF</option>
+        </select>
+        <div class="flex-1"></div>
+        <span class="fs11 fc-muted" id="kt-count">0 bản ghi</span>
+      </div>
+
+      <div class="tbl-wrap tbl-scroll">
+        <table>
+          <thead><tr>
+            <th><input type="checkbox" id="chk-all-kt" onchange="toggleAllKT(this)"></th>
+            <th>Số YCBH</th><th>Tên Xe</th><th>VIN</th>
+            <th>Ngày PD</th><th>Tiền PD (đ)</th>
+            <th>TT Thanh Toán</th><th>Tháng BK</th><th>Ngày VF TT</th><th>Ghi chú</th>
+            <th>Thao tác</th>
+          </tr></thead>
+          <tbody id="kt-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== KHO ===== -->
+    <div id="p-kho" class="pane">
+      <div class="flex gap8 mb8 items-center">
+        <span class="role-tag role-kho">👤 Module: Kho Phụ Tùng</span>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi danger"><div class="kpi-val" id="kho-chuaNhap">0</div><div class="kpi-label">⚠️ Chưa nhập kho</div></div>
+        <div class="kpi warn"><div class="kpi-val" id="kho-dangLuu">0</div><div class="kpi-label">📦 Đang lưu kho</div></div>
+        <div class="kpi warn"><div class="kpi-val" id="kho-duDK">0</div><div class="kpi-label">✅ Đủ ĐK huỷ</div></div>
+        <div class="kpi ok"><div class="kpi-val" id="kho-daHuy">0</div><div class="kpi-label">🗑️ Đã huỷ/trả VF</div></div>
+      </div>
+
+      <div class="flex gap8 mb8 items-center">
+        <input class="form-input" style="width:220px" placeholder="🔍 Tìm mã PT / YCBH..." id="search-kho" oninput="renderKho()">
+        <select class="form-input" style="width:180px" id="filter-kho" onchange="renderKho()">
+          <option value="">-- Tất cả trạng thái --</option>
+          <option value="chuaNhap">Chưa nhập kho</option>
+          <option value="dangLuu">Đang lưu kho</option>
+          <option value="duDK">Đủ ĐK huỷ</option>
+          <option value="choVF">Chờ VF phê duyệt</option>
+          <option value="daHuy">Đã huỷ/trả VF</option>
+        </select>
+        <div class="flex-1"></div>
+        <button class="btn btn-primary btn-sm" onclick="openAddKhoModal()">+ Thêm PT</button>
+        <span class="fs11 fc-muted" id="kho-count">0 bản ghi</span>
+      </div>
+
+      <div class="tbl-wrap tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Mã PT</th><th>Tên PT</th><th>Số YCBH</th><th>Ngày PD YCBH</th>
+            <th>Ngày nhập kho</th><th>Loại PT</th><th>Lưu kho tối thiểu</th><th>Tiến độ</th>
+            <th>TT Lưu Kho</th><th>PD Huỷ VF</th><th>Thao tác</th>
+          </tr></thead>
+          <tbody id="kho-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== QUY ĐỊNH ===== -->
+    <div id="p-quydinh" class="pane">
+      <div class="form-grid" style="max-width:900px;">
+        <div class="tbl-wrap">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;">⏱️ Quy trình thời gian (VF_HM13.1)</div>
+          <table>
+            <thead><tr><th>Mốc</th><th>Thời hạn</th><th>Hành động</th></tr></thead>
+            <tbody>
+              <tr><td>Gửi YCBH</td><td><span class="badge badge-danger">D+7</span></td><td>Kể từ ngày sửa chữa xong</td></tr>
+              <tr><td>Bổ sung sau trả về</td><td><span class="badge badge-warn">+3 ngày</span></td><td>Từ ngày VF trả về</td></tr>
+              <tr><td>Phê duyệt VF</td><td><span class="badge badge-blue">D+16</span></td><td>Kể từ ngày ĐXBH</td></tr>
+              <tr><td>Lưu kho ắc quy/pin</td><td><span class="badge badge-warn">≥30 ngày</span></td><td>Từ ngày PD YCBH</td></tr>
+              <tr><td>Lưu kho PT thường</td><td><span class="badge badge-warn">≥60 ngày</span></td><td>Từ ngày PD YCBH</td></tr>
+              <tr><td>Đề xuất huỷ PT</td><td><span class="badge badge-blue">Ngày 7/tháng</span></td><td>DS xin huỷ theo tháng</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-wrap">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;">💡 Điều chỉnh 06/05/2026</div>
+          <table>
+            <thead><tr><th>Điểm mới</th><th>Chi tiết</th></tr></thead>
+            <tbody>
+              <tr><td>Quy trình gửi BH</td><td>Cập nhật bước xác minh hư hỏng bắt buộc</td></tr>
+              <tr><td>Mã lỗi FOTA</td><td>Phân loại riêng loại công việc "Triệu hồi"</td></tr>
+              <tr><td>Phụ tùng điện tử</td><td>Lưu kho theo nhóm ắc quy ≥30 ngày</td></tr>
+              <tr><td>Báo cáo kho</td><td>CVDV nộp ngày 7 hàng tháng qua DMS</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt16" style="max-width:900px;">
+        <div class="tbl-wrap">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;">📋 Phân quyền module</div>
+          <table>
+            <thead><tr><th>Module</th><th>Người dùng</th><th>Chức năng chính</th></tr></thead>
+            <tbody>
+              <tr><td><span class="role-tag role-cv">CVDV</span></td><td>Cố vấn dịch vụ</td><td>Import DMS, nhập YCBH, xem trạng thái tổng</td></tr>
+              <tr><td><span class="role-tag role-kt">Kế Toán</span></td><td>Nhân viên kế toán</td><td>Khai báo thanh toán VF, theo dõi bảng kê, xác nhận ngày VF TT</td></tr>
+              <tr><td><span class="role-tag role-kho">Kho</span></td><td>Nhân viên kho BH</td><td>Xác nhận nhập kho PT, đề xuất huỷ, theo dõi tiến độ lưu kho</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- MODAL: Thêm/Sửa YCBH -->
+<div class="overlay" id="modal-ycbh">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-title" id="modal-ycbh-title">➕ Thêm Yêu Cầu Bảo Hành</span>
+      <span class="modal-close" onclick="closeModal('modal-ycbh')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid g3">
+        <div class="form-group"><label class="form-label">Số YCBH *</label><input class="form-input mono" id="f-ycbh" placeholder="S44301-WC-26-xx-xxxx"></div>
+        <div class="form-group"><label class="form-label">Lệnh SC (WO)</label><input class="form-input mono" id="f-wo"></div>
+        <div class="form-group"><label class="form-label">Số Khung (VIN)</label><input class="form-input mono" id="f-vin"></div>
+      </div>
+      <div class="form-grid mt12">
+        <div class="form-group"><label class="form-label">Tên Xe</label><input class="form-input" id="f-xe" placeholder="VF 8, VF 9, FADIL..."></div>
+        <div class="form-group"><label class="form-label">Trạng thái DMS</label>
+          <select class="form-input" id="f-tt"><option value="Hoàn thành">Hoàn thành</option><option value="Hủy">Hủy</option><option value="Trả về">Trả về</option></select>
+        </div>
+      </div>
+      <div class="form-grid g3 mt12">
+        <div class="form-group"><label class="form-label">Ngày ĐXBH</label><input type="date" class="form-input" id="f-dx"></div>
+        <div class="form-group"><label class="form-label">Ngày Sửa Chữa</label><input type="date" class="form-input" id="f-sc"></div>
+        <div class="form-group"><label class="form-label">Ngày Phê Duyệt</label><input type="date" class="form-input" id="f-pd"></div>
+      </div>
+      <div class="form-grid g3 mt12">
+        <div class="form-group"><label class="form-label">Tiền PD (đ)</label><input type="number" class="form-input" id="f-tien" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Mã PT Chính</label><input class="form-input mono" id="f-pt"></div>
+        <div class="form-group"><label class="form-label">Tên PT Chính</label><input class="form-input" id="f-tenpt"></div>
+      </div>
+      <div class="form-group mt12"><label class="form-label">Lý do hủy (nếu có)</label><input class="form-input" id="f-lydohuy"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ycbh')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveYCBH()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Kế Toán -->
+<div class="overlay" id="modal-kt">
+  <div class="modal modal-sm">
+    <div class="modal-hdr">
+      <span class="modal-title">💳 Khai Báo Thanh Toán VF</span>
+      <span class="modal-close" onclick="closeModal('modal-kt')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div style="background:#F5F7FA;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;">
+        <span class="fw7" id="kt-modal-ycbh">—</span><br>
+        <span class="fc-muted" id="kt-modal-xe">—</span>
+      </div>
+      <div class="form-group mb8">
+        <label class="form-label">Trạng thái thanh toán *</label>
+        <select class="form-input" id="kt-tt-select">
+          <option value="chuaTT">Chưa TT VF</option>
+          <option value="dangBK">Đang trong Bảng Kê</option>
+          <option value="daTT">Đã TT VF</option>
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Tháng Bảng Kê</label><input class="form-input" id="kt-thangBK" placeholder="Tháng 6/2026"></div>
+        <div class="form-group"><label class="form-label">Ngày VF Thanh Toán</label><input type="date" class="form-input" id="kt-ngayTT"></div>
+      </div>
+      <div class="form-group mt8"><label class="form-label">Ghi chú</label><textarea class="form-input form-textarea" id="kt-ghichu" placeholder="Số chứng từ, ghi chú BK..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-kt')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveKT()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Kho -->
+<div class="overlay" id="modal-kho">
+  <div class="modal modal-sm">
+    <div class="modal-hdr">
+      <span class="modal-title" id="kho-modal-title">📦 Khai Báo Kho Phụ Tùng</span>
+      <span class="modal-close" onclick="closeModal('modal-kho')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Mã PT *</label><input class="form-input mono" id="kho-ma"></div>
+        <div class="form-group"><label class="form-label">Tên PT</label><input class="form-input" id="kho-ten"></div>
+      </div>
+      <div class="form-grid mt8">
+        <div class="form-group"><label class="form-label">Số YCBH liên kết</label><input class="form-input mono" id="kho-ycbh"></div>
+        <div class="form-group"><label class="form-label">Loại PT</label>
+          <select class="form-input" id="kho-loai">
+            <option value="thuong">PT Thường (≥60 ngày)</option>
+            <option value="acqUy">Ắc quy / Pin (≥30 ngày)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid mt8">
+        <div class="form-group"><label class="form-label">Ngày nhập kho</label><input type="date" class="form-input" id="kho-ngayNhap"></div>
+        <div class="form-group"><label class="form-label">Trạng thái</label>
+          <select class="form-input" id="kho-tt-select">
+            <option value="chuaNhap">Chưa nhập kho</option>
+            <option value="dangLuu">Đang lưu kho</option>
+            <option value="duDK">Đủ ĐK huỷ</option>
+            <option value="choVF">Chờ VF PD huỷ</option>
+            <option value="daHuy">Đã huỷ/trả VF</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid mt8">
+        <div class="form-group"><label class="form-label">PD Huỷ từ VF</label>
+          <select class="form-input" id="kho-pdHuy">
+            <option value="">Chưa có</option>
+            <option value="daPD">Đã PD huỷ</option>
+            <option value="daTra">Đã trả VF thu hồi</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Ngày PD YCBH</label><input type="date" class="form-input" id="kho-ngayPD"></div>
+      </div>
+      <div class="form-group mt8"><label class="form-label">Ghi chú</label><textarea class="form-input form-textarea" id="kho-ghichu" placeholder="Số phiếu nhập, vị trí kho..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-kho')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveKho()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ===== STATE =====
+let DB = { ycbh: [], kho: [], kt: {} };
+let editId = null;
+let editKhoId = null;
+let editKtId = null;
+let importBuf = [];
+
+// ===== SEED DATA (từ file DMS thực tế) =====
+function seedData() {
+  const rows = [
+    {id:'s1',ycbh:'S44301-WC-26-02-0049',vin:'RPXCA2FACNV005404',xe:'FADIL',wo:'S44301-WO-26-02-27-002',ngayDX:'2026-02-28',ngaySC:'2026-02-27',ngayPD:'2026-03-02',tt:'Hoàn thành',tien:518182,pt:'EEP60000681',tenPT:'LOA CỬA TRƯỚC',lydohuy:''},
+    {id:'s2',ycbh:'S44301-WC-26-02-0045',vin:'RPXCA2FACNV005404',xe:'FADIL',wo:'S44301-WO-26-01-20-022',ngayDX:'2026-02-28',ngaySC:'2026-02-27',ngayPD:'2026-03-03',tt:'Hoàn thành',tien:10031819,pt:'EEP60001129',tenPT:'BỘ THU RADIO',lydohuy:''},
+    {id:'s3',ycbh:'S44301-WC-26-02-0046',vin:'RPXCA2FACNV005404',xe:'FADIL',wo:'S44301-WO-26-02-27-002',ngayDX:'2026-02-28',ngaySC:'2026-02-27',ngayPD:'2026-03-02',tt:'Hoàn thành',tien:548182,pt:'EEP60000679',tenPT:'LOA RADIO TRÊN CỬA SAU',lydohuy:''},
+    {id:'s4',ycbh:'S44301-WC-26-02-0047',vin:'RLLV1AEB9PV000049',xe:'VF 8',wo:'S44301-WO-26-01-09-009',ngayDX:'2026-02-28',ngaySC:'2026-02-10',ngayPD:'2026-03-02',tt:'Hoàn thành',tien:7191575,pt:'EEP30220160RC',tenPT:'BCM BODY CONTROL MODULE',lydohuy:''},
+    {id:'s5',ycbh:'S44301-WC-26-02-0048',vin:'RLLV1AEB9PV000049',xe:'VF 8',wo:'S44301-WO-26-01-09-009',ngayDX:'2026-02-28',ngaySC:'2026-02-10',ngayPD:'2026-03-02',tt:'Hoàn thành',tien:753056,pt:'BIN30036296AA',tenPT:'WATER INGRESS REPAIR KIT',lydohuy:''},
+    {id:'s6',ycbh:'S44301-WC-26-02-0041',vin:'RLLV1AEB9PV000049',xe:'VF 8',wo:'S44301-WO-26-01-09-009',ngayDX:'2026-02-12',ngaySC:'2026-02-10',ngayPD:'',tt:'Hủy',tien:0,pt:'',tenPT:'',lydohuy:'Không hợp lệ'},
+  ];
+  DB.ycbh = rows;
+  // Seed kho từ PT của records có PT
+  rows.filter(r=>r.pt).forEach((r,i)=>{
+    DB.kho.push({id:'k'+(i+1),maPT:r.pt,tenPT:r.tenPT,ycbhId:r.id,ycbhCode:r.ycbh,ngayPD_YCBH:r.ngayPD,ngayNhap:'',loai:r.pt.startsWith('BIN')?'acqUy':'thuong',tt:'chuaNhap',pdHuy:'',ghichu:''});
+  });
+  // Seed kt
+  DB.kt['s1'] = {tt:'daTT',thangBK:'Tháng 4/2026',ngayTT:'2026-04-15',ghichu:'CT04/26'};
+  DB.kt['s2'] = {tt:'dangBK',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:''};
+}
+
+// ===== UTILS =====
+function uid(){return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmt(n){if(!n||n==0)return '—';return Number(n).toLocaleString('vi-VN');}
+function fmtDate(d){if(!d)return '—';const x=new Date(d);if(isNaN(x))return d;return x.toLocaleDateString('vi-VN');}
+function daysBetween(a,b){if(!a||!b)return null;return Math.floor((new Date(b)-new Date(a))/(86400000));}
+function toast(msg,type='ok'){
+  const w=document.getElementById('toast-wrap');
+  const d=document.createElement('div');
+  d.className='toast toast-'+type;d.textContent=msg;w.appendChild(d);
+  setTimeout(()=>d.remove(),3000);
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+
+// ===== NAVIGATION =====
+const PANES={
+  'p-dashboard':{title:'Dashboard',sub:'Tổng quan bảo hành'},
+  'p-ycbh':{title:'Danh Sách YCBH',sub:'Quản lý yêu cầu bảo hành'},
+  'p-import':{title:'Import DMS',sub:'Nhập dữ liệu từ file DMS VinFast'},
+  'p-ketoan':{title:'Kế Toán',sub:'Khai báo thanh toán VF'},
+  'p-kho':{title:'Kho Phụ Tùng',sub:'Quản lý lưu kho & xin huỷ'},
+  'p-quydinh':{title:'Quy Định VF',sub:'VF_HM13.1 & Điều chỉnh 06/05/2026'},
+};
+function goPane(id){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[onclick="goPane('${id}')"]`).classList.add('active');
+  const m=PANES[id]||{title:'',sub:''};
+  document.getElementById('tb-title').textContent=m.title;
+  document.getElementById('tb-sub').textContent=m.sub;
+  if(id==='p-dashboard')renderDash();
+  if(id==='p-ycbh')renderYCBH();
+  if(id==='p-ketoan')renderKT();
+  if(id==='p-kho')renderKho();
+}
+
+// ===== KT STATUS =====
+function ktBadge(ycbhId){
+  const k=DB.kt[ycbhId];
+  if(!k||!k.tt||k.tt==='chuaTT') return '<span class="chip chip-danger">Chưa TT VF</span>';
+  if(k.tt==='dangBK') return '<span class="chip chip-warn">BK '+escH(k.thangBK||'')+'</span>';
+  if(k.tt==='daTT') return '<span class="chip chip-ok">✅ '+(k.ngayTT?fmtDate(k.ngayTT):'Đã TT')+'</span>';
+  return '<span class="chip chip-gray">—</span>';
+}
+function khoBadge(ycbhId){
+  const rows=DB.kho.filter(k=>k.ycbhId===ycbhId);
+  if(!rows.length) return '<span class="chip chip-gray">Không có PT</span>';
+  const chuaNhap=rows.filter(k=>k.tt==='chuaNhap').length;
+  const duDK=rows.filter(k=>k.tt==='duDK').length;
+  const daHuy=rows.filter(k=>k.tt==='daHuy').length;
+  if(chuaNhap) return `<span class="chip chip-danger">⚠️ ${chuaNhap} chưa nhập</span>`;
+  if(duDK) return `<span class="chip chip-warn">✅ ${duDK} đủ ĐK huỷ</span>`;
+  if(daHuy===rows.length) return '<span class="chip chip-ok">Đã huỷ/trả</span>';
+  return `<span class="chip chip-blue">${rows.length} PT</span>`;
+}
+function khoTTLabel(tt){
+  const MAP={chuaNhap:'⚠️ Chưa nhập kho',dangLuu:'📦 Đang lưu kho',duDK:'✅ Đủ ĐK huỷ',choVF:'⏳ Chờ VF PD',daHuy:'🗑️ Đã huỷ/trả VF'};
+  return MAP[tt]||tt;
+}
+function khoTTChip(tt){
+  const MAP={chuaNhap:'chip-danger',dangLuu:'chip-blue',duDK:'chip-warn',choVF:'chip-purple',daHuy:'chip-ok'};
+  return `<span class="chip ${MAP[tt]||'chip-gray'}">${khoTTLabel(tt)}</span>`;
+}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ===== DEADLINE =====
+function deadlineStatus(row){
+  if(!row.ngayPD && row.ngaySC){
+    const d=daysBetween(row.ngaySC,new Date().toISOString().slice(0,10));
+    if(d!==null && d>7) return 'danger';
+    if(d!==null && d>=5) return 'warn';
+  }
+  return '';
+}
+
+// ===== DASHBOARD =====
+function renderDash(){
+  const total=DB.ycbh.length;
+  const chuaTT=DB.ycbh.filter(r=>!DB.kt[r.id]||DB.kt[r.id].tt==='chuaTT').length;
+  const daTT=DB.ycbh.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='daTT').length;
+  const khoPend=DB.kho.filter(k=>k.tt==='chuaNhap').length;
+  const alerts=DB.ycbh.filter(r=>deadlineStatus(r)==='danger').length+DB.ycbh.filter(r=>deadlineStatus(r)==='warn').length;
+
+  document.getElementById('kpi-total').textContent=total;
+  document.getElementById('kpi-qh').textContent=alerts;
+  document.getElementById('kpi-chuaTT').textContent=chuaTT;
+  document.getElementById('kpi-kho-pend').textContent=khoPend;
+  document.getElementById('kpi-ok').textContent=daTT;
+  updateBadges();
+
+  // Alerts section
+  const alertRows=DB.ycbh.filter(r=>deadlineStatus(r));
+  let aHtml='';
+  if(alertRows.length){
+    aHtml=`<div class="alert-box mb8">
+      <div class="alert-box-hdr">🚨 Cảnh báo hạn chót — ${alertRows.length} YCBH cần xử lý</div>`;
+    alertRows.forEach(r=>{
+      const d=deadlineStatus(r);
+      const days=daysBetween(r.ngaySC,new Date().toISOString().slice(0,10));
+      aHtml+=`<div class="alert-item">
+        <span class="badge ${d==='danger'?'badge-danger':'badge-warn'}">${d==='danger'?'QUÁ HẠN':'SẮP HẠN'}</span>
+        <span class="mono">${escH(r.ycbh)}</span>
+        <span>${escH(r.xe)}</span>
+        <span class="fc-muted fs11">SC: ${fmtDate(r.ngaySC)} — ${days} ngày</span>
+        <span class="flex-1"></span>
+        <button class="btn btn-ghost btn-sm" onclick="openEditModal('${r.id}')">Xem</button>
+      </div>`;
+    });
+    aHtml+='</div>';
+  }
+  document.getElementById('alert-section').innerHTML=aHtml;
+
+  // Recent table
+  const recent=[...DB.ycbh].slice(-8).reverse();
+  document.getElementById('dash-body').innerHTML=recent.map(r=>`
+    <tr class="${deadlineStatus(r)?'r-'+deadlineStatus(r):''}">
+      <td class="mono">${escH(r.ycbh)}</td>
+      <td>${escH(r.xe)}</td>
+      <td>${fmtDate(r.ngayDX)}</td>
+      <td>${fmtDate(r.ngayPD)||'<span class="fc-muted">—</span>'}</td>
+      <td style="text-align:right">${fmt(r.tien)}</td>
+      <td>${ktBadge(r.id)}</td>
+      <td>${khoBadge(r.id)}</td>
+      <td>${r.tt==='Hoàn thành'?'<span class="badge badge-ok">Hoàn thành</span>':r.tt==='Hủy'?'<span class="badge badge-danger">Hủy</span>':'<span class="badge badge-warn">'+escH(r.tt)+'</span>'}</td>
+    </tr>`).join('');
+}
+
+function updateBadges(){
+  const total=DB.ycbh.length;
+  const chuaTT=DB.ycbh.filter(r=>!DB.kt[r.id]||DB.kt[r.id].tt==='chuaTT').length;
+  const khoPend=DB.kho.filter(k=>k.tt==='chuaNhap').length;
+  document.getElementById('badge-ycbh').textContent=total;
+  document.getElementById('badge-kt').textContent=chuaTT;
+  document.getElementById('badge-kho').textContent=khoPend;
+}
+
+// ===== YCBH =====
+function renderYCBH(){
+  const q=(document.getElementById('search-ycbh').value||'').toLowerCase();
+  const fTT=document.getElementById('filter-tt').value;
+  const fKT=document.getElementById('filter-kt').value;
+  let rows=DB.ycbh.filter(r=>{
+    if(q && !JSON.stringify(r).toLowerCase().includes(q)) return false;
+    if(fTT && r.tt!==fTT) return false;
+    if(fKT){const k=DB.kt[r.id];if(fKT==='chuaTT' && k && k.tt!=='chuaTT') return false;if(fKT==='dangBK' && (!k||k.tt!=='dangBK')) return false;if(fKT==='daTT' && (!k||k.tt!=='daTT')) return false;}
+    return true;
+  });
+  document.getElementById('ycbh-count').textContent=rows.length+' bản ghi';
+  document.getElementById('ycbh-body').innerHTML=rows.map((r,i)=>`
+    <tr class="${deadlineStatus(r)?'r-'+deadlineStatus(r):''}">
+      <td class="fc-muted fs11">${i+1}</td>
+      <td class="mono" style="white-space:nowrap">${escH(r.ycbh)}</td>
+      <td class="mono" style="font-size:10px">${escH(r.vin)}</td>
+      <td>${escH(r.xe)}</td>
+      <td class="mono" style="font-size:10px">${escH(r.wo)}</td>
+      <td>${fmtDate(r.ngayDX)}</td>
+      <td>${fmtDate(r.ngaySC)}</td>
+      <td>${fmtDate(r.ngayPD)||'<span class="fc-muted">—</span>'}</td>
+      <td style="text-align:right">${fmt(r.tien)}</td>
+      <td>${r.tt==='Hoàn thành'?'<span class="badge badge-ok">Hoàn thành</span>':r.tt==='Hủy'?'<span class="badge badge-danger">Hủy</span>':'<span class="badge badge-warn">'+escH(r.tt)+'</span>'}</td>
+      <td>${ktBadge(r.id)}</td>
+      <td>${khoBadge(r.id)}</td>
+      <td><div class="flex gap4">
+        <button class="btn btn-ghost btn-sm" onclick="openEditModal('${r.id}')">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="openKTModal('${r.id}')">💳</button>
+        <button class="btn btn-ghost btn-sm" onclick="delYCBH('${r.id}')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openAddModal(){
+  editId=null;
+  document.getElementById('modal-ycbh-title').textContent='➕ Thêm Yêu Cầu Bảo Hành';
+  ['f-ycbh','f-wo','f-vin','f-xe','f-dx','f-sc','f-pd','f-tien','f-pt','f-tenpt','f-lydohuy'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-tt').value='Hoàn thành';
+  openModal('modal-ycbh');
+}
+function openEditModal(id){
+  editId=id;
+  const r=DB.ycbh.find(x=>x.id===id);if(!r)return;
+  document.getElementById('modal-ycbh-title').textContent='✏️ Sửa YCBH';
+  document.getElementById('f-ycbh').value=r.ycbh;
+  document.getElementById('f-wo').value=r.wo;
+  document.getElementById('f-vin').value=r.vin;
+  document.getElementById('f-xe').value=r.xe;
+  document.getElementById('f-tt').value=r.tt;
+  document.getElementById('f-dx').value=r.ngayDX;
+  document.getElementById('f-sc').value=r.ngaySC;
+  document.getElementById('f-pd').value=r.ngayPD;
+  document.getElementById('f-tien').value=r.tien;
+  document.getElementById('f-pt').value=r.pt;
+  document.getElementById('f-tenpt').value=r.tenPT;
+  document.getElementById('f-lydohuy').value=r.lydohuy||'';
+  openModal('modal-ycbh');
+}
+function saveYCBH(){
+  const ycbh=document.getElementById('f-ycbh').value.trim();
+  if(!ycbh){toast('Vui lòng nhập Số YCBH','err');return;}
+  const obj={id:editId||uid(),ycbh,wo:document.getElementById('f-wo').value.trim(),vin:document.getElementById('f-vin').value.trim(),xe:document.getElementById('f-xe').value.trim(),tt:document.getElementById('f-tt').value,ngayDX:document.getElementById('f-dx').value,ngaySC:document.getElementById('f-sc').value,ngayPD:document.getElementById('f-pd').value,tien:parseFloat(document.getElementById('f-tien').value)||0,pt:document.getElementById('f-pt').value.trim(),tenPT:document.getElementById('f-tenpt').value.trim(),lydohuy:document.getElementById('f-lydohuy').value.trim()};
+  if(editId){const i=DB.ycbh.findIndex(x=>x.id===editId);DB.ycbh[i]=obj;}
+  else DB.ycbh.unshift(obj);
+  closeModal('modal-ycbh');
+  renderYCBH();updateBadges();
+  toast(editId?'Đã cập nhật YCBH':'Đã thêm YCBH mới');
+}
+function delYCBH(id){
+  if(!confirm('Xác nhận xoá YCBH này?'))return;
+  DB.ycbh=DB.ycbh.filter(x=>x.id!==id);
+  delete DB.kt[id];
+  DB.kho=DB.kho.filter(k=>k.ycbhId!==id);
+  renderYCBH();updateBadges();toast('Đã xoá','err');
+}
+
+// ===== KẾ TOÁN =====
+function renderKT(){
+  const q=(document.getElementById('search-kt').value||'').toLowerCase();
+  const ftt=document.getElementById('filter-kt2').value;
+  let rows=DB.ycbh.filter(r=>{
+    if(r.tien===0 && r.tt==='Hủy') return false;
+    const k=DB.kt[r.id];
+    const ktTT=k?k.tt:'chuaTT';
+    if(ftt && ktTT!==ftt) return false;
+    if(q && !JSON.stringify(r).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('kt-count').textContent=rows.length+' bản ghi';
+
+  // KPIs
+  const chuaTT=rows.filter(r=>!DB.kt[r.id]||DB.kt[r.id].tt==='chuaTT').length;
+  const dangBK=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='dangBK').length;
+  const daTT=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='daTT').length;
+  const totalVal=rows.reduce((s,r)=>s+(r.tien||0),0);
+  document.getElementById('kt-chuaTT').textContent=chuaTT;
+  document.getElementById('kt-dangBK').textContent=dangBK;
+  document.getElementById('kt-daTT').textContent=daTT;
+  document.getElementById('kt-total-val').textContent=totalVal>0?fmt(totalVal)+'đ':'0';
+  document.getElementById('btn-mark-all-tt').style.display=rows.length?'':'none';
+
+  document.getElementById('kt-body').innerHTML=rows.map(r=>{
+    const k=DB.kt[r.id]||{tt:'chuaTT',thangBK:'',ngayTT:'',ghichu:''};
+    let chip='';
+    if(k.tt==='chuaTT') chip='<span class="chip chip-danger">Chưa TT VF</span>';
+    else if(k.tt==='dangBK') chip='<span class="chip chip-warn">📋 Đang BK</span>';
+    else chip='<span class="chip chip-ok">✅ Đã TT</span>';
+    return `<tr class="${k.tt==='chuaTT'?'r-warn':k.tt==='daTT'?'r-ok':''}">
+      <td><input type="checkbox" class="chk-kt" data-id="${r.id}"></td>
+      <td class="mono" style="font-size:11px">${escH(r.ycbh)}</td>
+      <td>${escH(r.xe)}</td>
+      <td class="mono" style="font-size:10px">${escH(r.vin)}</td>
+      <td>${fmtDate(r.ngayPD)}</td>
+      <td style="text-align:right;font-weight:600">${fmt(r.tien)}</td>
+      <td>${chip}</td>
+      <td>${escH(k.thangBK||'—')}</td>
+      <td>${k.ngayTT?fmtDate(k.ngayTT):'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${escH(k.ghichu||'')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openKTModal('${r.id}')">✏️ Khai báo</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openKTModal(ycbhId){
+  const r=DB.ycbh.find(x=>x.id===ycbhId);if(!r)return;
+  editKtId=ycbhId;
+  const k=DB.kt[ycbhId]||{tt:'chuaTT',thangBK:'',ngayTT:'',ghichu:''};
+  document.getElementById('kt-modal-ycbh').textContent=r.ycbh;
+  document.getElementById('kt-modal-xe').textContent=r.xe+' | '+fmt(r.tien)+'đ';
+  document.getElementById('kt-tt-select').value=k.tt||'chuaTT';
+  document.getElementById('kt-thangBK').value=k.thangBK||'';
+  document.getElementById('kt-ngayTT').value=k.ngayTT||'';
+  document.getElementById('kt-ghichu').value=k.ghichu||'';
+  openModal('modal-kt');
+}
+function saveKT(){
+  if(!editKtId)return;
+  DB.kt[editKtId]={tt:document.getElementById('kt-tt-select').value,thangBK:document.getElementById('kt-thangBK').value,ngayTT:document.getElementById('kt-ngayTT').value,ghichu:document.getElementById('kt-ghichu').value};
+  closeModal('modal-kt');renderKT();updateBadges();toast('Đã cập nhật trạng thái thanh toán');
+}
+function toggleAllKT(el){document.querySelectorAll('.chk-kt').forEach(c=>c.checked=el.checked);}
+function markAllTT(){
+  const checked=[...document.querySelectorAll('.chk-kt:checked')];
+  if(!checked.length){toast('Chưa chọn YCBH nào','err');return;}
+  checked.forEach(c=>{
+    if(!DB.kt[c.dataset.id]) DB.kt[c.dataset.id]={};
+    DB.kt[c.dataset.id].tt='daTT';
+    DB.kt[c.dataset.id].ngayTT=new Date().toISOString().slice(0,10);
+  });
+  renderKT();updateBadges();toast('Đã đánh dấu '+checked.length+' YCBH là Đã TT VF');
+}
+
+// ===== KHO =====
+function calcKhoProg(khoRow){
+  if(!khoRow.ngayNhap||!khoRow.ngayPD_YCBH) return null;
+  const min=khoRow.loai==='acqUy'?30:60;
+  const days=daysBetween(khoRow.ngayPD_YCBH,new Date().toISOString().slice(0,10));
+  if(days===null) return null;
+  return {pct:Math.min(100,Math.round(days/min*100)),days,min};
+}
+function renderKho(){
+  const q=(document.getElementById('search-kho').value||'').toLowerCase();
+  const ftt=document.getElementById('filter-kho').value;
+  let rows=DB.kho.filter(r=>{
+    if(ftt && r.tt!==ftt) return false;
+    if(q && !JSON.stringify(r).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('kho-count').textContent=rows.length+' bản ghi';
+  document.getElementById('kho-chuaNhap').textContent=DB.kho.filter(k=>k.tt==='chuaNhap').length;
+  document.getElementById('kho-dangLuu').textContent=DB.kho.filter(k=>k.tt==='dangLuu').length;
+  document.getElementById('kho-duDK').textContent=DB.kho.filter(k=>k.tt==='duDK'||k.tt==='choVF').length;
+  document.getElementById('kho-daHuy').textContent=DB.kho.filter(k=>k.tt==='daHuy').length;
+
+  document.getElementById('kho-body').innerHTML=rows.map(r=>{
+    const prog=calcKhoProg(r);
+    let progHtml='<span class="fc-muted fs11">—</span>';
+    if(prog){
+      const cls=prog.pct>=100?'ok':prog.pct>=70?'warn':'danger';
+      progHtml=`<div class="prog-wrap" style="width:80px"><div class="prog-bar ${cls}" style="width:${prog.pct}%"></div></div><span class="fs11 fc-muted">${prog.days}/${prog.min}ng</span>`;
+    }
+    const pdHuyChip=r.pdHuy==='daPD'?'<span class="chip chip-ok">✅ Đã PD huỷ</span>':r.pdHuy==='daTra'?'<span class="chip chip-blue">🔄 Đã trả VF</span>':'<span class="chip chip-gray">Chưa có</span>';
+    return `<tr>
+      <td class="mono" style="font-size:11px">${escH(r.maPT)}</td>
+      <td style="font-size:12px">${escH(r.tenPT)}</td>
+      <td class="mono" style="font-size:10px">${escH(r.ycbhCode||'')}</td>
+      <td>${fmtDate(r.ngayPD_YCBH)||'—'}</td>
+      <td>${r.ngayNhap?fmtDate(r.ngayNhap):'<span class="fc-muted">Chưa nhập</span>'}</td>
+      <td>${r.loai==='acqUy'?'<span class="badge badge-blue">🔋 Ắc quy</span>':'<span class="badge badge-gray">⚙️ PT thường</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.loai==='acqUy'?'≥30 ngày':'≥60 ngày'}</td>
+      <td><div class="flex gap4 items-center">${progHtml}</div></td>
+      <td>${khoTTChip(r.tt)}</td>
+      <td>${pdHuyChip}</td>
+      <td><div class="flex gap4">
+        <button class="btn btn-ghost btn-sm" onclick="openEditKhoModal('${r.id}')">✏️</button>
+        ${r.tt==='chuaNhap'?`<button class="btn btn-ok btn-sm" onclick="quickNhapKho('${r.id}')">📥 Nhập</button>`:''}
+        ${(r.tt==='dangLuu'||r.tt==='duDK')?`<button class="btn btn-warn btn-sm" onclick="quickDeXuatHuy('${r.id}')">🗑️ Đề xuất</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function quickNhapKho(id){
+  const r=DB.kho.find(x=>x.id===id);if(!r)return;
+  r.ngayNhap=new Date().toISOString().slice(0,10);r.tt='dangLuu';
+  renderKho();toast('Đã xác nhận nhập kho '+r.maPT);
+}
+function quickDeXuatHuy(id){
+  const r=DB.kho.find(x=>x.id===id);if(!r)return;
+  r.tt='choVF';
+  renderKho();toast('Đã đề xuất huỷ PT '+r.maPT+' — chờ VF phê duyệt','info');
+}
+function openAddKhoModal(){
+  editKhoId=null;
+  document.getElementById('kho-modal-title').textContent='📦 Thêm Phụ Tùng Kho BH';
+  ['kho-ma','kho-ten','kho-ycbh','kho-ngayNhap','kho-ngayPD','kho-ghichu'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('kho-loai').value='thuong';
+  document.getElementById('kho-tt-select').value='chuaNhap';
+  document.getElementById('kho-pdHuy').value='';
+  openModal('modal-kho');
+}
+function openEditKhoModal(id){
+  editKhoId=id;
+  const r=DB.kho.find(x=>x.id===id);if(!r)return;
+  document.getElementById('kho-modal-title').textContent='✏️ Sửa PT Kho BH';
+  document.getElementById('kho-ma').value=r.maPT;
+  document.getElementById('kho-ten').value=r.tenPT;
+  document.getElementById('kho-ycbh').value=r.ycbhCode||'';
+  document.getElementById('kho-loai').value=r.loai;
+  document.getElementById('kho-ngayNhap').value=r.ngayNhap||'';
+  document.getElementById('kho-ngayPD').value=r.ngayPD_YCBH||'';
+  document.getElementById('kho-tt-select').value=r.tt;
+  document.getElementById('kho-pdHuy').value=r.pdHuy||'';
+  document.getElementById('kho-ghichu').value=r.ghichu||'';
+  openModal('modal-kho');
+}
+function saveKho(){
+  const ma=document.getElementById('kho-ma').value.trim();
+  if(!ma){toast('Vui lòng nhập Mã PT','err');return;}
+  const ycbhCode=document.getElementById('kho-ycbh').value.trim();
+  const ycbhRec=DB.ycbh.find(r=>r.ycbh===ycbhCode);
+  const obj={id:editKhoId||uid(),maPT:ma,tenPT:document.getElementById('kho-ten').value.trim(),ycbhId:ycbhRec?ycbhRec.id:'',ycbhCode,ngayPD_YCBH:document.getElementById('kho-ngayPD').value,ngayNhap:document.getElementById('kho-ngayNhap').value,loai:document.getElementById('kho-loai').value,tt:document.getElementById('kho-tt-select').value,pdHuy:document.getElementById('kho-pdHuy').value,ghichu:document.getElementById('kho-ghichu').value};
+  if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;}
+  else DB.kho.unshift(obj);
+  closeModal('modal-kho');renderKho();updateBadges();toast(editKhoId?'Đã cập nhật PT kho':'Đã thêm PT kho');
+}
+
+// ===== IMPORT DMS =====
+function onDrop(ev){ev.preventDefault();document.getElementById('drop-zone').classList.remove('drag');const f=ev.dataTransfer.files[0];if(f)parseXLSX(f);}
+function onFileSelect(inp){const f=inp.files[0];if(f)parseXLSX(f);}
+function parseXLSX(file){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!data.length){toast('File trống hoặc không đọc được','err');return;}
+      importBuf=data;
+      showPreview(data);
+    }catch(err){toast('Lỗi đọc file: '+err.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+function colVal(row,candidates){
+  for(const c of candidates){if(row[c]!==undefined && row[c]!=='') return row[c];}
+  return '';
+}
+function toDateStr(v){
+  if(!v) return '';
+  if(v instanceof Date) return v.toISOString().slice(0,10);
+  if(typeof v==='string' && v.length>=10) return v.slice(0,10);
+  return String(v);
+}
+function mapRow(raw){
+  return {
+    ycbh: colVal(raw,['Số yêu cầu bảo hành']),
+    vin:  colVal(raw,['Số khung']),
+    wo:   colVal(raw,['Lệnh sửa chữa']),
+    xe:   colVal(raw,['Tên xe']),
+    ngayDX: toDateStr(colVal(raw,['Ngày ĐXBH'])),
+    ngaySC: toDateStr(colVal(raw,['Ngày Sửa chữ','Ngày Sửa Chữa'])),
+    ngayPD: toDateStr(colVal(raw,['Ngày phê duyệt'])),
+    tt:   colVal(raw,['Trạng thái'])||'Hoàn thành',
+    tien: parseFloat(colVal(raw,['Tổng tiền yêu cầu được phê duyệt']))||0,
+    pt:   colVal(raw,['Phụ tùng chính']),
+    tenPT:colVal(raw,['Tên Phụ tùng chính']),
+    lydohuy: colVal(raw,['Lý do hủy']),
+  };
+}
+function showPreview(data){
+  const mapped=data.slice(0,5).map(mapRow);
+  document.getElementById('prev-head').innerHTML='<tr><th>Số YCBH</th><th>VIN</th><th>Tên Xe</th><th>WO</th><th>Ngày ĐXBH</th><th>Ngày PD</th><th>Trạng thái</th><th>Tiền PD</th><th>Mã PT</th></tr>';
+  document.getElementById('prev-body').innerHTML=mapped.map(r=>`<tr>
+    <td class="mono" style="font-size:11px">${escH(r.ycbh)}</td>
+    <td class="mono" style="font-size:10px">${escH(r.vin)}</td>
+    <td>${escH(r.xe)}</td>
+    <td class="mono" style="font-size:10px">${escH(r.wo)}</td>
+    <td>${r.ngayDX}</td><td>${r.ngayPD||'—'}</td>
+    <td>${escH(r.tt)}</td>
+    <td style="text-align:right">${fmt(r.tien)}</td>
+    <td class="mono" style="font-size:10px">${escH(r.pt)}</td>
+  </tr>`).join('');
+  const stat=[
+    `<span class="chip chip-blue">📄 ${data.length} dòng DMS</span>`,
+    `<span class="chip chip-ok">Xem trước 5 dòng đầu</span>`,
+  ].join('');
+  document.getElementById('import-stats').innerHTML=stat;
+  document.getElementById('import-preview').style.display='block';
+}
+function confirmImport(){
+  if(!importBuf.length){toast('Không có dữ liệu để import','err');return;}
+  const mode=document.getElementById('dup-mode').value;
+  const autoKho=document.getElementById('auto-kho').checked;
+  let added=0,updated=0,skipped=0,khoAdded=0;
+  importBuf.forEach(raw=>{
+    const m=mapRow(raw);
+    if(!m.ycbh) return;
+    const existing=DB.ycbh.find(r=>r.ycbh===m.ycbh);
+    if(existing){
+      if(mode==='skip'){skipped++;return;}
+      if(mode==='update'){Object.assign(existing,m);updated++;}
+      if(mode==='add'){DB.ycbh.unshift({...m,id:uid()});added++;}
+    } else {
+      DB.ycbh.unshift({...m,id:uid()});added++;
+    }
+    if(autoKho && m.pt){
+      const id=DB.ycbh.find(r=>r.ycbh===m.ycbh)?.id;
+      if(id && !DB.kho.find(k=>k.ycbhId===id && k.maPT===m.pt)){
+        DB.kho.push({id:uid(),maPT:m.pt,tenPT:m.tenPT,ycbhId:id,ycbhCode:m.ycbh,ngayPD_YCBH:m.ngayPD,ngayNhap:'',loai:m.pt.startsWith('BIN')?'acqUy':'thuong',tt:'chuaNhap',pdHuy:'',ghichu:''});
+        khoAdded++;
+      }
+    }
+  });
+  importBuf=[];
+  document.getElementById('import-preview').style.display='none';
+  updateBadges();
+  toast(`Import xong: +${added} mới, ${updated} cập nhật, ${skipped} bỏ qua${khoAdded?', +'+khoAdded+' PT kho':''}`);
+}
+
+// ===== DATE DISPLAY =====
+function initDate(){
+  const now=new Date();
+  document.getElementById('sb-date').textContent=now.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+// ===== INIT =====
+seedData();
+initDate();
+renderDash();
+updateBadges();
+</script>
+</body>
+</html>
