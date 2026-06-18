@@ -43,8 +43,6 @@ input[type="checkbox"] {
 .auth-btn:hover{background:#003FA3}
 .auth-err{display:none;padding:9px 12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:7px;font-size:12px;color:#7F1D1D;margin-bottom:12px}
 .auth-err.show{display:block}
-.auth-hints{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.9}
-.auth-hints strong{color:var(--dim)}
 
 /* ===== LAYOUT ===== */
 #app{display:none;height:100vh;overflow:hidden;flex-direction:column}
@@ -194,6 +192,7 @@ textarea.fi{resize:vertical;min-height:60px}
 </head>
 <body>
 
+<!-- ===== AUTH SCREEN ===== -->
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-brand">VinFast 3S</div>
@@ -202,22 +201,19 @@ textarea.fi{resize:vertical;min-height:60px}
     <div class="auth-err" id="auth-err">Tên đăng nhập hoặc mật khẩu không đúng</div>
     <div class="auth-field">
       <label class="auth-label">Tên đăng nhập</label>
-      <input class="auth-input" id="inp-user" type="text" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <input class="auth-input" id="inp-user" type="text" placeholder="Nhập tên đăng nhập..." autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="auth-field">
       <label class="auth-label">Mật khẩu</label>
       <input class="auth-input" id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="auth-btn" onclick="doLogin()">Đăng nhập →</button>
-    <div class="auth-hints">
-      <strong>Tài khoản demo:</strong><br>
-      admin / admin123 &nbsp;·&nbsp; gdx / gdx123<br>
-      cvdv1 / cvdv123 &nbsp;·&nbsp; ketoan1 / kt123 &nbsp;·&nbsp; kho1 / kho123
-    </div>
   </div>
 </div>
 
+<!-- ===== APP ===== -->
 <div id="app">
+  <!-- TOPBAR -->
   <div class="topbar">
     <span class="topbar-logo">VinFast</span>
     <div class="topbar-sep"></div>
@@ -232,6 +228,7 @@ textarea.fi{resize:vertical;min-height:60px}
   </div>
 
   <div class="main-layout">
+    <!-- SIDEBAR -->
     <div class="sidebar">
       <div style="padding:12px 10px 6px;border-bottom:1px solid var(--border)">
         <div style="font-size:11px;font-weight:700;color:var(--text)">Hệ thống Quản trị BH</div>
@@ -270,8 +267,10 @@ textarea.fi{resize:vertical;min-height:60px}
       </div>
     </div>
 
+    <!-- CONTENT -->
     <div class="content">
 
+      <!-- ===== DASHBOARD ===== -->
       <div class="pane active" id="pane-dash">
         <div class="kpi-grid" id="kpi-grid">
           <div class="kpi blue"><div class="kpi-val" id="k-total">0</div><div class="kpi-label">Tổng hồ sơ</div><div class="kpi-sub">YCBH đang theo dõi</div></div>
@@ -323,6 +322,7 @@ textarea.fi{resize:vertical;min-height:60px}
             📋 Chưa có hồ sơ nào. Bấm <strong>＋ Thêm hồ sơ YCBH</strong> để bắt đầu.
           </div>
         </div>
+        <!-- Thanh công cụ xoá hàng loạt sẽ hiện ra khi tick ô checkbox -->
         <div id="bulk-bar-dash" style="display:none;padding:10px 16px;background:#FEF2F2;border:1px solid #FECACA;border-top:none;border-radius:0 0 10px 10px;align-items:center;gap:10px">
           <span id="bulk-count-dash" style="font-size:12px;font-weight:700;color:var(--danger)">0 hồ sơ đã chọn</span>
           <div style="flex:1"></div>
@@ -331,6 +331,7 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
+      <!-- ===== YCBH PANE ===== -->
       <div class="pane" id="pane-ycbh">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">📋 Hồ sơ Yêu Cầu Bảo Hành</span>
@@ -360,6 +361,7 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
+      <!-- ===== KHO PANE ===== -->
       <div class="pane" id="pane-kho">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">📦 Phụ Tùng Kho Bảo Hành</span>
@@ -396,6 +398,7 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
+      <!-- ===== KẾ TOÁN PANE ===== -->
       <div class="pane" id="pane-kt">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">💳 Kế Toán / Thanh Toán VF</span>
@@ -415,6 +418,7 @@ textarea.fi{resize:vertical;min-height:60px}
           <div class="kpi blue"><div class="kpi-val" id="kt-total-val">0đ</div><div class="kpi-label">Tổng giá trị PD</div></div>
         </div>
         
+        <!-- BỔ SUNG: Khối Bulk Actions của Kế Toán -->
         <div class="mt12 flex gap8 justify-end" id="kt-bulk-actions" style="display:none!important; margin-bottom: 12px; padding:10px 16px; background:#F5F7FA; border:1px solid var(--border); border-radius:10px;">
           <span id="bulk-count-kt" style="font-size:12px;font-weight:700;color:var(--vf); margin-top:5px; margin-right:auto">0 hồ sơ đã chọn</span>
           <button class="btn btn-ghost btn-sm" onclick="clearSelKT()">✕ Bỏ chọn</button>
@@ -438,10 +442,12 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
+      <!-- ===== IMPORT PANE ===== -->
       <div class="pane" id="pane-import">
         <div style="max-width:860px">
           <div class="sec-hdr mb12"><span class="sec-title">⬆️ Import dữ liệu từ file</span><div class="sec-line"></div></div>
           <div class="form-grid g2" style="margin-bottom:16px">
+            <!-- Import YCBH -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📋 Import Hồ sơ YCBH</div>
               <div class="drop-zone" id="dz-ycbh" onclick="document.getElementById('fi-ycbh').click()" ondragover="dzOver(event,'dz-ycbh')" ondragleave="dzLeave('dz-ycbh')" ondrop="dzDrop(event,'ycbh')">
@@ -454,6 +460,7 @@ textarea.fi{resize:vertical;min-height:60px}
                 <button class="btn btn-ghost btn-sm flex1" onclick="downloadTemplate('ycbh')">⬇️ Tải template CSV YCBH</button>
               </div>
             </div>
+            <!-- Import Kho PT -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📦 Import Phụ tùng kho</div>
               <div class="drop-zone" id="dz-kho" onclick="document.getElementById('fi-kho').click()" ondragover="dzOver(event,'dz-kho')" ondragleave="dzLeave('dz-kho')" ondrop="dzDrop(event,'kho')">
@@ -468,6 +475,7 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
+          <!-- Column mapping info -->
           <div class="form-grid g2">
             <div class="tbl-card">
               <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:11px">📋 Cột DMS Export → YCBH</div>
@@ -510,6 +518,7 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
+          <!-- Preview section -->
           <div id="import-preview" style="display:none;margin-top:16px">
             <div class="sec-hdr mb8">
               <span class="sec-title">🔍 Preview dữ liệu</span>
@@ -527,6 +536,7 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
+      <!-- ===== QUY ĐỊNH PANE ===== -->
       <div class="pane" id="pane-qd">
         <div style="max-width:900px">
           <div class="sec-hdr mb12"><span class="sec-title">📌 Quy định mốc thời gian — VF_HM13.1 & Điều chỉnh 06/05/2026</span><div class="sec-line"></div></div>
@@ -555,7 +565,7 @@ textarea.fi{resize:vertical;min-height:60px}
               <thead><tr><th>Role</th><th>Tài khoản</th><th>Truy cập</th><th>Chức năng chính</th></tr></thead>
               <tbody>
                 <tr><td><span class="badge badge-green">Admin / GĐX</span></td><td class="mono">admin, gdx</td><td>Toàn bộ</td><td>Toàn quyền xem và chỉnh sửa</td></tr>
-                <tr><td><span class="badge badge-blue">Cố Vấn DV</span></td><td class="mono">cvdv1, cvdv2</td><td>Dashboard, YCBH, Kho, Import</td><td>Nhập/sửa YCBH, quản lý kho PT, import DMS</td></tr>
+                <tr><td><span class="badge badge-blue">Cố Vấn DV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td>Dashboard, YCBH, Kho, Import</td><td>Nhập/sửa YCBH, quản lý kho PT, import DMS</td></tr>
                 <tr><td><span class="badge badge-purple">Kế Toán</span></td><td class="mono">ketoan1</td><td>Dashboard, Kế toán</td><td>Khai báo thanh toán VF, theo dõi bảng kê</td></tr>
                 <tr><td><span class="badge badge-yellow">Kho BH</span></td><td class="mono">kho1</td><td>Dashboard, Kho PT</td><td>Xác nhận nhập kho, đề xuất hủy PT</td></tr>
               </tbody>
@@ -564,7 +574,12 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-    </div></div></div><div class="overlay" id="modal-ycbh">
+    </div><!-- /content -->
+  </div><!-- /main-layout -->
+</div><!-- /app -->
+
+<!-- ===== CÁC KHỐI MODAL GIỮ NGUYÊN BÊN DƯỚI ===== -->
+<div class="overlay" id="modal-ycbh">
   <div class="modal modal-lg">
     <div class="modal-hdr">
       <span class="modal-title" id="myt-title">➕ Thêm hồ sơ YCBH</span>
@@ -702,13 +717,15 @@ textarea.fi{resize:vertical;min-height:60px}
 
 <script>
 // ============================================================
-// BỘ SCRIPTS HOÀN CHỈNH KÈM THÊM TÍNH NĂNG XÓA KẾ TOÁN HÀNG LOẠT
+// BỘ SCRIPTS HOÀN CHỈNH KÈM THÊM TÍNH NĂNG XÓA KẾ TOÁN HÀNG LOẠT & TÀI KHOẢN MỚI
 // ============================================================
 const USERS = [
   {u:'admin',   p:'admin123', name:'Admin GĐX',      role:'admin',  av:'AD', avc:'av-admin'},
   {u:'gdx',     p:'gdx123',   name:'Giám đốc Xưởng', role:'admin',  av:'GĐ', avc:'av-admin'},
   {u:'cvdv1',   p:'cvdv123',  name:'CVDV Quân',      role:'cvdv',   av:'CV', avc:'av-cvdv'},
   {u:'cvdv2',   p:'cvdv123',  name:'CVDV Khánh',     role:'cvdv',   av:'CV', avc:'av-cvdv'},
+  {u:'cvdv3',   p:'cvdv123',  name:'CVDV 3',         role:'cvdv',   av:'C3', avc:'av-cvdv'},
+  {u:'cvdv4',   p:'cvdv123',  name:'CVDV 4',         role:'cvdv',   av:'C4', avc:'av-cvdv'},
   {u:'ketoan1', p:'kt123',    name:'Kế Toán Linh',   role:'ketoan', av:'KT', avc:'av-kt'},
   {u:'kho1',    p:'kho123',   name:'NV Kho Hưng',    role:'kho',    av:'KH', avc:'av-kho'},
 ];
