@@ -307,8 +307,9 @@ textarea.fi{resize:vertical;min-height:60px}
         <div class="tbl-card">
           <div class="tbl-scroll">
             <table>
+              <!-- FIX: Tách "WO / Model" thành 2 cột riêng Model và WO — 12 cột tổng -->
               <thead><tr>
-                <th>#</th><th>Số VIN</th><th>WO / Model</th><th>Khách hàng</th><th>CVDV</th>
+                <th>#</th><th>Số VIN</th><th>Model</th><th>WO</th><th>Khách hàng</th><th>CVDV</th>
                 <th>Ngày HT LSC</th><th>Tiến độ D+7</th><th>Số YCBH</th><th>Giá trị</th>
                 <th>Trạng thái</th><th>Thao tác</th>
               </tr></thead>
@@ -332,6 +333,7 @@ textarea.fi{resize:vertical;min-height:60px}
         <div class="tbl-card">
           <div class="tbl-scroll">
             <table>
+              <!-- 15 cột: #, VIN, Model, WO, KH, CVDV, Ngày HT LSC, Hạn D+7, Ngày gửi YCBH, Số YCBH, Giá trị, Ngày PD, TT, Cảnh báo, Thao tác -->
               <thead><tr>
                 <th>#</th><th>Số VIN</th><th>Model</th><th>WO</th><th>Khách hàng</th><th>CVDV</th>
                 <th>Ngày HT LSC</th><th>Hạn D+7</th><th>Ngày gửi YCBH</th><th>Số YCBH</th>
@@ -416,7 +418,6 @@ textarea.fi{resize:vertical;min-height:60px}
         <div style="max-width:860px">
           <div class="sec-hdr mb12"><span class="sec-title">⬆️ Import dữ liệu từ file</span><div class="sec-line"></div></div>
           <div class="form-grid g2" style="margin-bottom:16px">
-            <!-- Import YCBH -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📋 Import Hồ sơ YCBH</div>
               <div class="drop-zone" id="dz-ycbh" onclick="document.getElementById('fi-ycbh').click()" ondragover="dzOver(event,'dz-ycbh')" ondragleave="dzLeave('dz-ycbh')" ondrop="dzDrop(event,'ycbh')">
@@ -429,7 +430,6 @@ textarea.fi{resize:vertical;min-height:60px}
                 <button class="btn btn-ghost btn-sm flex1" onclick="downloadTemplate('ycbh')">⬇️ Tải template CSV YCBH</button>
               </div>
             </div>
-            <!-- Import Kho PT -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📦 Import Phụ tùng kho</div>
               <div class="drop-zone" id="dz-kho" onclick="document.getElementById('fi-kho').click()" ondragover="dzOver(event,'dz-kho')" ondragleave="dzLeave('dz-kho')" ondrop="dzDrop(event,'kho')">
@@ -444,7 +444,6 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
-          <!-- Column mapping info -->
           <div class="form-grid g2">
             <div class="tbl-card">
               <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:11px">📋 Cột DMS Export → YCBH</div>
@@ -487,7 +486,6 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
-          <!-- Preview section -->
           <div id="import-preview" style="display:none;margin-top:16px">
             <div class="sec-hdr mb8">
               <span class="sec-title">🔍 Preview dữ liệu</span>
@@ -705,34 +703,25 @@ const ROLE_ACCESS = {
   kho:    {panes:['pane-dash','pane-kho','pane-qd'],                                   edit:['kho']},
 };
 const ROLE_LBL = {admin:'Admin',cvdv:'Cố Vấn DV',ketoan:'Kế Toán',kho:'Kho BH'};
-let CU = null; // current user
+let CU = null;
 
 // ============================================================
-// LOCAL STORAGE — lưu data ngay trên trình duyệt, không mất khi tắt tab
+// LOCAL STORAGE
 // ============================================================
 const LS_KEY = 'vf_dvc_db_v1';
 function saveLocal(){
-  try{
-    localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh, kho:DB.kho, kt:DB.kt, savedAt:new Date().toISOString()}));
-  }catch(e){console.warn('localStorage full',e);}
+  try{localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh,kho:DB.kho,kt:DB.kt,savedAt:new Date().toISOString()}));}catch(e){console.warn('localStorage full',e);}
 }
 function loadLocal(){
   try{
     const raw=localStorage.getItem(LS_KEY);
     if(!raw)return false;
     const parsed=JSON.parse(raw);
-    if(parsed.ycbh&&parsed.ycbh.length>0){
-      DB.ycbh=parsed.ycbh;
-      DB.kho=parsed.kho||[];
-      DB.kt=parsed.kt||{};
-      return true;
-    }
+    if(parsed.ycbh&&parsed.ycbh.length>0){DB.ycbh=parsed.ycbh;DB.kho=parsed.kho||[];DB.kt=parsed.kt||{};return true;}
   }catch(e){console.warn('loadLocal error',e);}
   return false;
 }
-function clearLocal(){
-  localStorage.removeItem(LS_KEY);
-}
+function clearLocal(){localStorage.removeItem(LS_KEY);}
 
 function doLogin(){
   const u=document.getElementById('inp-user').value.trim();
@@ -745,22 +734,16 @@ function doLogin(){
   document.getElementById('auth-overlay').classList.add('hidden');
   document.getElementById('app').classList.add('show');
   applyRole();
-  // Ưu tiên: localStorage → Google Sheet → seed demo
-  const hasLocal = loadLocal();
+  const hasLocal=loadLocal();
   if(hasLocal){
     document.getElementById('sync-status').textContent='💾 Đã tải từ bộ nhớ cục bộ — bấm 🔄 để sync Sheet';
-    initDate();
-    refreshAll();
+    initDate();refreshAll();
     toast('Đã khôi phục '+DB.ycbh.length+' hồ sơ từ bộ nhớ cục bộ','info');
   } else if(SCRIPT_URL){
     document.getElementById('sync-status').textContent='🔄 Đang tải từ Google Sheet...';
-    initDate();
-    refreshAll();
-    refreshData(); // tự pull từ Sheet
+    initDate();refreshAll();refreshData();
   } else {
-    seedData(); // demo data lần đầu
-    initDate();
-    refreshAll();
+    seedData();initDate();refreshAll();
     document.getElementById('sync-status').textContent='⚠️ Chế độ demo — chưa cấu hình Google Sheet';
   }
 }
@@ -774,24 +757,20 @@ function doLogout(){
 function applyRole(){
   if(!CU)return;
   const acc=ROLE_ACCESS[CU.role];
-  // user chip
   document.getElementById('user-chip').innerHTML=
     `<div class="user-av ${CU.avc}">${CU.av}</div>`+
     `<span>${CU.name}</span>`+
     `<span style="color:var(--muted)">·</span>`+
     `<span style="color:var(--vf)">${ROLE_LBL[CU.role]}</span>`+
     `<span class="logout-btn" onclick="doLogout()" title="Đăng xuất">✕</span>`;
-  // nav visibility
   document.querySelectorAll('.nav-item[data-pane]').forEach(n=>{
     const pid=n.getAttribute('data-pane');
     n.style.display=acc.panes.includes(pid)?'flex':'none';
   });
-  // hide edit buttons for unauthorized roles
   document.querySelectorAll('[data-roles]').forEach(el=>{
     const roles=el.getAttribute('data-roles').split(',');
     el.style.display=roles.includes(CU.role)?'':'none';
   });
-  // navigate to first allowed pane
   goPane(acc.panes[0]||'pane-dash');
 }
 function canEdit(mod){return CU&&ROLE_ACCESS[CU.role].edit.includes(mod);}
@@ -803,12 +782,8 @@ let DB = {ycbh:[], kho:[], kt:{}};
 let editYCBHId=null, editKhoId=null, editKtId=null;
 let importBuf={type:null,data:[]};
 
-// GOOGLE SHEET CONFIG — anh điền SCRIPT_URL của Apps Script vào đây
 const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
-// Sau khi deploy Apps Script, điền URL vào đây:
 const SCRIPT_URL = ''; // TODO: paste Apps Script Web App URL here
-// Direct read via Sheets API public (read-only, không cần auth):
-const SHEETS_READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=`;
 
 // ============================================================
 // UTILS
@@ -829,7 +804,6 @@ function toast(msg,type='ok'){
 }
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-
 function initDate(){
   const now=new Date();
   document.getElementById('sb-date').textContent=now.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
@@ -852,10 +826,8 @@ function goPane(id){
   if(!acc.panes.includes(id))return;
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item[data-pane]').forEach(n=>n.classList.remove('active'));
-  const pane=document.getElementById(id);
-  if(pane)pane.classList.add('active');
-  const nav=document.querySelector(`.nav-item[data-pane="${id}"]`);
-  if(nav)nav.classList.add('active');
+  const pane=document.getElementById(id);if(pane)pane.classList.add('active');
+  const nav=document.querySelector(`.nav-item[data-pane="${id}"]`);if(nav)nav.classList.add('active');
   const title=document.querySelector('.topbar-title');
   if(title)title.textContent=PANE_TITLES[id]||id;
   if(id==='pane-dash')renderDash();
@@ -883,9 +855,7 @@ function seedData(){
     {id:'k1',vin:'RLJVF8E2025001234',ycbh:'S44301-WC-26-06-0021',maPT:'EEP30220160RC',tenPT:'BCM Body Control Module',phanLoai:'Bình thường',sl:1,ngayPD:df(-10),loaiKho:60,ttKho:'dang-luu',ghichu:'Kệ A3-01'},
     {id:'k2',vin:'RLJVF9A2025005678',ycbh:'S44301-WC-26-05-0088',maPT:'EEP60001129',tenPT:'Bộ Thu Radio',phanLoai:'Bình thường',sl:1,ngayPD:df(-70),loaiKho:60,ttKho:'du-dk',ghichu:'Kệ B1-05'},
   ];
-  DB.kt={
-    'y2':{tt:'dang-bk',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:'Chờ xét duyệt BK'},
-  };
+  DB.kt={'y2':{tt:'dang-bk',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:'Chờ xét duyệt BK'}};
 }
 
 // ============================================================
@@ -947,7 +917,6 @@ function renderDash(){
   document.getElementById('k-near').textContent=near;
   document.getElementById('k-paid').textContent=paid;
   document.getElementById('k-kho-alert').textContent=khoAlert;
-  // KPI rates
   const sent=DB.ycbh.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length;
   const totalSent=DB.ycbh.filter(r=>r.guiYCBH).length;
   document.getElementById('k-d7').textContent=totalSent?Math.round(sent/totalSent*100)+'%':'—';
@@ -956,19 +925,15 @@ function renderDash(){
   const hkDat=DB.ycbh.filter(r=>r.hk==='Đạt').length;
   const hkDone=DB.ycbh.filter(r=>r.hk).length;
   document.getElementById('k-hk').textContent=hkDone?Math.round(hkDat/hkDone*100)+'%':'—';
-  // badges
   updateBadges();
-  // alerts
   const alertRows=DB.ycbh.filter(r=>['overdue','near'].includes(getDeadlineStatus(r)));
   const sec=document.getElementById('alert-section');
   if(alertRows.length){
-    const itype=alertRows.filter(r=>getDeadlineStatus(r)==='overdue').length;
     sec.innerHTML=`<div class="alert-box mb12">
       <div class="alert-hdr danger">🚨 Hồ sơ cần xử lý ngay — báo GĐX lên DMS ngay (${alertRows.length} hồ sơ)</div>
       ${alertRows.map(r=>{
         const st=getDeadlineStatus(r);
         const d7=addDays(r.htLSC,7);
-        const diff=daysDiff(today(),d7);
         return `<div class="alert-row">
           <span class="${st==='overdue'?'badge badge-red':'badge badge-yellow'}">${st==='overdue'?'QUÁ HẠN':'SẮP HẠN'}</span>
           <span class="mono">${esc(r.vin)}</span>
@@ -983,7 +948,6 @@ function renderDash(){
   } else {
     sec.innerHTML=`<div class="alert-box mb12"><div class="alert-hdr" style="background:#ECFDF5;color:var(--ok)">✅ Tất cả hồ sơ đang trong thời hạn — không có cảnh báo</div></div>`;
   }
-  // render table
   renderYCBH();
 }
 function updateBadges(){
@@ -1003,7 +967,7 @@ function updateBadges(){
 }
 
 // ============================================================
-// YCBH RENDER
+// YCBH RENDER — ĐÃ FIX COLUMNS
 // ============================================================
 function filterYCBH(){
   const q=(document.getElementById('search-ycbh')||{value:''}).value.toLowerCase();
@@ -1016,45 +980,84 @@ function filterYCBH(){
     return true;
   });
 }
+
 function renderYCBH(){
   const rows=filterYCBH();
   const tbody1=document.getElementById('tbody-ycbh');
   const tbody2=document.getElementById('tbody-ycbh2');
-  const rowHtml=(r,idx,full)=>{
+
+  // ----------------------------------------------------------------
+  // FIX: rowHtml cho pane-dash (tbody-ycbh) — 12 cột
+  // #, VIN, Model, WO, KH, CVDV, Ngày HT LSC, Tiến độ D+7,
+  // Số YCBH, Giá trị, Trạng thái, Thao tác
+  // ----------------------------------------------------------------
+  const rowDash=(r,idx)=>{
     const st=getDeadlineStatus(r);
     const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':'';
-    const base=`<td class="fc-muted fs10">${idx+1}</td>
+    return `<tr class="${rowCls}">
+      <td class="fc-muted fs10">${idx+1}</td>
       <td class="mono" style="font-size:11px">${esc(r.vin)}</td>
-      <td>${esc(r.model)}<br><span class="fc-muted fs10 mono">${esc(r.wo)}</span></td>
+      <td>${esc(r.model)}</td>
+      <td class="mono fs10">${esc(r.wo)||'<span class="fc-muted">—</span>'}</td>
       <td>${esc(r.kh)}</td>
       <td class="fc-muted fs11">${esc(r.cvdv)}</td>
       <td>${fmtD(r.htLSC)}</td>
       <td>${deadlineBadge(r)}</td>
       <td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td>
       <td style="text-align:right">${fmtMoney(r.gt)}</td>
-      <td>${statusBadge(r.tt)}</td>`;
-    const actions=`<td><div class="flex gap4">
-      ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}
-      <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>
-      ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}
-    </div></td>`;
-    if(full){
-      return `<tr class="${rowCls}">${base}
-        <td>${fmtD(r.guiYCBH)||'<span class="fc-muted">—</span>'}</td>
-        <td>${fmtD(r.ngayPD)||'<span class="fc-muted">—</span>'}</td>
-        <td>${statusBadge(r.tt)}</td>
-        <td>${st==='overdue'?'<span class="chip chip-red">⚠️ Quá hạn</span>':st==='near'?'<span class="chip chip-yellow">⏰ Sắp hạn</span>':'<span class="chip chip-green">OK</span>'}</td>
-        ${actions}</tr>`;
-    }
-    return `<tr class="${rowCls}">${base}${actions}</tr>`;
+      <td>${statusBadge(r.tt)}</td>
+      <td><div class="flex gap4">
+        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}
+        <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>
+        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
   };
+
+  // ----------------------------------------------------------------
+  // FIX: rowHtml cho pane-ycbh (tbody-ycbh2) — 15 cột
+  // #, VIN, Model, WO, KH, CVDV, Ngày HT LSC, Hạn D+7,
+  // Ngày gửi YCBH, Số YCBH, Giá trị, Ngày PD,
+  // Trạng thái, Cảnh báo, Thao tác
+  // ----------------------------------------------------------------
+  const rowFull=(r,idx)=>{
+    const st=getDeadlineStatus(r);
+    const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':'';
+    const warnCell=st==='overdue'
+      ?'<span class="chip chip-red">⚠️ Quá hạn</span>'
+      :st==='near'
+      ?'<span class="chip chip-yellow">⏰ Sắp hạn</span>'
+      :'<span class="chip chip-green">OK</span>';
+    return `<tr class="${rowCls}">
+      <td class="fc-muted fs10">${idx+1}</td>
+      <td class="mono" style="font-size:11px">${esc(r.vin)}</td>
+      <td>${esc(r.model)}</td>
+      <td class="mono fs10">${esc(r.wo)||'<span class="fc-muted">—</span>'}</td>
+      <td>${esc(r.kh)}</td>
+      <td class="fc-muted fs11">${esc(r.cvdv)}</td>
+      <td>${fmtD(r.htLSC)}</td>
+      <td>${deadlineBadge(r)}</td>
+      <td>${fmtD(r.guiYCBH)||'<span class="fc-muted">—</span>'}</td>
+      <td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td>
+      <td style="text-align:right">${fmtMoney(r.gt)}</td>
+      <td>${fmtD(r.ngayPD)||'<span class="fc-muted">—</span>'}</td>
+      <td>${statusBadge(r.tt)}</td>
+      <td>${warnCell}</td>
+      <td><div class="flex gap4">
+        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}
+        <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>
+        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
+  };
+
   if(tbody1){
-    tbody1.innerHTML=rows.map((r,i)=>rowHtml(r,i,false)).join('');
+    tbody1.innerHTML=rows.map((r,i)=>rowDash(r,i)).join('');
     const empty=document.getElementById('empty-ycbh');
     if(empty)empty.style.display=rows.length?'none':'block';
   }
   if(tbody2){
-    tbody2.innerHTML=rows.map((r,i)=>rowHtml(r,i,true)).join('');
+    tbody2.innerHTML=rows.map((r,i)=>rowFull(r,i)).join('');
     const empty=document.getElementById('empty-ycbh2');
     if(empty)empty.style.display=rows.length?'none':'block';
   }
@@ -1111,8 +1114,7 @@ function saveYCBH(){
   if(editYCBHId){const i=DB.ycbh.findIndex(x=>x.id===editYCBHId);DB.ycbh[i]=obj;}
   else DB.ycbh.unshift(obj);
   closeModal('modal-ycbh');
-  saveLocal();
-  refreshAll();
+  saveLocal();refreshAll();
   toast(editYCBHId?'✅ Đã cập nhật hồ sơ':'✅ Đã thêm hồ sơ mới');
   syncToSheet('ycbh',obj);
 }
@@ -1120,9 +1122,7 @@ function delYCBH(id){
   if(!confirm('Xóa hồ sơ này?'))return;
   DB.ycbh=DB.ycbh.filter(x=>x.id!==id);
   delete DB.kt[id];
-  DB.kho=DB.kho.filter(k=>k.ycbh&&!k.ycbh.includes(id));
-  saveLocal();
-  refreshAll();toast('Đã xóa','err');
+  saveLocal();refreshAll();toast('Đã xóa','err');
 }
 
 // ============================================================
@@ -1221,17 +1221,13 @@ function saveKho(){
   };
   if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;}
   else DB.kho.unshift(obj);
-  closeModal('modal-kho');
-  saveLocal();
-  renderKho();updateBadges();
+  closeModal('modal-kho');saveLocal();renderKho();updateBadges();
   toast(editKhoId?'✅ Đã cập nhật phụ tùng':'✅ Đã thêm phụ tùng kho');
   syncToSheet('kho',obj);
 }
 function proposeHuy(id){
   const r=DB.kho.find(x=>x.id===id);if(!r)return;
-  r.ttKho='cho-vf';
-  saveLocal();
-  renderKho();updateBadges();
+  r.ttKho='cho-vf';saveLocal();renderKho();updateBadges();
   toast('Đã đề xuất hủy PT '+r.maPT+' — chờ VF phê duyệt','info');
 }
 
@@ -1294,9 +1290,7 @@ function openKTModal(ycbhId){
 function saveKT(){
   if(!editKtId)return;
   DB.kt[editKtId]={tt:document.getElementById('kt-tt-sel').value,thangBK:document.getElementById('kt-thang-bk').value,ngayTT:document.getElementById('kt-ngay-tt').value,ghichu:document.getElementById('kt-ghichu').value};
-  closeModal('modal-kt');
-  saveLocal();
-  renderKT();updateBadges();
+  closeModal('modal-kt');saveLocal();renderKT();updateBadges();
   toast('✅ Đã cập nhật trạng thái thanh toán');
 }
 function toggleAllKT(el){document.querySelectorAll('.chk-kt').forEach(c=>c.checked=el.checked);}
@@ -1308,8 +1302,7 @@ function markSelectedTT(){
     DB.kt[c.dataset.id].tt='da-tt';
     DB.kt[c.dataset.id].ngayTT=today();
   });
-  saveLocal();
-  renderKT();updateBadges();toast(`Đã đánh dấu ${checked.length} hồ sơ là Đã TT VF`);
+  saveLocal();renderKT();updateBadges();toast(`Đã đánh dấu ${checked.length} hồ sơ là Đã TT VF`);
 }
 
 // ============================================================
@@ -1318,14 +1311,11 @@ function markSelectedTT(){
 function dzOver(ev,id){ev.preventDefault();document.getElementById(id).classList.add('drag');}
 function dzLeave(id){document.getElementById(id).classList.remove('drag');}
 function dzDrop(ev,type){
-  ev.preventDefault();
-  dzLeave('dz-'+type);
-  const f=ev.dataTransfer.files[0];
-  if(f)parseFile(f,type);
+  ev.preventDefault();dzLeave('dz-'+type);
+  const f=ev.dataTransfer.files[0];if(f)parseFile(f,type);
 }
 function handleFileYCBH(inp){const f=inp.files[0];if(f)parseFile(f,'ycbh');inp.value='';}
 function handleFileKho(inp){const f=inp.files[0];if(f)parseFile(f,'kho');inp.value='';}
-
 function parseFile(file,type){
   const name=file.name.toLowerCase();
   if(name.endsWith('.csv')){
@@ -1344,9 +1334,7 @@ function parseFile(file,type){
       }catch(err){toast('Lỗi đọc file Excel: '+err.message,'err');}
     };
     reader.readAsArrayBuffer(file);
-  } else {
-    toast('Chỉ hỗ trợ .xlsx và .csv','err');
-  }
+  } else {toast('Chỉ hỗ trợ .xlsx và .csv','err');}
 }
 function parseCSV(text,type){
   const lines=text.trim().split('\n');
@@ -1354,28 +1342,25 @@ function parseCSV(text,type){
   const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
   const data=lines.slice(1).map(line=>{
     const vals=line.split(',').map(v=>v.trim().replace(/^"|"$/g,''));
-    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
-    return obj;
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');return obj;
   });
   processImportData(data,type);
 }
-
-// Map DMS Export columns → internal fields
 function mapDMSRow(raw){
   const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return String(raw[c]);return '';};
   const toDate=v=>{if(!v||v==='')return '';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='string'&&v.length>=10)return v.slice(0,10);return '';};
   return{
-    vin:  colVal(['Số khung','Số VIN','VIN','vin']),
+    vin:colVal(['Số khung','Số VIN','VIN','vin']),
     model:colVal(['Tên xe','Model xe','model']),
-    wo:   colVal(['Lệnh sửa chữa','Số WO','WO','wo']),
-    kh:   colVal(['Khách hàng','kh','']),
+    wo:colVal(['Lệnh sửa chữa','Số WO','WO','wo']),
+    kh:colVal(['Khách hàng','kh','']),
     htLSC:toDate(colVal(['Ngày Sửa chữ','Ngày sửa chữa','Ngày HT LSC','htLSC'])),
     guiYCBH:toDate(colVal(['Ngày ĐXBH','Ngày gửi YCBH','Ngày gửi Đề xuất bảo hành','guiYCBH'])),
     soYCBH:colVal(['Số yêu cầu bảo hành','(Không Sửa đổi) Warranty Claim ID','Số YCBH','soYCBH']),
-    gt:   parseFloat(colVal(['Tổng tiền yêu cầu được phê duyệt','Approved Part Warranty Amount','gt']))||0,
+    gt:parseFloat(colVal(['Tổng tiền yêu cầu được phê duyệt','Approved Part Warranty Amount','gt']))||0,
     ngayPD:toDate(colVal(['Ngày phê duyệt','Ngày PD YCBH','ngayPD'])),
-    tt:   colVal(['Trạng thái','Trạng thái YCBH','tt'])||'Chưa tạo YCBH',
-    maPT: colVal(['Phụ tùng chính','Mã PT','maPT']),
+    tt:colVal(['Trạng thái','Trạng thái YCBH','tt'])||'Chưa tạo YCBH',
+    maPT:colVal(['Phụ tùng chính','Mã PT','maPT']),
     tenPT:colVal(['Tên Phụ tùng chính','Tên PT','tenPT']),
     ghichu:colVal(['Ghi chú','ghichu','']),
   };
@@ -1384,22 +1369,20 @@ function mapKhoRow(raw){
   const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return String(raw[c]);return '';};
   const toDate=v=>{if(!v)return '';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='string'&&v.length>=10)return v.slice(0,10);return '';};
   return{
-    vin:  colVal(['Số VIN xe','Số VIN','VIN','Số khung']),
-    ycbh: colVal(['Số WO / Số YCBH','Số YCBH','YCBH']),
-    maPT: colVal(['Mã phụ tùng','Mã PT']),
+    vin:colVal(['Số VIN xe','Số VIN','VIN','Số khung']),
+    ycbh:colVal(['Số WO / Số YCBH','Số YCBH','YCBH']),
+    maPT:colVal(['Mã phụ tùng','Mã PT']),
     tenPT:colVal(['Tên phụ tùng','Tên PT']),
     phanLoai:colVal(['Phân loại (Phụ lục IV)','Phân loại']),
-    sl:   parseInt(colVal(['Số lượng','SL']))||1,
+    sl:parseInt(colVal(['Số lượng','SL']))||1,
     ngayPD:toDate(colVal(['Ngày phê duyệt YCBH','Ngày PD YCBH'])),
     loaiKho:colVal(['Loại phụ tùng lưu kho','Loại PT']).includes('30')||colVal(['Loại phụ tùng lưu kho','Loại PT']).toLowerCase().includes('ắc quy')?30:60,
     ttKho:'dang-luu',
     ghichu:colVal(['Ghi chú','ghichu']),
   };
 }
-
 function processImportData(data,type){
   importBuf={type,data};
-  // Show preview
   const mapped=type==='ycbh'?data.slice(0,6).map(mapDMSRow):data.slice(0,6).map(mapKhoRow);
   const hdrs=type==='ycbh'
     ?['VIN','Model','WO','Ngày HT LSC','Số YCBH','Giá trị','Ngày PD','Trạng thái']
@@ -1409,10 +1392,9 @@ function processImportData(data,type){
     if(type==='ycbh')return`<tr><td class="mono fs10">${esc(r.vin)}</td><td>${esc(r.model)}</td><td class="mono fs10">${esc(r.wo)}</td><td>${r.htLSC}</td><td class="mono fs10">${esc(r.soYCBH)}</td><td>${fmtMoney(r.gt)}</td><td>${r.ngayPD}</td><td>${esc(r.tt)}</td></tr>`;
     return`<tr><td class="mono fs10">${esc(r.vin)}</td><td class="mono fs10">${esc(r.maPT)}</td><td>${esc(r.tenPT)}</td><td class="fc-muted fs10">${esc(r.phanLoai)}</td><td>${r.sl}</td><td>${r.ngayPD}</td><td class="fc-muted fs10">${r.loaiKho===30?'≥30ng (Ắc quy)':'≥60ng (PT)'}</td></tr>`;
   }).join('');
-  const stats=`<span class="chip chip-blue">📄 ${data.length} dòng dữ liệu</span>
+  document.getElementById('import-stats').innerHTML=`<span class="chip chip-blue">📄 ${data.length} dòng dữ liệu</span>
     <span class="chip chip-green">Xem trước ${Math.min(6,data.length)} dòng đầu</span>
     <span class="chip chip-gray">Loại: ${type==='ycbh'?'Hồ sơ YCBH':'Phụ tùng kho'}</span>`;
-  document.getElementById('import-stats').innerHTML=stats;
   document.getElementById('import-preview').style.display='block';
   document.getElementById('import-preview').scrollIntoView({behavior:'smooth'});
 }
@@ -1424,8 +1406,7 @@ function confirmImport(){
   let added=0,updated=0,skipped=0,khoAdded=0;
   if(type==='ycbh'){
     data.forEach(raw=>{
-      const m=mapDMSRow(raw);
-      if(!m.vin)return;
+      const m=mapDMSRow(raw);if(!m.vin)return;
       const key=r=>r.vin===m.vin&&r.wo===m.wo;
       const existing=DB.ycbh.find(key);
       if(existing){
@@ -1433,7 +1414,6 @@ function confirmImport(){
         if(mode==='update'){Object.assign(existing,m,{id:existing.id});updated++;}
         if(mode==='add'){DB.ycbh.unshift({...m,id:uid()});added++;}
       } else {DB.ycbh.unshift({...m,id:uid()});added++;}
-      // auto create kho entry
       if(autoKho&&m.maPT){
         const yId=DB.ycbh.find(key)?.id;
         if(yId&&!DB.kho.find(k=>k.maPT===m.maPT&&k.ycbh===m.soYCBH)){
@@ -1444,35 +1424,18 @@ function confirmImport(){
       }
     });
   } else {
-    data.forEach(raw=>{
-      const m=mapKhoRow(raw);
-      if(!m.maPT)return;
-      DB.kho.unshift({...m,id:uid()});added++;
-    });
+    data.forEach(raw=>{const m=mapKhoRow(raw);if(!m.maPT)return;DB.kho.unshift({...m,id:uid()});added++;});
   }
-  cancelImport();
-  saveLocal();
-  refreshAll();
+  cancelImport();saveLocal();refreshAll();
   toast(`✅ Import xong: +${added} mới, ${updated} cập nhật, ${skipped} bỏ qua${khoAdded?', +'+khoAdded+' PT kho':''}`);
-  // Sync toàn bộ lên Sheet nếu đã cấu hình
-  if(SCRIPT_URL){
-    if(type==='ycbh') syncToSheet('bulkYCBH', DB.ycbh);
-    else syncToSheet('bulkKho', DB.kho);
-  }
+  if(SCRIPT_URL){if(type==='ycbh')syncToSheet('bulkYCBH',DB.ycbh);else syncToSheet('bulkKho',DB.kho);}
 }
-function cancelImport(){
-  importBuf={type:null,data:[]};
-  document.getElementById('import-preview').style.display='none';
-}
-
-// Template download
+function cancelImport(){importBuf={type:null,data:[]};document.getElementById('import-preview').style.display='none';}
 function downloadTemplate(type){
   if(type==='ycbh'){
-    const csvContent='Số VIN,Model xe,Số WO,Khách hàng,Hạng mục/Hư hỏng,CVDV,Ngày mở LSC,Ngày HT LSC,Loại YCBH,Ngày gửi YCBH,Số YCBH,Giá trị YCBH,Ngày PD YCBH,Trạng thái\nRLJVF8E2025001234,VF 8,WO-0001,Nguyễn Văn A,Lỗi ABS,Quân,2026-06-01,2026-06-05,Bảo hành thông thường,2026-06-10,S44301-WC-26-06-0001,1850000,2026-06-15,Đã phê duyệt';
-    dlCSV(csvContent,'template_YCBH.csv');
+    dlCSV('Số VIN,Model xe,Số WO,Khách hàng,Hạng mục/Hư hỏng,CVDV,Ngày mở LSC,Ngày HT LSC,Loại YCBH,Ngày gửi YCBH,Số YCBH,Giá trị YCBH,Ngày PD YCBH,Trạng thái\nRLJVF8E2025001234,VF 8,WO-0001,Nguyễn Văn A,Lỗi ABS,Quân,2026-06-01,2026-06-05,Bảo hành thông thường,2026-06-10,S44301-WC-26-06-0001,1850000,2026-06-15,Đã phê duyệt','template_YCBH.csv');
   } else {
-    const csvContent='Số VIN xe,Số WO / Số YCBH,Mã phụ tùng,Tên phụ tùng,Phân loại (Phụ lục IV),Số lượng,Ngày phê duyệt YCBH,Loại phụ tùng lưu kho,Ghi chú\nRLJVF8E2025001234,S44301-WC-26-06-0001,EEP30220160RC,BCM Body Control Module,Bình thường,1,2026-06-15,Phụ tùng khác (≥60 ngày),Kệ A3-01';
-    dlCSV(csvContent,'template_PhuTung.csv');
+    dlCSV('Số VIN xe,Số WO / Số YCBH,Mã phụ tùng,Tên phụ tùng,Phân loại (Phụ lục IV),Số lượng,Ngày phê duyệt YCBH,Loại phụ tùng lưu kho,Ghi chú\nRLJVF8E2025001234,S44301-WC-26-06-0001,EEP30220160RC,BCM Body Control Module,Bình thường,1,2026-06-15,Phụ tùng khác (≥60 ngày),Kệ A3-01','template_PhuTung.csv');
   }
 }
 function dlCSV(content,filename){
@@ -1486,16 +1449,13 @@ function dlCSV(content,filename){
 // GOOGLE SHEET SYNC
 // ============================================================
 function syncToSheet(sheetType,data){
-  if(!SCRIPT_URL){
-    document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL';
-    return;
-  }
+  if(!SCRIPT_URL){document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL';return;}
   document.getElementById('sync-status').textContent='🔄 Đang đồng bộ...';
   fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:sheetType,data})})
     .then(r=>r.json())
     .then(r=>{
-      if(r.success){document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');}
-      else{document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ: '+r.error;}
+      if(r.success)document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
+      else document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ: '+r.error;
     })
     .catch(()=>document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet');
 }
@@ -1506,18 +1466,12 @@ function refreshData(){
     fetch(SCRIPT_URL+'?action=getAll')
       .then(r=>r.json())
       .then(r=>{
-        if(r.ycbh)DB.ycbh=r.ycbh;
-        if(r.kho)DB.kho=r.kho;
-        if(r.kt)DB.kt=r.kt;
-        saveLocal(); // cache xuống localStorage để lần sau tắt/mở vẫn còn
-        refreshAll();
+        if(r.ycbh)DB.ycbh=r.ycbh;if(r.kho)DB.kho=r.kho;if(r.kt)DB.kt=r.kt;
+        saveLocal();refreshAll();
         document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
         toast('✅ Đã tải '+DB.ycbh.length+' hồ sơ từ Google Sheet');
       })
-      .catch(()=>{
-        toast('⚠️ Không kết nối Sheet — dùng dữ liệu cục bộ','warn');
-        document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet';
-      });
+      .catch(()=>{toast('⚠️ Không kết nối Sheet — dùng dữ liệu cục bộ','warn');document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet';});
   } else {
     toast('⚠️ Chưa cấu hình Apps Script URL','warn');
     document.getElementById('sync-status').textContent='⚠️ Chưa cấu hình SCRIPT_URL';
@@ -1527,16 +1481,10 @@ function refreshData(){
 // ============================================================
 // REFRESH ALL
 // ============================================================
-function refreshAll(){
-  renderDash();
-  renderYCBH();
-  renderKho();
-  renderKT();
-  updateBadges();
-}
+function refreshAll(){renderDash();renderYCBH();renderKho();renderKT();updateBadges();}
 
 // ============================================================
-// INIT — wait for login
+// INIT
 // ============================================================
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-overlay')&&!document.getElementById('auth-overlay').classList.contains('hidden'))doLogin();});
 </script>
