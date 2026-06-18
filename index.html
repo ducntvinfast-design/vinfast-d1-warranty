@@ -19,6 +19,15 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
 
+/* ===== TWEAKED CHECKBOXES ===== */
+input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--vf);
+  border-radius: 4px;
+}
+
 /* ===== AUTH ===== */
 #auth-overlay{position:fixed;inset:0;background:#0055CC;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0055CC 0%,#003FA3 100%)}
 #auth-overlay.hidden{display:none}
@@ -185,7 +194,6 @@ textarea.fi{resize:vertical;min-height:60px}
 </head>
 <body>
 
-<!-- ===== AUTH SCREEN ===== -->
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-brand">VinFast 3S</div>
@@ -209,9 +217,7 @@ textarea.fi{resize:vertical;min-height:60px}
   </div>
 </div>
 
-<!-- ===== APP ===== -->
 <div id="app">
-  <!-- TOPBAR -->
   <div class="topbar">
     <span class="topbar-logo">VinFast</span>
     <div class="topbar-sep"></div>
@@ -226,7 +232,6 @@ textarea.fi{resize:vertical;min-height:60px}
   </div>
 
   <div class="main-layout">
-    <!-- SIDEBAR -->
     <div class="sidebar">
       <div style="padding:12px 10px 6px;border-bottom:1px solid var(--border)">
         <div style="font-size:11px;font-weight:700;color:var(--text)">Hệ thống Quản trị BH</div>
@@ -265,10 +270,8 @@ textarea.fi{resize:vertical;min-height:60px}
       </div>
     </div>
 
-    <!-- CONTENT -->
     <div class="content">
 
-      <!-- ===== DASHBOARD ===== -->
       <div class="pane active" id="pane-dash">
         <div class="kpi-grid" id="kpi-grid">
           <div class="kpi blue"><div class="kpi-val" id="k-total">0</div><div class="kpi-label">Tổng hồ sơ</div><div class="kpi-sub">YCBH đang theo dõi</div></div>
@@ -328,7 +331,6 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-      <!-- ===== YCBH PANE ===== -->
       <div class="pane" id="pane-ycbh">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">📋 Hồ sơ Yêu Cầu Bảo Hành</span>
@@ -358,7 +360,6 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-      <!-- ===== KHO PANE ===== -->
       <div class="pane" id="pane-kho">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">📦 Phụ Tùng Kho Bảo Hành</span>
@@ -395,7 +396,6 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-      <!-- ===== KẾ TOÁN PANE ===== -->
       <div class="pane" id="pane-kt">
         <div class="flex gap8 mb12 items-center">
           <span style="font-size:14px;font-weight:700">💳 Kế Toán / Thanh Toán VF</span>
@@ -414,11 +414,19 @@ textarea.fi{resize:vertical;min-height:60px}
           <div class="kpi green"><div class="kpi-val" id="kt-da">0</div><div class="kpi-label">Đã TT VF</div></div>
           <div class="kpi blue"><div class="kpi-val" id="kt-total-val">0đ</div><div class="kpi-label">Tổng giá trị PD</div></div>
         </div>
+        
+        <div class="mt12 flex gap8 justify-end" id="kt-bulk-actions" style="display:none!important; margin-bottom: 12px; padding:10px 16px; background:#F5F7FA; border:1px solid var(--border); border-radius:10px;">
+          <span id="bulk-count-kt" style="font-size:12px;font-weight:700;color:var(--vf); margin-top:5px; margin-right:auto">0 hồ sơ đã chọn</span>
+          <button class="btn btn-ghost btn-sm" onclick="clearSelKT()">✕ Bỏ chọn</button>
+          <button class="btn btn-danger btn-sm" onclick="bulkResetKT()">🗑️ Reset / Xóa dữ liệu TT đã chọn</button>
+          <button class="btn btn-ok btn-sm" onclick="markSelectedTT()">✅ Đánh dấu đã TT</button>
+        </div>
+
         <div class="tbl-card">
           <div class="tbl-scroll">
             <table>
               <thead><tr>
-                <th><input type="checkbox" id="chk-all-kt" onchange="toggleAllKT(this)"></th>
+                <th style="width:32px"><input type="checkbox" id="chk-all-kt" onchange="toggleAllKT(this)" title="Chọn tất cả"></th>
                 <th>Số YCBH</th><th>Tên xe</th><th>VIN</th><th>Ngày PD</th>
                 <th>Giá trị PD</th><th>TT Thanh toán</th><th>Tháng BK</th><th>Ngày VF TT</th>
                 <th>Ghi chú</th><th>Thao tác</th>
@@ -428,17 +436,12 @@ textarea.fi{resize:vertical;min-height:60px}
           </div>
           <div id="empty-kt" style="padding:32px;text-align:center;color:var(--muted);display:none">💳 Không có dữ liệu.</div>
         </div>
-        <div class="mt12 flex gap8 justify-end" id="kt-bulk-actions" style="display:none!important">
-          <button class="btn btn-ok btn-sm" onclick="markSelectedTT()">✅ Đánh dấu đã TT tất cả đã chọn</button>
-        </div>
       </div>
 
-      <!-- ===== IMPORT PANE ===== -->
       <div class="pane" id="pane-import">
         <div style="max-width:860px">
           <div class="sec-hdr mb12"><span class="sec-title">⬆️ Import dữ liệu từ file</span><div class="sec-line"></div></div>
           <div class="form-grid g2" style="margin-bottom:16px">
-            <!-- Import YCBH -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📋 Import Hồ sơ YCBH</div>
               <div class="drop-zone" id="dz-ycbh" onclick="document.getElementById('fi-ycbh').click()" ondragover="dzOver(event,'dz-ycbh')" ondragleave="dzLeave('dz-ycbh')" ondrop="dzDrop(event,'ycbh')">
@@ -451,7 +454,6 @@ textarea.fi{resize:vertical;min-height:60px}
                 <button class="btn btn-ghost btn-sm flex1" onclick="downloadTemplate('ycbh')">⬇️ Tải template CSV YCBH</button>
               </div>
             </div>
-            <!-- Import Kho PT -->
             <div>
               <div style="font-weight:700;font-size:12px;margin-bottom:8px">📦 Import Phụ tùng kho</div>
               <div class="drop-zone" id="dz-kho" onclick="document.getElementById('fi-kho').click()" ondragover="dzOver(event,'dz-kho')" ondragleave="dzLeave('dz-kho')" ondrop="dzDrop(event,'kho')">
@@ -466,7 +468,6 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
-          <!-- Column mapping info -->
           <div class="form-grid g2">
             <div class="tbl-card">
               <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:11px">📋 Cột DMS Export → YCBH</div>
@@ -509,7 +510,6 @@ textarea.fi{resize:vertical;min-height:60px}
             </div>
           </div>
 
-          <!-- Preview section -->
           <div id="import-preview" style="display:none;margin-top:16px">
             <div class="sec-hdr mb8">
               <span class="sec-title">🔍 Preview dữ liệu</span>
@@ -527,7 +527,6 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-      <!-- ===== QUY ĐỊNH PANE ===== -->
       <div class="pane" id="pane-qd">
         <div style="max-width:900px">
           <div class="sec-hdr mb12"><span class="sec-title">📌 Quy định mốc thời gian — VF_HM13.1 & Điều chỉnh 06/05/2026</span><div class="sec-line"></div></div>
@@ -565,12 +564,7 @@ textarea.fi{resize:vertical;min-height:60px}
         </div>
       </div>
 
-    </div><!-- /content -->
-  </div><!-- /main-layout -->
-</div><!-- /app -->
-
-<!-- ===== MODAL: YCBH ===== -->
-<div class="overlay" id="modal-ycbh">
+    </div></div></div><div class="overlay" id="modal-ycbh">
   <div class="modal modal-lg">
     <div class="modal-hdr">
       <span class="modal-title" id="myt-title">➕ Thêm hồ sơ YCBH</span>
@@ -639,7 +633,6 @@ textarea.fi{resize:vertical;min-height:60px}
   </div>
 </div>
 
-<!-- ===== MODAL: KHO ===== -->
 <div class="overlay" id="modal-kho">
   <div class="modal modal-md">
     <div class="modal-hdr">
@@ -681,7 +674,6 @@ textarea.fi{resize:vertical;min-height:60px}
   </div>
 </div>
 
-<!-- ===== MODAL: KẾ TOÁN ===== -->
 <div class="overlay" id="modal-kt">
   <div class="modal modal-sm">
     <div class="modal-hdr">
@@ -710,7 +702,7 @@ textarea.fi{resize:vertical;min-height:60px}
 
 <script>
 // ============================================================
-// AUTH SYSTEM
+// BỘ SCRIPTS HOÀN CHỈNH KÈM THÊM TÍNH NĂNG XÓA KẾ TOÁN HÀNG LOẠT
 // ============================================================
 const USERS = [
   {u:'admin',   p:'admin123', name:'Admin GĐX',      role:'admin',  av:'AD', avc:'av-admin'},
@@ -728,352 +720,170 @@ const ROLE_ACCESS = {
 };
 const ROLE_LBL = {admin:'Admin',cvdv:'Cố Vấn DV',ketoan:'Kế Toán',kho:'Kho BH'};
 let CU = null; // current user
-
-// ============================================================
-// LOCAL STORAGE — lưu data ngay trên trình duyệt, không mất khi tắt tab
-// ============================================================
 const LS_KEY = 'vf_dvc_db_v1';
-function saveLocal(){
-  try{
-    localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh, kho:DB.kho, kt:DB.kt, savedAt:new Date().toISOString()}));
-  }catch(e){console.warn('localStorage full',e);}
-}
+let DB = {ycbh:[], kho:[], kt:{}};
+let editYCBHId=null, editKhoId=null, editKtId=null;
+let importBuf={type:null,data:[]};
+const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
+const SCRIPT_URL = ''; 
+
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh, kho:DB.kho, kt:DB.kt, savedAt:new Date().toISOString()})); }catch(e){} }
 function loadLocal(){
   try{
-    const raw=localStorage.getItem(LS_KEY);
-    if(!raw)return false;
+    const raw=localStorage.getItem(LS_KEY); if(!raw)return false;
     const parsed=JSON.parse(raw);
-    if(parsed.ycbh&&parsed.ycbh.length>0){
-      DB.ycbh=parsed.ycbh;
-      DB.kho=parsed.kho||[];
-      DB.kt=parsed.kt||{};
-      return true;
-    }
-  }catch(e){console.warn('loadLocal error',e);}
-  return false;
+    if(parsed.ycbh&&parsed.ycbh.length>0){ DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; return true; }
+  }catch(e){} return false;
 }
-function clearLocal(){
-  localStorage.removeItem(LS_KEY);
-}
+function clearLocal(){ localStorage.removeItem(LS_KEY); }
 
 function doLogin(){
-  const u=document.getElementById('inp-user').value.trim();
-  const p=document.getElementById('inp-pass').value;
-  const found=USERS.find(x=>x.u===u&&x.p===p);
-  const errEl=document.getElementById('auth-err');
+  const u=document.getElementById('inp-user').value.trim(); const p=document.getElementById('inp-pass').value;
+  const found=USERS.find(x=>x.u===u&&x.p===p); const errEl=document.getElementById('auth-err');
   if(!found){errEl.classList.add('show');document.getElementById('inp-pass').value='';return;}
-  errEl.classList.remove('show');
-  CU=found;
-  document.getElementById('auth-overlay').classList.add('hidden');
-  document.getElementById('app').classList.add('show');
+  errEl.classList.remove('show'); CU=found;
+  document.getElementById('auth-overlay').classList.add('hidden'); document.getElementById('app').classList.add('show');
   applyRole();
-  // Ưu tiên: localStorage → Google Sheet → seed demo
   const hasLocal = loadLocal();
   if(hasLocal){
     document.getElementById('sync-status').textContent='💾 Đã tải từ bộ nhớ cục bộ — bấm 🔄 để sync Sheet';
-    initDate();
-    refreshAll();
-    toast('Đã khôi phục '+DB.ycbh.length+' hồ sơ từ bộ nhớ cục bộ','info');
+    initDate(); refreshAll(); toast('Đã khôi phục '+DB.ycbh.length+' hồ sơ từ bộ nhớ cục bộ','info');
   } else if(SCRIPT_URL){
     document.getElementById('sync-status').textContent='🔄 Đang tải từ Google Sheet...';
-    initDate();
-    refreshAll();
-    refreshData(); // tự pull từ Sheet
+    initDate(); refreshAll(); refreshData(); 
   } else {
-    seedData(); // demo data lần đầu
-    initDate();
-    refreshAll();
-    document.getElementById('sync-status').textContent='⚠️ Chế độ demo — chưa cấu hình Google Sheet';
+    seedData(); initDate(); refreshAll(); document.getElementById('sync-status').textContent='⚠️ Chế độ demo — chưa cấu hình Google Sheet';
   }
-  startAutoSync(); // bắt đầu tự động đồng bộ mỗi 30s
+  startAutoSync(); 
 }
 function doLogout(){
-  stopAutoSync();
-  CU=null;
-  document.getElementById('auth-overlay').classList.remove('hidden');
-  document.getElementById('app').classList.remove('show');
-  document.getElementById('inp-user').value='';
-  document.getElementById('inp-pass').value='';
+  stopAutoSync(); CU=null;
+  document.getElementById('auth-overlay').classList.remove('hidden'); document.getElementById('app').classList.remove('show');
+  document.getElementById('inp-user').value=''; document.getElementById('inp-pass').value='';
 }
 function applyRole(){
-  if(!CU)return;
-  const acc=ROLE_ACCESS[CU.role];
-  // user chip
-  document.getElementById('user-chip').innerHTML=
-    `<div class="user-av ${CU.avc}">${CU.av}</div>`+
-    `<span>${CU.name}</span>`+
-    `<span style="color:var(--muted)">·</span>`+
-    `<span style="color:var(--vf)">${ROLE_LBL[CU.role]}</span>`+
-    `<span class="logout-btn" onclick="doLogout()" title="Đăng xuất">✕</span>`;
-  // nav visibility
-  document.querySelectorAll('.nav-item[data-pane]').forEach(n=>{
-    const pid=n.getAttribute('data-pane');
-    n.style.display=acc.panes.includes(pid)?'flex':'none';
-  });
-  // hide edit buttons for unauthorized roles
-  document.querySelectorAll('[data-roles]').forEach(el=>{
-    const roles=el.getAttribute('data-roles').split(',');
-    el.style.display=roles.includes(CU.role)?'':'none';
-  });
-  // navigate to first allowed pane
+  if(!CU)return; const acc=ROLE_ACCESS[CU.role];
+  document.getElementById('user-chip').innerHTML=`<div class="user-av ${CU.avc}">${CU.av}</div><span>${CU.name}</span><span style="color:var(--muted)">·</span><span style="color:var(--vf)">${ROLE_LBL[CU.role]}</span><span class="logout-btn" onclick="doLogout()" title="Đăng xuất">✕</span>`;
+  document.querySelectorAll('.nav-item[data-pane]').forEach(n=>{ const pid=n.getAttribute('data-pane'); n.style.display=acc.panes.includes(pid)?'flex':'none'; });
+  document.querySelectorAll('[data-roles]').forEach(el=>{ const roles=el.getAttribute('data-roles').split(','); el.style.display=roles.includes(CU.role)?'':'none'; });
   goPane(acc.panes[0]||'pane-dash');
 }
 function canEdit(mod){return CU&&ROLE_ACCESS[CU.role].edit.includes(mod);}
 
-// ============================================================
-// STATE
-// ============================================================
-let DB = {ycbh:[], kho:[], kt:{}};
-let editYCBHId=null, editKhoId=null, editKtId=null;
-let importBuf={type:null,data:[]};
-
-// GOOGLE SHEET CONFIG — anh điền SCRIPT_URL của Apps Script vào đây
-const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
-// Sau khi deploy Apps Script, điền URL vào đây:
-const SCRIPT_URL = ''; // TODO: paste Apps Script Web App URL here
-// Direct read via Sheets API public (read-only, không cần auth):
-const SHEETS_READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=`;
-
-// ============================================================
-// UTILS
-// ============================================================
 const uid=()=>'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const fmtD=d=>{if(!d)return '—';const x=new Date(d);return isNaN(x)?String(d):x.toLocaleDateString('vi-VN');};
 const fmtMoney=n=>{if(!n||n==0)return '—';return Number(n).toLocaleString('vi-VN')+'đ';};
-const daysDiff=(a,b)=>{if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/86400000);};
+const daysDiff=(a,b)=>{if(!a||b===undefined)return null;return Math.round((new Date(b)-new Date(a))/86400000);};
 const addDays=(d,n)=>{if(!d)return '';const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
 const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 function toast(msg,type='ok'){
-  const w=document.getElementById('toast-wrap');
-  const d=document.createElement('div');
-  d.className=`toast toast-${type}`;d.textContent=msg;w.appendChild(d);
-  setTimeout(()=>d.remove(),3500);
+  const w=document.getElementById('toast-wrap'); const d=document.createElement('div');
+  d.className=`toast toast-${type}`;d.textContent=msg;w.appendChild(d); setTimeout(()=>d.remove(),3500);
 }
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
+function initDate(){ const now=new Date(); document.getElementById('sb-date').textContent=now.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}); }
 
-function initDate(){
-  const now=new Date();
-  document.getElementById('sb-date').textContent=now.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-const PANE_TITLES={
-  'pane-dash':'Dashboard — Tổng quan',
-  'pane-ycbh':'Hồ sơ Yêu Cầu Bảo Hành',
-  'pane-kho':'Kho Phụ Tùng Bảo Hành',
-  'pane-kt':'Kế Toán / Thanh Toán VF',
-  'pane-import':'Import Dữ Liệu',
-  'pane-qd':'Quy Định Mốc Thời Gian',
-};
+const PANE_TITLES={'pane-dash':'Dashboard — Tổng quan','pane-ycbh':'Hồ sơ Yêu Cầu Bảo Hành','pane-kho':'Kho Phụ Tùng Bảo Hành','pane-kt':'Kế Toán / Thanh Toán VF','pane-import':'Import Dữ Liệu','pane-qd':'Quy Định Mốc Thời Gian'};
 function goPane(id){
-  if(!CU)return;
-  const acc=ROLE_ACCESS[CU.role];
-  if(!acc.panes.includes(id))return;
+  if(!CU)return; const acc=ROLE_ACCESS[CU.role]; if(!acc.panes.includes(id))return;
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item[data-pane]').forEach(n=>n.classList.remove('active'));
-  const pane=document.getElementById(id);
-  if(pane)pane.classList.add('active');
-  const nav=document.querySelector(`.nav-item[data-pane="${id}"]`);
-  if(nav)nav.classList.add('active');
-  const title=document.querySelector('.topbar-title');
-  if(title)title.textContent=PANE_TITLES[id]||id;
-  if(id==='pane-dash')renderDash();
-  else if(id==='pane-ycbh')renderYCBH();
-  else if(id==='pane-kho')renderKho();
-  else if(id==='pane-kt')renderKT();
+  const pane=document.getElementById(id); if(pane)pane.classList.add('active');
+  const nav=document.querySelector(`.nav-item[data-pane="${id}"]`); if(nav)nav.classList.add('active');
+  const title=document.querySelector('.topbar-title'); if(title)title.textContent=PANE_TITLES[id]||id;
+  if(id==='pane-dash')renderDash(); else if(id==='pane-ycbh')renderYCBH(); else if(id==='pane-kho')renderKho(); else if(id==='pane-kt')renderKT();
 }
 
-// ============================================================
-// SEED DATA (demo)
-// ============================================================
 function seedData(){
-  if(DB.ycbh.length>0)return;
-  const today_ms=new Date();
-  const df=(d)=>{const x=new Date(today_ms);x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
+  if(DB.ycbh.length>0)return; const today_ms=new Date(); const df=(d)=>{const x=new Date(today_ms);x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
   DB.ycbh=[
-    {id:'y1',vin:'RLJVF8E2025001234',model:'VF 8',wo:'WO-0001',kh:'Nguyễn Văn A',hm:'Lỗi cảm biến áp suất lốp',loai:'Bảo hành thông thường',cvdv:'Quân',
-     moLSC:df(-10),htLSC:df(-8),guiYCBH:df(-7),soYCBH:'S44301-WC-26-06-0021',gt:1850000,capPD:'QLDV phê duyệt',ngayPD:'',tt:'Đã gửi - chờ PD',traVe:0,ngayTV:'',hk:'',bkThang:'',ngayTT:'',ghichu:''},
-    {id:'y2',vin:'RLJVF9A2025005678',model:'VF 9',wo:'WO-0002',kh:'Trần Thị B',hm:'Màn hình trung tâm treo',loai:'Bảo hành thông thường',cvdv:'Khánh',
-     moLSC:df(-20),htLSC:df(-15),guiYCBH:df(-14),soYCBH:'S44301-WC-26-05-0088',gt:7200000,capPD:'Vận hành BH thị trường',ngayPD:df(-10),tt:'Đã phê duyệt',traVe:1,ngayTV:df(-12),hk:'Đạt',bkThang:'Tháng 6/2026',ngayTT:'',ghichu:''},
-    {id:'y3',vin:'RLJVF5B2025009012',model:'VF 5',wo:'WO-0003',kh:'Lê Văn C',hm:'Phanh ABS báo lỗi',loai:'Bảo hành thông thường',cvdv:'Quân',
-     moLSC:df(-3),htLSC:df(-2),guiYCBH:'',soYCBH:'',gt:0,capPD:'',ngayPD:'',tt:'Chưa tạo YCBH',traVe:0,ngayTV:'',hk:'',bkThang:'',ngayTT:'',ghichu:'Cần chụp ảnh hư hỏng'},
+    {id:'y1',vin:'RLJVF8E2025001234',model:'VF 8',wo:'WO-0001',kh:'Nguyễn Văn A',hm:'Lỗi cảm biến áp suất lốp',loai:'Bảo hành thông thường',cvdv:'Quân',moLSC:df(-10),htLSC:df(-8),guiYCBH:df(-7),soYCBH:'S44301-WC-26-06-0021',gt:1850000,capPD:'QLDV phê duyệt',ngayPD:'',tt:'Đã gửi - chờ PD',traVe:0,ngayTV:'',hk:'',bkThang:'',ngayTT:'',ghichu:''},
+    {id:'y2',vin:'RLJVF9A2025005678',model:'VF 9',wo:'WO-0002',kh:'Trần Thị B',hm:'Màn hình trung tâm treo',loai:'Bảo hành thông thường',cvdv:'Khánh',moLSC:df(-20),htLSC:df(-15),guiYCBH:df(-14),soYCBH:'S44301-WC-26-05-0088',gt:7200000,capPD:'Vận hành BH thị trường',ngayPD:df(-10),tt:'Đã phê duyệt',traVe:1,ngayTV:df(-12),hk:'Đạt',bkThang:'Tháng 6/2026',ngayTT:'',ghichu:''},
+    {id:'y3',vin:'RLJVF5B2025009012',model:'VF 5',wo:'WO-0003',kh:'Lê Văn C',hm:'Phanh ABS báo lỗi',loai:'Bảo hành thông thường',cvdv:'Quân',moLSC:df(-3),htLSC:df(-2),guiYCBH:'',soYCBH:'',gt:0,capPD:'',ngayPD:'',tt:'Chưa tạo YCBH',traVe:0,ngayTV:'',hk:'',bkThang:'',ngayTT:'',ghichu:'Cần chụp ảnh hư hỏng'},
   ];
   DB.kho=[
     {id:'k1',vin:'RLJVF8E2025001234',ycbh:'S44301-WC-26-06-0021',maPT:'EEP30220160RC',tenPT:'BCM Body Control Module',phanLoai:'Bình thường',sl:1,ngayPD:df(-10),loaiKho:60,ttKho:'dang-luu',ghichu:'Kệ A3-01'},
     {id:'k2',vin:'RLJVF9A2025005678',ycbh:'S44301-WC-26-05-0088',maPT:'EEP60001129',tenPT:'Bộ Thu Radio',phanLoai:'Bình thường',sl:1,ngayPD:df(-70),loaiKho:60,ttKho:'du-dk',ghichu:'Kệ B1-05'},
   ];
-  DB.kt={
-    'y2':{tt:'dang-bk',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:'Chờ xét duyệt BK'},
-  };
+  DB.kt={'y2':{tt:'dang-bk',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:'Chờ xét duyệt BK'}};
 }
 
-// ============================================================
-// DEADLINE LOGIC
-// ============================================================
 function getDeadlineStatus(row){
-  const t=today();
-  if(row.tt==='Đã thanh toán')return 'done';
-  if(!row.htLSC)return 'ok';
-  const d7=addDays(row.htLSC,7);
-  const d16=addDays(row.htLSC,16);
-  if(!row.guiYCBH){
-    const diffD7=daysDiff(t,d7);
-    if(diffD7<0)return 'overdue';
-    if(diffD7<=2)return 'near';
-  } else if(row.traVe>0&&row.ngayTV&&!row.ngayPD){
-    const hanBS=addDays(row.ngayTV,3);
-    if(daysDiff(t,hanBS)<0)return 'overdue';
-    if(daysDiff(t,hanBS)<=1)return 'near';
-  } else if(!row.ngayPD){
-    if(daysDiff(t,d16)<0)return 'overdue';
-    if(daysDiff(t,d16)<=2)return 'near';
-  }
+  const t=today(); if(row.tt==='Đã thanh toán')return 'done'; if(!row.htLSC)return 'ok';
+  const d7=addDays(row.htLSC,7); const d16=addDays(row.htLSC,16);
+  if(!row.guiYCBH){ const diffD7=daysDiff(t,d7); if(diffD7<0)return 'overdue'; if(diffD7<=2)return 'near'; }
+  else if(row.traVe>0&&row.ngayTV&&!row.ngayPD){ const hanBS=addDays(row.ngayTV,3); if(daysDiff(t,hanBS)<0)return 'overdue'; if(daysDiff(t,hanBS)<=1)return 'near'; }
+  else if(!row.ngayPD){ if(daysDiff(t,d16)<0)return 'overdue'; if(daysDiff(t,d16)<=2)return 'near'; }
   return 'ok';
 }
 function statusBadge(tt){
-  const MAP={
-    'Đang sửa chữa':'<span class="badge badge-gray">Đang SC</span>',
-    'Chưa tạo YCBH':'<span class="badge badge-yellow">Chưa tạo YCBH</span>',
-    'Đã gửi - chờ PD':'<span class="badge badge-blue">Đã gửi - chờ PD</span>',
-    'Bị trả về':'<span class="badge badge-red">Bị trả về</span>',
-    'Đã phê duyệt':'<span class="badge badge-purple">Đã PD</span>',
-    'HK không đạt':'<span class="badge badge-red">HK không đạt</span>',
-    'Đã thanh toán':'<span class="badge badge-green">✅ Đã TT</span>',
-  };
+  const MAP={'Đang sửa chữa':'<span class="badge badge-gray">Đang SC</span>','Chưa tạo YCBH':'<span class="badge badge-yellow">Chưa tạo YCBH</span>','Đã gửi - chờ PD':'<span class="badge badge-blue">Đã gửi - chờ PD</span>','Bị trả về':'<span class="badge badge-red">Bị trả về</span>','Đã phê duyệt':'<span class="badge badge-purple">Đã PD</span>','HK không đạt':'<span class="badge badge-red">HK không đạt</span>','Đã thanh toán':'<span class="badge badge-green">✅ Đã TT</span>'};
   return MAP[tt]||`<span class="badge badge-gray">${esc(tt)}</span>`;
 }
 function deadlineBadge(row){
-  if(!row.htLSC)return '—';
-  const d7=addDays(row.htLSC,7);
-  const diff=daysDiff(today(),d7);
+  if(!row.htLSC)return '—'; const d7=addDays(row.htLSC,7); const diff=daysDiff(today(),d7);
   if(row.guiYCBH)return `<span class="chip chip-green">Đã gửi</span>`;
   if(diff<0)return `<span class="chip chip-red">⚠️ Quá hạn ${Math.abs(diff)}ng</span>`;
   if(diff<=2)return `<span class="chip chip-yellow">⏰ Còn ${diff}ng</span>`;
   return `<span class="chip chip-blue">Còn ${diff}ng</span>`;
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
 function renderDash(){
-  const total=DB.ycbh.length;
-  const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length;
-  const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length;
-  const paid=DB.ycbh.filter(r=>r.tt==='Đã thanh toán').length;
-  const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk'||k.ttKho==='cho-vf').length;
-  document.getElementById('k-total').textContent=total;
-  document.getElementById('k-overdue').textContent=overdue;
-  document.getElementById('k-near').textContent=near;
-  document.getElementById('k-paid').textContent=paid;
-  document.getElementById('k-kho-alert').textContent=khoAlert;
-  // KPI rates
-  const sent=DB.ycbh.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length;
-  const totalSent=DB.ycbh.filter(r=>r.guiYCBH).length;
+  const total=DB.ycbh.length; const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length; const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length; const paid=DB.ycbh.filter(r=>r.tt==='Đã thanh toán').length; const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk'||k.ttKho==='cho-vf').length;
+  document.getElementById('k-total').textContent=total; document.getElementById('k-overdue').textContent=overdue; document.getElementById('k-near').textContent=near; document.getElementById('k-paid').textContent=paid; document.getElementById('k-kho-alert').textContent=khoAlert;
+  const sent=DB.ycbh.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length; const totalSent=DB.ycbh.filter(r=>r.guiYCBH).length;
   document.getElementById('k-d7').textContent=totalSent?Math.round(sent/totalSent*100)+'%':'—';
-  const returned=DB.ycbh.filter(r=>r.traVe>0).length;
-  document.getElementById('k-return').textContent=total?Math.round(returned/total*100)+'%':'—';
-  const hkDat=DB.ycbh.filter(r=>r.hk==='Đạt').length;
-  const hkDone=DB.ycbh.filter(r=>r.hk).length;
-  document.getElementById('k-hk').textContent=hkDone?Math.round(hkDat/hkDone*100)+'%':'—';
-  // badges
+  const returned=DB.ycbh.filter(r=>r.traVe>0).length; document.getElementById('k-return').textContent=total?Math.round(returned/total*100)+'%':'—';
+  const hkDat=DB.ycbh.filter(r=>r.hk==='Đạt').length; const hkDone=DB.ycbh.filter(r=>r.hk).length; document.getElementById('k-hk').textContent=hkDone?Math.round(hkDat/hkDone*100)+'%':'—';
   updateBadges();
-  // alerts
-  const alertRows=DB.ycbh.filter(r=>['overdue','near'].includes(getDeadlineStatus(r)));
-  const sec=document.getElementById('alert-section');
+  const alertRows=DB.ycbh.filter(r=>['overdue','near'].includes(getDeadlineStatus(r))); const sec=document.getElementById('alert-section');
   if(alertRows.length){
-    const itype=alertRows.filter(r=>getDeadlineStatus(r)==='overdue').length;
-    sec.innerHTML=`<div class="alert-box mb12">
-      <div class="alert-hdr danger">🚨 Hồ sơ cần xử lý ngay — báo GĐX lên DMS ngay (${alertRows.length} hồ sơ)</div>
-      ${alertRows.map(r=>{
-        const st=getDeadlineStatus(r);
-        const d7=addDays(r.htLSC,7);
-        const diff=daysDiff(today(),d7);
-        return `<div class="alert-row">
-          <span class="${st==='overdue'?'badge badge-red':'badge badge-yellow'}">${st==='overdue'?'QUÁ HẠN':'SẮP HẠN'}</span>
-          <span class="mono">${esc(r.vin)}</span>
-          <span>${esc(r.model)}</span>
-          <span class="fc-muted fs11">KH: ${esc(r.kh)}</span>
-          <span class="fc-muted fs11">HT LSC: ${fmtD(r.htLSC)} | Hạn D+7: ${fmtD(d7)}</span>
-          <div style="flex:1"></div>
-          ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">Cập nhật</button>`:''}
-        </div>`;
-      }).join('')}
-    </div>`;
-  } else {
-    sec.innerHTML=`<div class="alert-box mb12"><div class="alert-hdr" style="background:#ECFDF5;color:var(--ok)">✅ Tất cả hồ sơ đang trong thời hạn — không có cảnh báo</div></div>`;
-  }
-  // render table
+    sec.innerHTML=`<div class="alert-box mb12"><div class="alert-hdr danger">🚨 Hồ sơ cần xử lý ngay — báo GĐX lên DMS ngay (${alertRows.length} hồ sơ)</div>${alertRows.map(r=>{
+      const st=getDeadlineStatus(r); const d7=addDays(r.htLSC,7); const diff=daysDiff(today(),d7);
+      return `<div class="alert-row"><span class="${st==='overdue'?'badge badge-red':'badge badge-yellow'}">${st==='overdue'?'QUÁ HẠN':'SẮP HẠN'}</span><span class="mono">${esc(r.vin)}</span><span>${esc(r.model)}</span><span class="fc-muted fs11">KH: ${esc(r.kh)}</span><span class="fc-muted fs11">HT LSC: ${fmtD(r.htLSC)} | Hạn D+7: ${fmtD(d7)}</span><div style="flex:1"></div>${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">Cập nhật</button>`:''}</div>`;
+    }).join('')}</div>`;
+  } else { sec.innerHTML=`<div class="alert-box mb12"><div class="alert-hdr" style="background:#ECFDF5;color:var(--ok)">✅ Tất cả hồ sơ đang trong thời hạn — không có cảnh báo</div></div>`; }
   renderYCBH();
 }
 function updateBadges(){
-  const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length;
-  const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length;
-  const alert=overdue+near;
-  const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk').length;
-  const ktAlert=DB.ycbh.filter(r=>r.ngayPD&&!DB.kt[r.id]).length;
-  const badgeDash=document.getElementById('badge-dash');
-  if(alert){badgeDash.textContent=alert;badgeDash.classList.remove('hidden');}else badgeDash.classList.add('hidden');
-  const badgeY=document.getElementById('badge-ycbh');
-  if(alert){badgeY.textContent=alert;badgeY.classList.remove('hidden');}else badgeY.classList.add('hidden');
-  const badgeK=document.getElementById('badge-kho');
-  if(khoAlert){badgeK.textContent=khoAlert;badgeK.classList.remove('hidden');}else badgeK.classList.add('hidden');
-  const badgeKT=document.getElementById('badge-kt');
-  if(ktAlert){badgeKT.textContent=ktAlert;badgeKT.classList.remove('hidden');}else badgeKT.classList.add('hidden');
+  const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length; const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length; const alert=overdue+near;
+  const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk').length; const ktAlert=DB.ycbh.filter(r=>r.ngayPD&&!DB.kt[r.id]).length;
+  const badgeDash=document.getElementById('badge-dash'); if(alert){badgeDash.textContent=alert;badgeDash.classList.remove('hidden');}else badgeDash.classList.add('hidden');
+  const badgeY=document.getElementById('badge-ycbh'); if(alert){badgeY.textContent=alert;badgeY.classList.remove('hidden');}else badgeY.classList.add('hidden');
+  const badgeK=document.getElementById('badge-kho'); if(khoAlert){badgeK.textContent=khoAlert;badgeK.classList.remove('hidden');}else badgeK.classList.add('hidden');
+  const badgeKT=document.getElementById('badge-kt'); if(ktAlert){badgeKT.textContent=ktAlert;badgeKT.classList.remove('hidden');}else badgeKT.classList.add('hidden');
 }
 
-// ============================================================
-// BULK SELECT — YCBH (Dashboard + YCBH pane)
-// ============================================================
-function toggleAllYCBH(scope,el){
-  document.querySelectorAll(`.chk-ycbh-${scope}`).forEach(c=>c.checked=el.checked);
-  updateBulkBarYCBH(scope);
-}
-function onChkYCBH(scope){updateBulkBarYCBH(scope);}
+// ==== BULK YCBH ====
+function toggleAllYCBH(scope,el){ document.querySelectorAll(`.chk-ycbh-${scope}`).forEach(c=>c.checked=el.checked); updateBulkBarYCBH(scope); }
+function onChkYCBH(scope){ updateBulkBarYCBH(scope); }
 function updateBulkBarYCBH(scope){
-  const all=[...document.querySelectorAll(`.chk-ycbh-${scope}`)];
-  const sel=all.filter(c=>c.checked);
-  const bar=document.getElementById(`bulk-bar-${scope}`);
-  const cnt=document.getElementById(`bulk-count-${scope}`);
-  const hdr=document.getElementById(`chk-all-${scope}`);
+  const all=[...document.querySelectorAll(`.chk-ycbh-${scope}`)]; const sel=all.filter(c=>c.checked);
+  const bar=document.getElementById(`bulk-bar-${scope}`); const cnt=document.getElementById(`bulk-count-${scope}`); const hdr=document.getElementById(`chk-all-${scope}`);
   if(bar){bar.style.display=sel.length?'flex':'none';if(cnt)cnt.textContent=`${sel.length} hồ sơ đã chọn`;}
   if(hdr){hdr.checked=sel.length>0&&sel.length===all.length;hdr.indeterminate=sel.length>0&&sel.length<all.length;}
 }
 function clearSelYCBH(scope){
   document.querySelectorAll(`.chk-ycbh-${scope}`).forEach(c=>c.checked=false);
-  const hdr=document.getElementById(`chk-all-${scope}`);
-  if(hdr){hdr.checked=false;hdr.indeterminate=false;}
-  const bar=document.getElementById(`bulk-bar-${scope}`);if(bar)bar.style.display='none';
+  const hdr=document.getElementById(`chk-all-${scope}`); if(hdr){hdr.checked=false;hdr.indeterminate=false;}
+  const bar=document.getElementById(`bulk-bar-${scope}`); if(bar)bar.style.display='none';
 }
 function bulkDeleteYCBH(scope){
-  const ids=[...document.querySelectorAll(`.chk-ycbh-${scope}:checked`)].map(c=>c.dataset.id);
-  if(!ids.length)return;
+  const ids=[...document.querySelectorAll(`.chk-ycbh-${scope}:checked`)].map(c=>c.dataset.id); if(!ids.length)return;
   if(!confirm(`Xóa ${ids.length} hồ sơ đã chọn?\nHành động này không thể hoàn tác.`))return;
-  DB.ycbh=DB.ycbh.filter(r=>!ids.includes(r.id));
-  ids.forEach(id=>{delete DB.kt[id];});
-  DB.kho=DB.kho.filter(k=>!ids.includes(k.ycbhId||''));
-  saveLocal();clearSelYCBH(scope);refreshAll();
-  toast(`✅ Đã xóa ${ids.length} hồ sơ`,'warn');
+  DB.ycbh=DB.ycbh.filter(r=>!ids.includes(r.id)); ids.forEach(id=>{delete DB.kt[id];}); DB.kho=DB.kho.filter(k=>!ids.includes(k.ycbhId||''));
+  saveLocal(); clearSelYCBH(scope); refreshAll(); toast(`✅ Đã xóa ${ids.length} hồ sơ`,'warn');
 }
 
-// ============================================================
-// BULK SELECT — KHO
-// ============================================================
-function toggleAllKho(el){
-  document.querySelectorAll('.chk-kho-row').forEach(c=>c.checked=el.checked);
-  updateBulkBarKho();
-}
-function onChkKho(){updateBulkBarKho();}
+// ==== BULK KHO ====
+function toggleAllKho(el){ document.querySelectorAll('.chk-kho-row').forEach(c=>c.checked=el.checked); updateBulkBarKho(); }
+function onChkKho(){ updateBulkBarKho(); }
 function updateBulkBarKho(){
-  const all=[...document.querySelectorAll('.chk-kho-row')];
-  const sel=all.filter(c=>c.checked);
-  const bar=document.getElementById('bulk-bar-kho');
-  const cnt=document.getElementById('bulk-count-kho');
-  const hdr=document.getElementById('chk-all-kho');
+  const all=[...document.querySelectorAll('.chk-kho-row')]; const sel=all.filter(c=>c.checked);
+  const bar=document.getElementById('bulk-bar-kho'); const cnt=document.getElementById('bulk-count-kho'); const hdr=document.getElementById('chk-all-kho');
   if(bar){bar.style.display=sel.length?'flex':'none';if(cnt)cnt.textContent=`${sel.length} PT đã chọn`;}
   if(hdr){hdr.checked=sel.length>0&&sel.length===all.length;hdr.indeterminate=sel.length>0&&sel.length<all.length;}
 }
@@ -1083,175 +893,122 @@ function clearSelKho(){
   const bar=document.getElementById('bulk-bar-kho');if(bar)bar.style.display='none';
 }
 function bulkProposeHuy(){
-  const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id);
-  if(!ids.length)return;
+  const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   ids.forEach(id=>{const r=DB.kho.find(x=>x.id===id);if(r)r.ttKho='cho-vf';});
-  saveLocal();renderKho();updateBadges();clearSelKho();
-  toast(`📋 Đã đề xuất hủy ${ids.length} phụ tùng — chờ VF phê duyệt`,'info');
+  saveLocal(); renderKho(); updateBadges(); clearSelKho(); toast(`📋 Đã đề xuất hủy ${ids.length} phụ tùng — chờ VF phê duyệt`,'info');
 }
 function bulkDeleteKho(){
-  const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id);
-  if(!ids.length)return;
+  const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   if(!confirm(`Xóa ${ids.length} phụ tùng đã chọn?\nHành động này không thể hoàn tác.`))return;
-  DB.kho=DB.kho.filter(r=>!ids.includes(r.id));
-  saveLocal();renderKho();updateBadges();
-  toast(`✅ Đã xóa ${ids.length} phụ tùng`,'warn');
+  DB.kho=DB.kho.filter(r=>!ids.includes(r.id)); saveLocal(); renderKho(); updateBadges(); clearSelKho(); toast(`✅ Đã xóa ${ids.length} phụ tùng`,'warn');
 }
 
-// ============================================================
-// YCBH RENDER
-// ============================================================
+// ==== BULK KẾ TOÁN (BỔ SUNG) ====
+function toggleAllKT(el){ document.querySelectorAll('.chk-kt').forEach(c=>c.checked=el.checked); updateBulkBarKT(); }
+function onChkKT(){ updateBulkBarKT(); }
+function updateBulkBarKT(){
+  const sel = document.querySelectorAll('.chk-kt:checked');
+  const bar = document.getElementById('kt-bulk-actions');
+  const cnt = document.getElementById('bulk-count-kt');
+  if(cnt) cnt.textContent = `${sel.length} hồ sơ đã chọn`;
+  if(bar) bar.style.setProperty('display', sel.length ? 'flex' : 'none', 'important');
+  const hdr = document.getElementById('chk-all-kt');
+  const all = document.querySelectorAll('.chk-kt');
+  if(hdr){ hdr.checked = sel.length > 0 && sel.length === all.length; hdr.indeterminate = sel.length > 0 && sel.length < all.length; }
+}
+function clearSelKT(){
+  document.querySelectorAll('.chk-kt').forEach(c=>c.checked=false);
+  const hdr = document.getElementById('chk-all-kt'); if(hdr) { hdr.checked=false; hdr.indeterminate=false; }
+  updateBulkBarKT();
+}
+function markSelectedTT(){
+  const checked=[...document.querySelectorAll('.chk-kt:checked')];
+  if(!checked.length){toast('Chưa chọn hồ sơ nào','err');return;}
+  checked.forEach(c=>{
+    if(!DB.kt[c.dataset.id]) DB.kt[c.dataset.id]={};
+    DB.kt[c.dataset.id].tt='da-tt';
+    DB.kt[c.dataset.id].ngayTT=today();
+  });
+  saveLocal(); renderKT(); updateBadges(); clearSelKT();
+  toast(`Đã đánh dấu ${checked.length} hồ sơ là Đã TT VF`);
+}
+function bulkResetKT(){
+  const ids=[...document.querySelectorAll('.chk-kt:checked')].map(c=>c.dataset.id);
+  if(!ids.length) return;
+  if(!confirm(`Xóa dữ liệu kế toán của ${ids.length} hồ sơ đã chọn?\n(Hồ sơ YCBH vẫn giữ nguyên, chỉ reset trạng thái Thanh toán)`)) return;
+  ids.forEach(id=>{ delete DB.kt[id]; });
+  saveLocal(); renderKT(); updateBadges(); clearSelKT();
+  toast(`✅ Đã xóa dữ liệu Thanh toán của ${ids.length} hồ sơ`, 'warn');
+}
+
 function filterYCBH(){
-  const q=(document.getElementById('search-ycbh')||{value:''}).value.toLowerCase();
-  const ftt=(document.getElementById('f-tt-filter')||{value:''}).value;
-  const fdl=(document.getElementById('f-dl-filter')||{value:''}).value;
+  const q=(document.getElementById('search-ycbh')||{value:''}).value.toLowerCase(); const ftt=(document.getElementById('f-tt-filter')||{value:''}).value; const fdl=(document.getElementById('f-dl-filter')||{value:''}).value;
   return DB.ycbh.filter(r=>{
-    if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false;
-    if(ftt&&r.tt!==ftt)return false;
+    if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false; if(ftt&&r.tt!==ftt)return false;
     if(fdl){const st=getDeadlineStatus(r);if(fdl==='overdue'&&st!=='overdue')return false;if(fdl==='near'&&st!=='near')return false;}
     return true;
   });
 }
 function renderYCBH(){
-  const rows=filterYCBH();
-  const tbody1=document.getElementById('tbody-ycbh');
-  const tbody2=document.getElementById('tbody-ycbh2');
-
+  const rows=filterYCBH(); const tbody1=document.getElementById('tbody-ycbh'); const tbody2=document.getElementById('tbody-ycbh2');
   const rowDash=(r,idx)=>{
-    const st=getDeadlineStatus(r);
-    const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':'';
+    const st=getDeadlineStatus(r); const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':'';
     return`<tr class="${rowCls}">
       <td><input type="checkbox" class="chk-ycbh-dash" data-id="${r.id}" onchange="onChkYCBH('dash')"></td>
-      <td class="fc-muted fs10">${idx+1}</td>
-      <td class="mono" style="font-size:11px">${esc(r.vin)}</td>
-      <td>${esc(r.model)}<br><span class="fc-muted fs10 mono">${esc(r.wo)}</span></td>
-      <td>${esc(r.kh)}</td>
-      <td class="fc-muted fs11">${esc(r.cvdv)}</td>
-      <td>${fmtD(r.htLSC)}</td>
-      <td>${deadlineBadge(r)}</td>
-      <td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td>
-      <td style="text-align:right">${fmtMoney(r.gt)}</td>
+      <td class="fc-muted fs10">${idx+1}</td><td class="mono" style="font-size:11px">${esc(r.vin)}</td>
+      <td>${esc(r.model)}<br><span class="fc-muted fs10 mono">${esc(r.wo)}</span></td><td>${esc(r.kh)}</td><td class="fc-muted fs11">${esc(r.cvdv)}</td>
+      <td>${fmtD(r.htLSC)}</td><td>${deadlineBadge(r)}</td><td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td><td style="text-align:right">${fmtMoney(r.gt)}</td>
       <td>${statusBadge(r.tt)}</td>
-      <td><div class="flex gap4">
-        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}
-        <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>
-        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}
-      </div></td>
+      <td><div class="flex gap4">${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}<button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}</div></td>
     </tr>`;
   };
-
   const rowFull=(r,idx)=>{
-    const st=getDeadlineStatus(r);
-    const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':'';
-    const warnCell=st==='overdue'?'<span class="chip chip-red">⚠️ Quá hạn</span>':st==='near'?'<span class="chip chip-yellow">⏰ Sắp hạn</span>':'<span class="chip chip-green">OK</span>';
+    const st=getDeadlineStatus(r); const rowCls=st==='overdue'?'row-danger':st==='near'?'row-warn':''; const warnCell=st==='overdue'?'<span class="chip chip-red">⚠️ Quá hạn</span>':st==='near'?'<span class="chip chip-yellow">⏰ Sắp hạn</span>':'<span class="chip chip-green">OK</span>';
     return`<tr class="${rowCls}">
       <td><input type="checkbox" class="chk-ycbh-ycbh2" data-id="${r.id}" onchange="onChkYCBH('ycbh2')"></td>
-      <td class="fc-muted fs10">${idx+1}</td>
-      <td class="mono" style="font-size:11px">${esc(r.vin)}</td>
-      <td>${esc(r.model)}</td>
-      <td class="mono fs10">${esc(r.wo)||'<span class="fc-muted">—</span>'}</td>
-      <td>${esc(r.kh)}</td>
-      <td class="fc-muted fs11">${esc(r.cvdv)}</td>
-      <td>${fmtD(r.htLSC)}</td>
-      <td>${deadlineBadge(r)}</td>
-      <td>${fmtD(r.guiYCBH)||'<span class="fc-muted">—</span>'}</td>
-      <td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td>
-      <td style="text-align:right">${fmtMoney(r.gt)}</td>
-      <td>${fmtD(r.ngayPD)||'<span class="fc-muted">—</span>'}</td>
-      <td>${statusBadge(r.tt)}</td>
-      <td>${warnCell}</td>
-      <td><div class="flex gap4">
-        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}
-        <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>
-        ${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}
-      </div></td>
+      <td class="fc-muted fs10">${idx+1}</td><td class="mono" style="font-size:11px">${esc(r.vin)}</td><td>${esc(r.model)}</td>
+      <td class="mono fs10">${esc(r.wo)||'<span class="fc-muted">—</span>'}</td><td>${esc(r.kh)}</td><td class="fc-muted fs11">${esc(r.cvdv)}</td>
+      <td>${fmtD(r.htLSC)}</td><td>${deadlineBadge(r)}</td><td>${fmtD(r.guiYCBH)||'<span class="fc-muted">—</span>'}</td>
+      <td class="mono fs10">${esc(r.soYCBH)||'<span class="fc-muted">—</span>'}</td><td style="text-align:right">${fmtMoney(r.gt)}</td>
+      <td>${fmtD(r.ngayPD)||'<span class="fc-muted">—</span>'}</td><td>${statusBadge(r.tt)}</td><td>${warnCell}</td>
+      <td><div class="flex gap4">${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="openEditYCBH('${r.id}')">✏️</button>`:''}<button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">💳</button>${canEdit('ycbh')?`<button class="btn btn-ghost btn-xs" onclick="delYCBH('${r.id}')">🗑️</button>`:''}</div></td>
     </tr>`;
   };
-
-  if(tbody1){
-    tbody1.innerHTML=rows.map((r,i)=>rowDash(r,i)).join('');
-    document.getElementById('empty-ycbh').style.display=rows.length?'none':'block';
-    updateBulkBarYCBH('dash');
-  }
-  if(tbody2){
-    tbody2.innerHTML=rows.map((r,i)=>rowFull(r,i)).join('');
-    document.getElementById('empty-ycbh2').style.display=rows.length?'none':'block';
-    updateBulkBarYCBH('ycbh2');
-  }
+  if(tbody1){ tbody1.innerHTML=rows.map((r,i)=>rowDash(r,i)).join(''); document.getElementById('empty-ycbh').style.display=rows.length?'none':'block'; updateBulkBarYCBH('dash'); }
+  if(tbody2){ tbody2.innerHTML=rows.map((r,i)=>rowFull(r,i)).join(''); document.getElementById('empty-ycbh2').style.display=rows.length?'none':'block'; updateBulkBarYCBH('ycbh2'); }
 }
 
-// ============================================================
-// YCBH CRUD
-// ============================================================
-function calcDeadlines(){
-  const htLSC=document.getElementById('f-ht-lsc').value;
-  document.getElementById('f-han-d7').value=htLSC?fmtD(addDays(htLSC,7)):'';
-  document.getElementById('f-han-d16').value=htLSC?fmtD(addDays(htLSC,16)):'';
-}
+function calcDeadlines(){ const htLSC=document.getElementById('f-ht-lsc').value; document.getElementById('f-han-d7').value=htLSC?fmtD(addDays(htLSC,7)):''; document.getElementById('f-han-d16').value=htLSC?fmtD(addDays(htLSC,16)):''; }
 function openAddYCBH(){
-  editYCBHId=null;
-  document.getElementById('myt-title').textContent='➕ Thêm hồ sơ YCBH mới';
+  editYCBHId=null; document.getElementById('myt-title').textContent='➕ Thêm hồ sơ YCBH mới';
   ['f-vin','f-wo','f-kh','f-hm','f-cvdv','f-mo-lsc','f-ht-lsc','f-ngay-gui','f-so-ycbh','f-gt','f-ngay-pd','f-ngay-tv','f-bk-thang','f-ngay-tt','f-ghichu-y','f-han-d7','f-han-d16'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['f-model','f-loai-ycbh','f-cap-pd','f-hk'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('f-tt-ycbh').value='Chưa tạo YCBH';
-  document.getElementById('f-tra-ve').value=0;
-  openModal('modal-ycbh');
+  document.getElementById('f-tt-ycbh').value='Chưa tạo YCBH'; document.getElementById('f-tra-ve').value=0; openModal('modal-ycbh');
 }
 function openEditYCBH(id){
-  editYCBHId=id;
-  const r=DB.ycbh.find(x=>x.id===id);if(!r)return;
+  editYCBHId=id; const r=DB.ycbh.find(x=>x.id===id);if(!r)return;
   document.getElementById('myt-title').textContent='✏️ Sửa hồ sơ YCBH';
   const set=(fid,val)=>{const el=document.getElementById(fid);if(el)el.value=val||'';};
-  set('f-vin',r.vin);set('f-model',r.model);set('f-wo',r.wo);set('f-kh',r.kh);
-  set('f-hm',r.hm);set('f-cvdv',r.cvdv);set('f-mo-lsc',r.moLSC);set('f-ht-lsc',r.htLSC);
-  set('f-loai-ycbh',r.loai);set('f-ngay-gui',r.guiYCBH);set('f-so-ycbh',r.soYCBH);
-  set('f-gt',r.gt);set('f-cap-pd',r.capPD);set('f-ngay-pd',r.ngayPD);
-  set('f-tt-ycbh',r.tt);document.getElementById('f-tra-ve').value=r.traVe||0;
-  set('f-ngay-tv',r.ngayTV);set('f-hk',r.hk);set('f-bk-thang',r.bkThang);
-  set('f-ngay-tt',r.ngayTT);set('f-ghichu-y',r.ghichu);
-  calcDeadlines();
-  openModal('modal-ycbh');
+  set('f-vin',r.vin);set('f-model',r.model);set('f-wo',r.wo);set('f-kh',r.kh);set('f-hm',r.hm);set('f-cvdv',r.cvdv);set('f-mo-lsc',r.moLSC);set('f-ht-lsc',r.htLSC);
+  set('f-loai-ycbh',r.loai);set('f-ngay-gui',r.guiYCBH);set('f-so-ycbh',r.soYCBH);set('f-gt',r.gt);set('f-cap-pd',r.capPD);set('f-ngay-pd',r.ngayPD);
+  set('f-tt-ycbh',r.tt);document.getElementById('f-tra-ve').value=r.traVe||0;set('f-ngay-tv',r.ngayTV);set('f-hk',r.hk);set('f-bk-thang',r.bkThang);set('f-ngay-tt',r.ngayTT);set('f-ghichu-y',r.ghichu);
+  calcDeadlines(); openModal('modal-ycbh');
 }
 function saveYCBH(){
-  const vin=document.getElementById('f-vin').value.trim();
-  if(!vin){toast('Vui lòng nhập Số VIN','err');return;}
-  const obj={
-    id:editYCBHId||uid(),
-    vin,model:document.getElementById('f-model').value,wo:document.getElementById('f-wo').value.trim(),
-    kh:document.getElementById('f-kh').value.trim(),hm:document.getElementById('f-hm').value.trim(),
-    cvdv:document.getElementById('f-cvdv').value.trim(),loai:document.getElementById('f-loai-ycbh').value,
-    moLSC:document.getElementById('f-mo-lsc').value,htLSC:document.getElementById('f-ht-lsc').value,
-    guiYCBH:document.getElementById('f-ngay-gui').value,soYCBH:document.getElementById('f-so-ycbh').value.trim(),
-    gt:parseFloat(document.getElementById('f-gt').value)||0,capPD:document.getElementById('f-cap-pd').value,
-    ngayPD:document.getElementById('f-ngay-pd').value,tt:document.getElementById('f-tt-ycbh').value,
-    traVe:parseInt(document.getElementById('f-tra-ve').value)||0,ngayTV:document.getElementById('f-ngay-tv').value,
-    hk:document.getElementById('f-hk').value,bkThang:document.getElementById('f-bk-thang').value,
-    ngayTT:document.getElementById('f-ngay-tt').value,ghichu:document.getElementById('f-ghichu-y').value,
-  };
-  if(editYCBHId){const i=DB.ycbh.findIndex(x=>x.id===editYCBHId);DB.ycbh[i]=obj;}
-  else DB.ycbh.unshift(obj);
-  closeModal('modal-ycbh');
-  saveLocal();
-  refreshAll();
-  toast(editYCBHId?'✅ Đã cập nhật hồ sơ':'✅ Đã thêm hồ sơ mới');
-  syncToSheet('ycbh',obj);
+  const vin=document.getElementById('f-vin').value.trim(); if(!vin){toast('Vui lòng nhập Số VIN','err');return;}
+  const obj={ id:editYCBHId||uid(), vin,model:document.getElementById('f-model').value,wo:document.getElementById('f-wo').value.trim(),kh:document.getElementById('f-kh').value.trim(),hm:document.getElementById('f-hm').value.trim(),cvdv:document.getElementById('f-cvdv').value.trim(),loai:document.getElementById('f-loai-ycbh').value,moLSC:document.getElementById('f-mo-lsc').value,htLSC:document.getElementById('f-ht-lsc').value,guiYCBH:document.getElementById('f-ngay-gui').value,soYCBH:document.getElementById('f-so-ycbh').value.trim(),gt:parseFloat(document.getElementById('f-gt').value)||0,capPD:document.getElementById('f-cap-pd').value,ngayPD:document.getElementById('f-ngay-pd').value,tt:document.getElementById('f-tt-ycbh').value,traVe:parseInt(document.getElementById('f-tra-ve').value)||0,ngayTV:document.getElementById('f-ngay-tv').value,hk:document.getElementById('f-hk').value,bkThang:document.getElementById('f-bk-thang').value,ngayTT:document.getElementById('f-ngay-tt').value,ghichu:document.getElementById('f-ghichu-y').value, };
+  if(editYCBHId){const i=DB.ycbh.findIndex(x=>x.id===editYCBHId);DB.ycbh[i]=obj;} else DB.ycbh.unshift(obj);
+  closeModal('modal-ycbh'); saveLocal(); refreshAll(); toast(editYCBHId?'✅ Đã cập nhật hồ sơ':'✅ Đã thêm hồ sơ mới'); syncToSheet('ycbh',obj);
 }
 function delYCBH(id){
   if(!confirm('Xóa hồ sơ này?'))return;
-  DB.ycbh=DB.ycbh.filter(x=>x.id!==id);
-  delete DB.kt[id];
-  DB.kho=DB.kho.filter(k=>k.ycbh&&!k.ycbh.includes(id));
-  saveLocal();
-  refreshAll();toast('Đã xóa','err');
+  DB.ycbh=DB.ycbh.filter(x=>x.id!==id); delete DB.kt[id]; DB.kho=DB.kho.filter(k=>k.ycbh&&!k.ycbh.includes(id));
+  saveLocal(); refreshAll();toast('Đã xóa','err');
 }
 
-// ============================================================
-// KHO RENDER & CRUD
-// ============================================================
 function khoStatus(row){
   if(!row.ngayPD)return{cls:'chip-gray',txt:'Chưa có ngày PD'};
-  const days=daysDiff(row.ngayPD,today());
-  const min=row.loaiKho||60;
+  const days=daysDiff(row.ngayPD,today()); const min=row.loaiKho||60;
   if(row.ttKho==='da-xu-ly')return{cls:'chip-green',txt:'✅ Đã xử lý / hủy'};
   if(row.ttKho==='cho-vf')return{cls:'chip-purple',txt:'⏳ Chờ VF PD hủy'};
   if(days>=min||row.ttKho==='du-dk')return{cls:'chip-yellow',txt:'🔔 Đủ ĐK hủy (ngày 7)'};
@@ -1261,433 +1018,185 @@ function khoStatus(row){
 function renderKho(){
   const ftt=(document.getElementById('f-kho-tt')||{value:''}).value;
   let rows=DB.kho.filter(r=>{
-    if(!ftt)return true;
-    const st=khoStatus(r);
-    if(ftt==='du-dk')return st.txt.includes('Đủ ĐK');
-    if(ftt==='sap-du')return st.txt.includes('Sắp đủ');
-    if(ftt==='dang-luu')return st.cls==='chip-blue';
-    if(ftt==='da-xu-ly')return st.cls==='chip-green';
+    if(!ftt)return true; const st=khoStatus(r);
+    if(ftt==='du-dk')return st.txt.includes('Đủ ĐK'); if(ftt==='sap-du')return st.txt.includes('Sắp đủ'); if(ftt==='dang-luu')return st.cls==='chip-blue'; if(ftt==='da-xu-ly')return st.cls==='chip-green';
     return true;
   });
-  const tbody=document.getElementById('tbody-kho');
-  if(!tbody)return;
+  const tbody=document.getElementById('tbody-kho'); if(!tbody)return;
   tbody.innerHTML=rows.map((r,i)=>{
-    const st=khoStatus(r);
-    const days=r.ngayPD?daysDiff(r.ngayPD,today()):0;
-    const min=r.loaiKho||60;
-    const pct=Math.min(100,Math.round((days/min)*100));
-    const progCls=pct>=100?'ok':pct>=70?'warn':'red';
+    const st=khoStatus(r); const days=r.ngayPD?daysDiff(r.ngayPD,today()):0; const min=r.loaiKho||60; const pct=Math.min(100,Math.round((days/min)*100)); const progCls=pct>=100?'ok':pct>=70?'warn':'red';
     return`<tr>
       <td><input type="checkbox" class="chk-kho-row" data-id="${r.id}" onchange="onChkKho()"></td>
-      <td class="fc-muted fs10">${i+1}</td>
-      <td class="mono fs10">${esc(r.vin)}<br><span class="fc-muted">${esc(r.ycbh)}</span></td>
-      <td class="mono fs10">${esc(r.maPT)}</td>
-      <td style="font-size:12px">${esc(r.tenPT)}</td>
-      <td class="fc-muted fs11">${esc(r.phanLoai)}</td>
-      <td style="text-align:center">${r.sl||1}</td>
-      <td>${fmtD(r.ngayPD)}</td>
+      <td class="fc-muted fs10">${i+1}</td><td class="mono fs10">${esc(r.vin)}<br><span class="fc-muted">${esc(r.ycbh)}</span></td><td class="mono fs10">${esc(r.maPT)}</td>
+      <td style="font-size:12px">${esc(r.tenPT)}</td><td class="fc-muted fs11">${esc(r.phanLoai)}</td><td style="text-align:center">${r.sl||1}</td><td>${fmtD(r.ngayPD)}</td>
       <td class="fc-muted fs11">${min==='30'||min===30?'≥30ng (Ắc quy)':'≥60ng (PT thường)'}</td>
       <td><div class="prog-wrap" style="margin-bottom:2px"><div class="prog-bar ${progCls}" style="width:${pct}%"></div></div><span class="fc-muted fs10">${days}/${min}ng</span></td>
-      <td><span class="chip ${st.cls}">${st.txt}</span></td>
-      <td class="fc-muted fs10">${esc(r.ghichu)}</td>
-      <td><div class="flex gap4">
-        ${canEdit('kho')?`<button class="btn btn-ghost btn-xs" onclick="openEditKho('${r.id}')">✏️</button>`:''}
-        ${(canEdit('kho')&&st.cls!=='chip-green')?`<button class="btn btn-warn btn-xs" onclick="proposeHuy('${r.id}')">🗑️ Đề xuất hủy</button>`:''}
-      </div></td>
+      <td><span class="chip ${st.cls}">${st.txt}</span></td><td class="fc-muted fs10">${esc(r.ghichu)}</td>
+      <td><div class="flex gap4">${canEdit('kho')?`<button class="btn btn-ghost btn-xs" onclick="openEditKho('${r.id}')">✏️</button>`:''}${(canEdit('kho')&&st.cls!=='chip-green')?`<button class="btn btn-warn btn-xs" onclick="proposeHuy('${r.id}')">🗑️ Đề xuất hủy</button>`:''}</div></td>
     </tr>`;
   }).join('');
-  const empty=document.getElementById('empty-kho');
-  if(empty)empty.style.display=rows.length?'none':'block';
+  const empty=document.getElementById('empty-kho'); if(empty)empty.style.display=rows.length?'none':'block';
   updateBulkBarKho();
 }
 function openAddKho(){
-  editKhoId=null;
-  document.getElementById('mkt-title').textContent='📦 Nhập phụ tùng bảo hành';
+  editKhoId=null; document.getElementById('mkt-title').textContent='📦 Nhập phụ tùng bảo hành';
   ['fk-vin','fk-ycbh','fk-ma','fk-ten','fk-ghichu','fk-ngay-pd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fk-sl').value=1;
-  document.getElementById('fk-loai-kho').value='60';
-  document.getElementById('fk-tt-kho').value='dang-luu';
-  document.getElementById('fk-phanloai').value='';
+  document.getElementById('fk-sl').value=1; document.getElementById('fk-loai-kho').value='60'; document.getElementById('fk-tt-kho').value='dang-luu'; document.getElementById('fk-phanloai').value='';
   openModal('modal-kho');
 }
 function openEditKho(id){
-  editKhoId=id;
-  const r=DB.kho.find(x=>x.id===id);if(!r)return;
+  editKhoId=id; const r=DB.kho.find(x=>x.id===id);if(!r)return;
   document.getElementById('mkt-title').textContent='✏️ Sửa phụ tùng';
-  document.getElementById('fk-vin').value=r.vin||'';
-  document.getElementById('fk-ycbh').value=r.ycbh||'';
-  document.getElementById('fk-ma').value=r.maPT||'';
-  document.getElementById('fk-ten').value=r.tenPT||'';
-  document.getElementById('fk-phanloai').value=r.phanLoai||'';
-  document.getElementById('fk-sl').value=r.sl||1;
-  document.getElementById('fk-ngay-pd').value=r.ngayPD||'';
-  document.getElementById('fk-loai-kho').value=String(r.loaiKho||60);
-  document.getElementById('fk-tt-kho').value=r.ttKho||'dang-luu';
-  document.getElementById('fk-ghichu').value=r.ghichu||'';
+  document.getElementById('fk-vin').value=r.vin||''; document.getElementById('fk-ycbh').value=r.ycbh||''; document.getElementById('fk-ma').value=r.maPT||''; document.getElementById('fk-ten').value=r.tenPT||''; document.getElementById('fk-phanloai').value=r.phanLoai||''; document.getElementById('fk-sl').value=r.sl||1; document.getElementById('fk-ngay-pd').value=r.ngayPD||''; document.getElementById('fk-loai-kho').value=String(r.loaiKho||60); document.getElementById('fk-tt-kho').value=r.ttKho||'dang-luu'; document.getElementById('fk-ghichu').value=r.ghichu||'';
   openModal('modal-kho');
 }
 function saveKho(){
-  const ma=document.getElementById('fk-ma').value.trim();
-  if(!ma){toast('Vui lòng nhập Mã phụ tùng','err');return;}
-  const obj={
-    id:editKhoId||uid(),
-    vin:document.getElementById('fk-vin').value.trim(),
-    ycbh:document.getElementById('fk-ycbh').value.trim(),
-    maPT:ma,tenPT:document.getElementById('fk-ten').value.trim(),
-    phanLoai:document.getElementById('fk-phanloai').value,
-    sl:parseInt(document.getElementById('fk-sl').value)||1,
-    ngayPD:document.getElementById('fk-ngay-pd').value,
-    loaiKho:parseInt(document.getElementById('fk-loai-kho').value)||60,
-    ttKho:document.getElementById('fk-tt-kho').value,
-    ghichu:document.getElementById('fk-ghichu').value,
-  };
-  if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;}
-  else DB.kho.unshift(obj);
-  closeModal('modal-kho');
-  saveLocal();
-  renderKho();updateBadges();
-  toast(editKhoId?'✅ Đã cập nhật phụ tùng':'✅ Đã thêm phụ tùng kho');
-  syncToSheet('kho',obj);
+  const ma=document.getElementById('fk-ma').value.trim(); if(!ma){toast('Vui lòng nhập Mã phụ tùng','err');return;}
+  const obj={ id:editKhoId||uid(), vin:document.getElementById('fk-vin').value.trim(), ycbh:document.getElementById('fk-ycbh').value.trim(), maPT:ma,tenPT:document.getElementById('fk-ten').value.trim(), phanLoai:document.getElementById('fk-phanloai').value, sl:parseInt(document.getElementById('fk-sl').value)||1, ngayPD:document.getElementById('fk-ngay-pd').value, loaiKho:parseInt(document.getElementById('fk-loai-kho').value)||60, ttKho:document.getElementById('fk-tt-kho').value, ghichu:document.getElementById('fk-ghichu').value, };
+  if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;} else DB.kho.unshift(obj);
+  closeModal('modal-kho'); saveLocal(); renderKho();updateBadges(); toast(editKhoId?'✅ Đã cập nhật phụ tùng':'✅ Đã thêm phụ tùng kho'); syncToSheet('kho',obj);
 }
-function proposeHuy(id){
-  const r=DB.kho.find(x=>x.id===id);if(!r)return;
-  r.ttKho='cho-vf';
-  saveLocal();
-  renderKho();updateBadges();
-  toast('Đã đề xuất hủy PT '+r.maPT+' — chờ VF phê duyệt','info');
-}
+function proposeHuy(id){ const r=DB.kho.find(x=>x.id===id);if(!r)return; r.ttKho='cho-vf'; saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT+' — chờ VF phê duyệt','info'); }
 
-// ============================================================
-// KẾ TOÁN
-// ============================================================
 function renderKT(){
-  const q=(document.getElementById('search-kt')||{value:''}).value.toLowerCase();
-  const ftt=(document.getElementById('f-kt-tt')||{value:''}).value;
+  const q=(document.getElementById('search-kt')||{value:''}).value.toLowerCase(); const ftt=(document.getElementById('f-kt-tt')||{value:''}).value;
   let rows=DB.ycbh.filter(r=>{
-    if(r.gt===0&&r.tt==='Chưa tạo YCBH')return false;
-    if(!r.ngayPD&&r.gt===0)return false;
+    if(r.gt===0&&r.tt==='Chưa tạo YCBH')return false; if(!r.ngayPD&&r.gt===0)return false;
     const k=DB.kt[r.id];const ktt=k?k.tt:'chua-tt';
-    if(ftt&&ktt!==ftt)return false;
-    if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false;
-    return r.ngayPD||r.gt>0;
+    if(ftt&&ktt!==ftt)return false; if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false; return r.ngayPD||r.gt>0;
   });
-  const chua=rows.filter(r=>!DB.kt[r.id]||DB.kt[r.id].tt==='chua-tt').length;
-  const bk=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='dang-bk').length;
-  const da=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='da-tt').length;
-  const totalVal=rows.reduce((s,r)=>s+(r.gt||0),0);
-  document.getElementById('kt-chua').textContent=chua;
-  document.getElementById('kt-bk').textContent=bk;
-  document.getElementById('kt-da').textContent=da;
-  document.getElementById('kt-total-val').textContent=fmtMoney(totalVal);
+  const chua=rows.filter(r=>!DB.kt[r.id]||DB.kt[r.id].tt==='chua-tt').length; const bk=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='dang-bk').length; const da=rows.filter(r=>DB.kt[r.id]&&DB.kt[r.id].tt==='da-tt').length; const totalVal=rows.reduce((s,r)=>s+(r.gt||0),0);
+  document.getElementById('kt-chua').textContent=chua; document.getElementById('kt-bk').textContent=bk; document.getElementById('kt-da').textContent=da; document.getElementById('kt-total-val').textContent=fmtMoney(totalVal);
   const tbody=document.getElementById('tbody-kt');if(!tbody)return;
   tbody.innerHTML=rows.map(r=>{
-    const k=DB.kt[r.id]||{tt:'chua-tt',thangBK:'',ngayTT:'',ghichu:''};
-    let chip='';
-    if(k.tt==='chua-tt')chip='<span class="chip chip-red">Chưa TT VF</span>';
-    else if(k.tt==='dang-bk')chip=`<span class="chip chip-yellow">📋 BK ${esc(k.thangBK)}</span>`;
-    else chip='<span class="chip chip-green">✅ Đã TT</span>';
+    const k=DB.kt[r.id]||{tt:'chua-tt',thangBK:'',ngayTT:'',ghichu:''}; let chip='';
+    if(k.tt==='chua-tt')chip='<span class="chip chip-red">Chưa TT VF</span>'; else if(k.tt==='dang-bk')chip=`<span class="chip chip-yellow">📋 BK ${esc(k.thangBK)}</span>`; else chip='<span class="chip chip-green">✅ Đã TT</span>';
     return`<tr>
-      <td><input type="checkbox" class="chk-kt" data-id="${r.id}"></td>
-      <td class="mono fs11">${esc(r.soYCBH)||'—'}</td>
-      <td>${esc(r.model)}</td>
-      <td class="mono fs10">${esc(r.vin)}</td>
-      <td>${fmtD(r.ngayPD)}</td>
-      <td style="text-align:right;font-weight:700">${fmtMoney(r.gt)}</td>
-      <td>${chip}</td>
-      <td class="fc-muted fs11">${esc(k.thangBK||'—')}</td>
-      <td>${k.ngayTT?fmtD(k.ngayTT):'—'}</td>
-      <td class="fc-muted fs10">${esc(k.ghichu||'')}</td>
+      <td><input type="checkbox" class="chk-kt" data-id="${r.id}" onchange="onChkKT()"></td>
+      <td class="mono fs11">${esc(r.soYCBH)||'—'}</td><td>${esc(r.model)}</td><td class="mono fs10">${esc(r.vin)}</td>
+      <td>${fmtD(r.ngayPD)}</td><td style="text-align:right;font-weight:700">${fmtMoney(r.gt)}</td><td>${chip}</td>
+      <td class="fc-muted fs11">${esc(k.thangBK||'—')}</td><td>${k.ngayTT?fmtD(k.ngayTT):'—'}</td><td class="fc-muted fs10">${esc(k.ghichu||'')}</td>
       <td>${canEdit('kt')?`<button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}')">✏️ Khai báo</button>`:''}</td>
     </tr>`;
   }).join('');
   const empty=document.getElementById('empty-kt');if(empty)empty.style.display=rows.length?'none':'block';
+  updateBulkBarKT();
 }
 function openKTModal(ycbhId){
-  const r=DB.ycbh.find(x=>x.id===ycbhId);if(!r)return;
-  editKtId=ycbhId;
+  const r=DB.ycbh.find(x=>x.id===ycbhId);if(!r)return; editKtId=ycbhId;
   const k=DB.kt[ycbhId]||{tt:'chua-tt',thangBK:'',ngayTT:'',ghichu:''};
   document.getElementById('kt-ref-info').innerHTML=`<strong>${esc(r.soYCBH||r.vin)}</strong> | ${esc(r.model)} | Giá trị: <strong>${fmtMoney(r.gt)}</strong>`;
-  document.getElementById('kt-tt-sel').value=k.tt||'chua-tt';
-  document.getElementById('kt-thang-bk').value=k.thangBK||'';
-  document.getElementById('kt-ngay-tt').value=k.ngayTT||'';
-  document.getElementById('kt-ghichu').value=k.ghichu||'';
+  document.getElementById('kt-tt-sel').value=k.tt||'chua-tt'; document.getElementById('kt-thang-bk').value=k.thangBK||''; document.getElementById('kt-ngay-tt').value=k.ngayTT||''; document.getElementById('kt-ghichu').value=k.ghichu||'';
   openModal('modal-kt');
 }
 function saveKT(){
   if(!editKtId)return;
   DB.kt[editKtId]={tt:document.getElementById('kt-tt-sel').value,thangBK:document.getElementById('kt-thang-bk').value,ngayTT:document.getElementById('kt-ngay-tt').value,ghichu:document.getElementById('kt-ghichu').value};
-  closeModal('modal-kt');
-  saveLocal();
-  renderKT();updateBadges();
-  toast('✅ Đã cập nhật trạng thái thanh toán');
-}
-function toggleAllKT(el){document.querySelectorAll('.chk-kt').forEach(c=>c.checked=el.checked);}
-function markSelectedTT(){
-  const checked=[...document.querySelectorAll('.chk-kt:checked')];
-  if(!checked.length){toast('Chưa chọn hồ sơ nào','err');return;}
-  checked.forEach(c=>{
-    if(!DB.kt[c.dataset.id])DB.kt[c.dataset.id]={};
-    DB.kt[c.dataset.id].tt='da-tt';
-    DB.kt[c.dataset.id].ngayTT=today();
-  });
-  saveLocal();
-  renderKT();updateBadges();toast(`Đã đánh dấu ${checked.length} hồ sơ là Đã TT VF`);
+  closeModal('modal-kt'); saveLocal(); renderKT();updateBadges(); toast('✅ Đã cập nhật trạng thái thanh toán');
 }
 
-// ============================================================
-// IMPORT EXCEL / CSV
-// ============================================================
-function dzOver(ev,id){ev.preventDefault();document.getElementById(id).classList.add('drag');}
-function dzLeave(id){document.getElementById(id).classList.remove('drag');}
-function dzDrop(ev,type){
-  ev.preventDefault();
-  dzLeave('dz-'+type);
-  const f=ev.dataTransfer.files[0];
-  if(f)parseFile(f,type);
-}
-function handleFileYCBH(inp){const f=inp.files[0];if(f)parseFile(f,'ycbh');inp.value='';}
-function handleFileKho(inp){const f=inp.files[0];if(f)parseFile(f,'kho');inp.value='';}
+function dzOver(ev,id){ev.preventDefault();document.getElementById(id).classList.add('drag');} function dzLeave(id){document.getElementById(id).classList.remove('drag');}
+function dzDrop(ev,type){ ev.preventDefault(); dzLeave('dz-'+type); const f=ev.dataTransfer.files[0]; if(f)parseFile(f,type); }
+function handleFileYCBH(inp){const f=inp.files[0];if(f)parseFile(f,'ycbh');inp.value='';} function handleFileKho(inp){const f=inp.files[0];if(f)parseFile(f,'kho');inp.value='';}
 
 function parseFile(file,type){
   const name=file.name.toLowerCase();
-  if(name.endsWith('.csv')){
-    const reader=new FileReader();
-    reader.onload=e=>parseCSV(e.target.result,type);
-    reader.readAsText(file,'utf-8');
-  } else if(name.endsWith('.xlsx')||name.endsWith('.xls')){
+  if(name.endsWith('.csv')){ const reader=new FileReader(); reader.onload=e=>parseCSV(e.target.result,type); reader.readAsText(file,'utf-8'); }
+  else if(name.endsWith('.xlsx')||name.endsWith('.xls')){
     const reader=new FileReader();
     reader.onload=e=>{
-      try{
-        const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
-        const ws=wb.Sheets[wb.SheetNames[0]];
-        const data=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
-        if(!data.length){toast('File trống hoặc không đọc được','err');return;}
-        processImportData(data,type);
+      try{ const wb=XLSX.read(e.target.result,{type:'array',cellDates:true}); const ws=wb.Sheets[wb.SheetNames[0]]; const data=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
+        if(!data.length){toast('File trống hoặc không đọc được','err');return;} processImportData(data,type);
       }catch(err){toast('Lỗi đọc file Excel: '+err.message,'err');}
     };
     reader.readAsArrayBuffer(file);
-  } else {
-    toast('Chỉ hỗ trợ .xlsx và .csv','err');
-  }
+  } else { toast('Chỉ hỗ trợ .xlsx và .csv','err'); }
 }
 function parseCSV(text,type){
-  const lines=text.trim().split('\n');
-  if(lines.length<2){toast('File CSV trống','err');return;}
+  const lines=text.trim().split('\n'); if(lines.length<2){toast('File CSV trống','err');return;}
   const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
-  const data=lines.slice(1).map(line=>{
-    const vals=line.split(',').map(v=>v.trim().replace(/^"|"$/g,''));
-    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
-    return obj;
-  });
+  const data=lines.slice(1).map(line=>{ const vals=line.split(',').map(v=>v.trim().replace(/^"|"$/g,'')); const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||''); return obj; });
   processImportData(data,type);
 }
 
-// Map DMS Export columns → internal fields
 function mapDMSRow(raw){
   const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return String(raw[c]);return '';};
   const toDate=v=>{if(!v||v==='')return '';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='string'&&v.length>=10)return v.slice(0,10);return '';};
-  return{
-    vin:  colVal(['Số khung','Số VIN','VIN','vin']),
-    model:colVal(['Tên xe','Model xe','model']),
-    wo:   colVal(['Lệnh sửa chữa','Số WO','WO','wo']),
-    kh:   colVal(['Khách hàng','kh','']),
-    htLSC:toDate(colVal(['Ngày Sửa chữ','Ngày sửa chữa','Ngày HT LSC','htLSC'])),
-    guiYCBH:toDate(colVal(['Ngày ĐXBH','Ngày gửi YCBH','Ngày gửi Đề xuất bảo hành','guiYCBH'])),
-    soYCBH:colVal(['Số yêu cầu bảo hành','(Không Sửa đổi) Warranty Claim ID','Số YCBH','soYCBH']),
-    gt:   parseFloat(colVal(['Tổng tiền yêu cầu được phê duyệt','Approved Part Warranty Amount','gt']))||0,
-    ngayPD:toDate(colVal(['Ngày phê duyệt','Ngày PD YCBH','ngayPD'])),
-    tt:   colVal(['Trạng thái','Trạng thái YCBH','tt'])||'Chưa tạo YCBH',
-    maPT: colVal(['Phụ tùng chính','Mã PT','maPT']),
-    tenPT:colVal(['Tên Phụ tùng chính','Tên PT','tenPT']),
-    ghichu:colVal(['Ghi chú','ghichu','']),
-  };
+  return{ vin:colVal(['Số khung','Số VIN','VIN','vin']), model:colVal(['Tên xe','Model xe','model']), wo:colVal(['Lệnh sửa chữa','Số WO','WO','wo']), kh:colVal(['Khách hàng','kh','']), htLSC:toDate(colVal(['Ngày Sửa chữ','Ngày sửa chữa','Ngày HT LSC','htLSC'])), guiYCBH:toDate(colVal(['Ngày ĐXBH','Ngày gửi YCBH','Ngày gửi Đề xuất bảo hành','guiYCBH'])), soYCBH:colVal(['Số yêu cầu bảo hành','(Không Sửa đổi) Warranty Claim ID','Số YCBH','soYCBH']), gt:parseFloat(colVal(['Tổng tiền yêu cầu được phê duyệt','Approved Part Warranty Amount','gt']))||0, ngayPD:toDate(colVal(['Ngày phê duyệt','Ngày PD YCBH','ngayPD'])), tt:colVal(['Trạng thái','Trạng thái YCBH','tt'])||'Chưa tạo YCBH', maPT:colVal(['Phụ tùng chính','Mã PT','maPT']), tenPT:colVal(['Tên Phụ tùng chính','Tên PT','tenPT']), ghichu:colVal(['Ghi chú','ghichu','']), };
 }
 function mapKhoRow(raw){
   const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return String(raw[c]);return '';};
   const toDate=v=>{if(!v)return '';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='string'&&v.length>=10)return v.slice(0,10);return '';};
-  return{
-    vin:  colVal(['Số VIN xe','Số VIN','VIN','Số khung']),
-    ycbh: colVal(['Số WO / Số YCBH','Số YCBH','YCBH']),
-    maPT: colVal(['Mã phụ tùng','Mã PT']),
-    tenPT:colVal(['Tên phụ tùng','Tên PT']),
-    phanLoai:colVal(['Phân loại (Phụ lục IV)','Phân loại']),
-    sl:   parseInt(colVal(['Số lượng','SL']))||1,
-    ngayPD:toDate(colVal(['Ngày phê duyệt YCBH','Ngày PD YCBH'])),
-    loaiKho:colVal(['Loại phụ tùng lưu kho','Loại PT']).includes('30')||colVal(['Loại phụ tùng lưu kho','Loại PT']).toLowerCase().includes('ắc quy')?30:60,
-    ttKho:'dang-luu',
-    ghichu:colVal(['Ghi chú','ghichu']),
-  };
+  return{ vin:colVal(['Số VIN xe','Số VIN','VIN','Số khung']), ycbh:colVal(['Số WO / Số YCBH','Số YCBH','YCBH']), maPT:colVal(['Mã phụ tùng','Mã PT']), tenPT:colVal(['Tên phụ tùng','Tên PT']), phanLoai:colVal(['Phân loại (Phụ lục IV)','Phân loại']), sl:parseInt(colVal(['Số lượng','SL']))||1, ngayPD:toDate(colVal(['Ngày phê duyệt YCBH','Ngày PD YCBH'])), loaiKho:colVal(['Loại phụ tùng lưu kho','Loại PT']).includes('30')||colVal(['Loại phụ tùng lưu kho','Loại PT']).toLowerCase().includes('ắc quy')?30:60, ttKho:'dang-luu', ghichu:colVal(['Ghi chú','ghichu']), };
 }
 
 function processImportData(data,type){
   importBuf={type,data};
-  // Show preview
   const mapped=type==='ycbh'?data.slice(0,6).map(mapDMSRow):data.slice(0,6).map(mapKhoRow);
-  const hdrs=type==='ycbh'
-    ?['VIN','Model','WO','Ngày HT LSC','Số YCBH','Giá trị','Ngày PD','Trạng thái']
-    :['VIN','Mã PT','Tên PT','Phân loại','SL','Ngày PD','Loại kho'];
+  const hdrs=type==='ycbh' ?['VIN','Model','WO','Ngày HT LSC','Số YCBH','Giá trị','Ngày PD','Trạng thái'] :['VIN','Mã PT','Tên PT','Phân loại','SL','Ngày PD','Loại kho'];
   document.getElementById('prev-thead').innerHTML='<tr>'+hdrs.map(h=>`<th>${h}</th>`).join('')+'</tr>';
   document.getElementById('prev-tbody').innerHTML=mapped.map(r=>{
     if(type==='ycbh')return`<tr><td class="mono fs10">${esc(r.vin)}</td><td>${esc(r.model)}</td><td class="mono fs10">${esc(r.wo)}</td><td>${r.htLSC}</td><td class="mono fs10">${esc(r.soYCBH)}</td><td>${fmtMoney(r.gt)}</td><td>${r.ngayPD}</td><td>${esc(r.tt)}</td></tr>`;
     return`<tr><td class="mono fs10">${esc(r.vin)}</td><td class="mono fs10">${esc(r.maPT)}</td><td>${esc(r.tenPT)}</td><td class="fc-muted fs10">${esc(r.phanLoai)}</td><td>${r.sl}</td><td>${r.ngayPD}</td><td class="fc-muted fs10">${r.loaiKho===30?'≥30ng (Ắc quy)':'≥60ng (PT)'}</td></tr>`;
   }).join('');
-  const stats=`<span class="chip chip-blue">📄 ${data.length} dòng dữ liệu</span>
-    <span class="chip chip-green">Xem trước ${Math.min(6,data.length)} dòng đầu</span>
-    <span class="chip chip-gray">Loại: ${type==='ycbh'?'Hồ sơ YCBH':'Phụ tùng kho'}</span>`;
-  document.getElementById('import-stats').innerHTML=stats;
-  document.getElementById('import-preview').style.display='block';
-  document.getElementById('import-preview').scrollIntoView({behavior:'smooth'});
+  const stats=`<span class="chip chip-blue">📄 ${data.length} dòng dữ liệu</span><span class="chip chip-green">Xem trước ${Math.min(6,data.length)} dòng đầu</span><span class="chip chip-gray">Loại: ${type==='ycbh'?'Hồ sơ YCBH':'Phụ tùng kho'}</span>`;
+  document.getElementById('import-stats').innerHTML=stats; document.getElementById('import-preview').style.display='block'; document.getElementById('import-preview').scrollIntoView({behavior:'smooth'});
 }
 function confirmImport(){
   if(!importBuf.data.length){toast('Không có dữ liệu','err');return;}
-  const mode=document.getElementById('dup-mode').value;
-  const autoKho=document.getElementById('auto-kho-pt').checked;
-  const {type,data}=importBuf;
+  const mode=document.getElementById('dup-mode').value; const autoKho=document.getElementById('auto-kho-pt').checked; const {type,data}=importBuf;
   let added=0,updated=0,skipped=0,khoAdded=0;
   if(type==='ycbh'){
     data.forEach(raw=>{
-      const m=mapDMSRow(raw);
-      if(!m.vin)return;
-      const key=r=>r.vin===m.vin&&r.wo===m.wo;
-      const existing=DB.ycbh.find(key);
-      if(existing){
-        if(mode==='skip'){skipped++;return;}
-        if(mode==='update'){Object.assign(existing,m,{id:existing.id});updated++;}
-        if(mode==='add'){DB.ycbh.unshift({...m,id:uid()});added++;}
-      } else {DB.ycbh.unshift({...m,id:uid()});added++;}
-      // auto create kho entry
+      const m=mapDMSRow(raw); if(!m.vin)return; const key=r=>r.vin===m.vin&&r.wo===m.wo; const existing=DB.ycbh.find(key);
+      if(existing){ if(mode==='skip'){skipped++;return;} if(mode==='update'){Object.assign(existing,m,{id:existing.id});updated++;} if(mode==='add'){DB.ycbh.unshift({...m,id:uid()});added++;} } else {DB.ycbh.unshift({...m,id:uid()});added++;}
       if(autoKho&&m.maPT){
         const yId=DB.ycbh.find(key)?.id;
-        if(yId&&!DB.kho.find(k=>k.maPT===m.maPT&&k.ycbh===m.soYCBH)){
-          const isAcquy=m.maPT.startsWith('BIN')||m.phanLoai?.includes('ắc');
-          DB.kho.push({id:uid(),vin:m.vin,ycbh:m.soYCBH||m.wo,maPT:m.maPT,tenPT:m.tenPT,phanLoai:'Bình thường',sl:1,ngayPD:m.ngayPD,loaiKho:isAcquy?30:60,ttKho:'dang-luu',ghichu:''});
-          khoAdded++;
-        }
+        if(yId&&!DB.kho.find(k=>k.maPT===m.maPT&&k.ycbh===m.soYCBH)){ const isAcquy=m.maPT.startsWith('BIN')||m.phanLoai?.includes('ắc'); DB.kho.push({id:uid(),vin:m.vin,ycbh:m.soYCBH||m.wo,maPT:m.maPT,tenPT:m.tenPT,phanLoai:'Bình thường',sl:1,ngayPD:m.ngayPD,loaiKho:isAcquy?30:60,ttKho:'dang-luu',ghichu:''}); khoAdded++; }
       }
     });
-  } else {
-    data.forEach(raw=>{
-      const m=mapKhoRow(raw);
-      if(!m.maPT)return;
-      DB.kho.unshift({...m,id:uid()});added++;
-    });
-  }
-  cancelImport();
-  saveLocal();
-  refreshAll();
-  toast(`✅ Import xong: +${added} mới, ${updated} cập nhật, ${skipped} bỏ qua${khoAdded?', +'+khoAdded+' PT kho':''}`);
-  // Sync toàn bộ lên Sheet nếu đã cấu hình
-  if(SCRIPT_URL){
-    if(type==='ycbh') syncToSheet('bulkYCBH', DB.ycbh);
-    else syncToSheet('bulkKho', DB.kho);
-  }
+  } else { data.forEach(raw=>{ const m=mapKhoRow(raw); if(!m.maPT)return; DB.kho.unshift({...m,id:uid()});added++; }); }
+  cancelImport(); saveLocal(); refreshAll(); toast(`✅ Import xong: +${added} mới, ${updated} cập nhật, ${skipped} bỏ qua${khoAdded?', +'+khoAdded+' PT kho':''}`);
+  if(SCRIPT_URL){ if(type==='ycbh') syncToSheet('bulkYCBH', DB.ycbh); else syncToSheet('bulkKho', DB.kho); }
 }
-function cancelImport(){
-  importBuf={type:null,data:[]};
-  document.getElementById('import-preview').style.display='none';
-}
-
-// Template download
+function cancelImport(){ importBuf={type:null,data:[]}; document.getElementById('import-preview').style.display='none'; }
 function downloadTemplate(type){
-  if(type==='ycbh'){
-    const csvContent='Số VIN,Model xe,Số WO,Khách hàng,Hạng mục/Hư hỏng,CVDV,Ngày mở LSC,Ngày HT LSC,Loại YCBH,Ngày gửi YCBH,Số YCBH,Giá trị YCBH,Ngày PD YCBH,Trạng thái\nRLJVF8E2025001234,VF 8,WO-0001,Nguyễn Văn A,Lỗi ABS,Quân,2026-06-01,2026-06-05,Bảo hành thông thường,2026-06-10,S44301-WC-26-06-0001,1850000,2026-06-15,Đã phê duyệt';
-    dlCSV(csvContent,'template_YCBH.csv');
-  } else {
-    const csvContent='Số VIN xe,Số WO / Số YCBH,Mã phụ tùng,Tên phụ tùng,Phân loại (Phụ lục IV),Số lượng,Ngày phê duyệt YCBH,Loại phụ tùng lưu kho,Ghi chú\nRLJVF8E2025001234,S44301-WC-26-06-0001,EEP30220160RC,BCM Body Control Module,Bình thường,1,2026-06-15,Phụ tùng khác (≥60 ngày),Kệ A3-01';
-    dlCSV(csvContent,'template_PhuTung.csv');
-  }
+  if(type==='ycbh'){ dlCSV('Số VIN,Model xe,Số WO,Khách hàng,Hạng mục/Hư hỏng,CVDV,Ngày mở LSC,Ngày HT LSC,Loại YCBH,Ngày gửi YCBH,Số YCBH,Giá trị YCBH,Ngày PD YCBH,Trạng thái\nRLJVF8E2025001234,VF 8,WO-0001,Nguyễn Văn A,Lỗi ABS,Quân,2026-06-01,2026-06-05,Bảo hành thông thường,2026-06-10,S44301-WC-26-06-0001,1850000,2026-06-15,Đã phê duyệt','template_YCBH.csv'); }
+  else { dlCSV('Số VIN xe,Số WO / Số YCBH,Mã phụ tùng,Tên phụ tùng,Phân loại (Phụ lục IV),Số lượng,Ngày phê duyệt YCBH,Loại phụ tùng lưu kho,Ghi chú\nRLJVF8E2025001234,S44301-WC-26-06-0001,EEP30220160RC,BCM Body Control Module,Bình thường,1,2026-06-15,Phụ tùng khác (≥60 ngày),Kệ A3-01','template_PhuTung.csv'); }
 }
 function dlCSV(content,filename){
-  const blob=new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
-  URL.revokeObjectURL(url);
+  const blob=new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click(); URL.revokeObjectURL(url);
 }
 
-// ============================================================
-// GOOGLE SHEET SYNC
-// ============================================================
 function syncToSheet(sheetType,data){
-  if(!SCRIPT_URL){
-    document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL';
-    return;
-  }
+  if(!SCRIPT_URL){ document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL'; return; }
   document.getElementById('sync-status').textContent='🔄 Đang đồng bộ...';
   fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:sheetType,data})})
-    .then(r=>r.json())
-    .then(r=>{
-      if(r.success){document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');}
-      else{document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ: '+r.error;}
-    })
+    .then(r=>r.json()).then(r=>{ if(r.success){document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');} else{document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ: '+r.error;} })
     .catch(()=>document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet');
 }
 function refreshData(){
   if(SCRIPT_URL){
-    toast('🔄 Đang tải từ Google Sheet...','info');
-    document.getElementById('sync-status').textContent='🔄 Đang tải...';
+    toast('🔄 Đang tải từ Google Sheet...','info'); document.getElementById('sync-status').textContent='🔄 Đang tải...';
     fetch(SCRIPT_URL+'?action=getAll')
-      .then(r=>r.json())
-      .then(r=>{
-        if(r.ycbh)DB.ycbh=r.ycbh;
-        if(r.kho)DB.kho=r.kho;
-        if(r.kt)DB.kt=r.kt;
-        saveLocal(); // cache xuống localStorage để lần sau tắt/mở vẫn còn
-        refreshAll();
-        document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
-        toast('✅ Đã tải '+DB.ycbh.length+' hồ sơ từ Google Sheet');
-      })
-      .catch(()=>{
-        toast('⚠️ Không kết nối Sheet — dùng dữ liệu cục bộ','warn');
-        document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet';
-      });
-  } else {
-    toast('⚠️ Chưa cấu hình Apps Script URL','warn');
-    document.getElementById('sync-status').textContent='⚠️ Chưa cấu hình SCRIPT_URL';
-  }
+      .then(r=>r.json()).then(r=>{ if(r.ycbh)DB.ycbh=r.ycbh; if(r.kho)DB.kho=r.kho; if(r.kt)DB.kt=r.kt; saveLocal(); refreshAll(); document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN'); toast('✅ Đã tải '+DB.ycbh.length+' hồ sơ từ Google Sheet'); })
+      .catch(()=>{ toast('⚠️ Không kết nối Sheet — dùng dữ liệu cục bộ','warn'); document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet'; });
+  } else { toast('⚠️ Chưa cấu hình Apps Script URL','warn'); document.getElementById('sync-status').textContent='⚠️ Chưa cấu hình SCRIPT_URL'; }
 }
 
-// ============================================================
-// REFRESH ALL
-// ============================================================
-function refreshAll(){
-  renderDash();
-  renderYCBH();
-  renderKho();
-  renderKT();
-  updateBadges();
-}
+function refreshAll(){ renderDash(); renderYCBH(); renderKho(); renderKT(); updateBadges(); }
 
-// ============================================================
-// AUTO POLL — đồng bộ tự động mỗi 30 giây (cho 4-5 máy cùng dùng)
-// ============================================================
 let _pollTimer = null;
 function startAutoSync(){
-  if(!SCRIPT_URL) return;
-  stopAutoSync();
+  if(!SCRIPT_URL) return; stopAutoSync();
   _pollTimer = setInterval(()=>{
-    if(!CU) return; // chưa đăng nhập thì không poll
-    fetch(SCRIPT_URL+'?action=getAll')
-      .then(r=>r.json())
-      .then(r=>{
-        if(r.ycbh){
-          DB.ycbh=r.ycbh;
-          DB.kho=r.kho||[];
-          DB.kt=r.kt||{};
-          saveLocal();
-          refreshAll();
-          document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
-        }
-      })
-      .catch(()=>{}); // silent fail khi mất mạng
-  }, 30000); // 30 giây / lần
+    if(!CU) return;
+    fetch(SCRIPT_URL+'?action=getAll').then(r=>r.json()).then(r=>{ if(r.ycbh){ DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; saveLocal(); refreshAll(); document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN'); } }).catch(()=>{});
+  }, 30000);
 }
-function stopAutoSync(){
-  if(_pollTimer){ clearInterval(_pollTimer); _pollTimer=null; }
-}
+function stopAutoSync(){ if(_pollTimer){ clearInterval(_pollTimer); _pollTimer=null; } }
 
-// ============================================================
-// INIT — wait for login
-// ============================================================
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-overlay')&&!document.getElementById('auth-overlay').classList.contains('hidden'))doLogin();});
 </script>
 </body>
