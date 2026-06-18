@@ -260,7 +260,7 @@ textarea.fi{resize:vertical;min-height:60px}
       <div style="flex:1"></div>
       <div class="sb-footer">
         <div>VF_HM13.1 | ĐC 06/05/2026</div>
-        <div id="sb-gsheet" style="margin-top:4px"></div>
+        <div id="sb-gsheet" style="margin-top:4px"><a href="https://docs.google.com/spreadsheets/d/1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4/edit" target="_blank" style="color:var(--vf);font-size:10px;text-decoration:none">📊 Mở Google Sheet →</a></div>
       </div>
     </div>
 
@@ -761,7 +761,11 @@ let editYCBHId=null, editKhoId=null, editKtId=null;
 let importBuf={type:null,data:[]};
 
 // GOOGLE SHEET CONFIG — anh điền SCRIPT_URL của Apps Script vào đây
-const SCRIPT_URL = ''; // VD: 'https://script.google.com/macros/s/xxxx/exec'
+const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
+// Sau khi deploy Apps Script, điền URL vào đây:
+const SCRIPT_URL = ''; // TODO: paste Apps Script Web App URL here
+// Direct read via Sheets API public (read-only, không cần auth):
+const SHEETS_READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=`;
 
 // ============================================================
 // UTILS
@@ -1427,7 +1431,7 @@ function dlCSV(content,filename){
 // ============================================================
 function syncToSheet(sheetType,data){
   if(!SCRIPT_URL){
-    document.getElementById('sync-status').textContent='☁️ Chế độ offline (chưa cấu hình Sheet)';
+    document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL';
     return;
   }
   document.getElementById('sync-status').textContent='🔄 Đang đồng bộ...';
@@ -1440,18 +1444,24 @@ function syncToSheet(sheetType,data){
     .catch(()=>document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet');
 }
 function refreshData(){
-  if(!SCRIPT_URL){toast('Chưa cấu hình Google Sheet URL','warn');return;}
-  toast('Đang tải dữ liệu từ Google Sheet...','info');
-  fetch(SCRIPT_URL+'?action=getAll')
-    .then(r=>r.json())
-    .then(r=>{
-      if(r.ycbh)DB.ycbh=r.ycbh;
-      if(r.kho)DB.kho=r.kho;
-      if(r.kt)DB.kt=r.kt;
-      refreshAll();
-      toast('Đã tải dữ liệu mới nhất');
-    })
-    .catch(()=>toast('Không kết nối được Google Sheet','err'));
+  if(SCRIPT_URL){
+    toast('Đang tải dữ liệu từ Google Sheet...','info');
+    fetch(SCRIPT_URL+'?action=getAll')
+      .then(r=>r.json())
+      .then(r=>{
+        if(r.ycbh)DB.ycbh=r.ycbh;
+        if(r.kho)DB.kho=r.kho;
+        if(r.kt)DB.kt=r.kt;
+        refreshAll();
+        document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
+        toast('Đã tải dữ liệu mới nhất từ Google Sheet');
+      })
+      .catch(()=>toast('Không kết nối được Google Sheet','err'));
+  } else {
+    // Thử đọc trực tiếp qua gviz (chỉ đọc, không cần auth)
+    toast('Chưa cấu hình Apps Script URL — xem hướng dẫn tab Quy định','warn');
+    document.getElementById('sync-status').textContent='⚠️ Chưa cấu hình SCRIPT_URL';
+  }
 }
 
 // ============================================================
