@@ -761,7 +761,11 @@ let editYCBHId=null, editKhoId=null, editKtId=null;
 let importBuf={type:null,data:[]};
 
 // GOOGLE SHEET CONFIG — anh điền SCRIPT_URL của Apps Script vào đây
-const SCRIPT_URL = ''; // VD: 'https://script.google.com/macros/s/xxxx/exec'
+const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
+// SCRIPT_URL: sau khi deploy Apps Script, dán URL vào đây
+// Hướng dẫn: mở Google Sheet → Extensions → Apps Script → paste code → Deploy → Copy URL
+const SCRIPT_URL = ''; // ← Điền URL Apps Script sau khi deploy
+// Nếu chưa có SCRIPT_URL, dữ liệu lưu local (session) và hiển thị hướng dẫn setup
 
 // ============================================================
 // UTILS
@@ -1427,7 +1431,7 @@ function dlCSV(content,filename){
 // ============================================================
 function syncToSheet(sheetType,data){
   if(!SCRIPT_URL){
-    document.getElementById('sync-status').textContent='☁️ Chế độ offline (chưa cấu hình Sheet)';
+    document.getElementById('sync-status').textContent='🔧 Sheet ID: ...'+SHEET_ID.slice(-8)+' | Cần cấu hình Apps Script URL';
     return;
   }
   document.getElementById('sync-status').textContent='🔄 Đang đồng bộ...';
@@ -1469,6 +1473,53 @@ function refreshAll(){
 // INIT — wait for login
 // ============================================================
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-overlay')&&!document.getElementById('auth-overlay').classList.contains('hidden'))doLogin();});
+</script>
+
+<!-- ===== MODAL: SETUP GUIDE ===== -->
+<div class="overlay" id="modal-setup">
+  <div class="modal modal-md">
+    <div class="modal-hdr">
+      <span class="modal-title">🔧 Cấu hình kết nối Google Sheet</span>
+      <span class="modal-close" onclick="closeModal('modal-setup')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div style="background:#EFF6FF;border:1px solid #2563EB;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px">
+        <strong>Google Sheet ID của anh:</strong><br>
+        <span class="mono" style="font-size:13px;font-weight:700;color:var(--vf)">1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4</span><br>
+        <a href="https://docs.google.com/spreadsheets/d/1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4" target="_blank" style="font-size:11px;color:var(--vf)">🔗 Mở Google Sheet</a>
+      </div>
+      <div style="font-weight:700;font-size:13px;margin-bottom:10px">📋 Các bước cấu hình (5 phút):</div>
+      <div style="background:#F5F7FA;border-radius:8px;padding:14px;font-size:12px;line-height:2">
+        <strong>Bước 1:</strong> Mở Google Sheet → <strong>Extensions → Apps Script</strong><br>
+        <strong>Bước 2:</strong> Xóa code cũ → Paste đoạn code bên dưới vào → <strong>Ctrl+S</strong><br>
+        <strong>Bước 3:</strong> Click <strong>Deploy → New deployment → Web app</strong><br>
+        <strong>Bước 4:</strong> Execute as: <strong>Me</strong> | Who has access: <strong>Anyone</strong> → <strong>Deploy</strong><br>
+        <strong>Bước 5:</strong> Copy URL → Paste vào dòng <code>const SCRIPT_URL = ''</code> trong file index.html<br>
+        <strong>Bước 6:</strong> Upload lại index.html lên GitHub Pages
+      </div>
+      <div style="font-weight:700;font-size:13px;margin-top:16px;margin-bottom:8px">📄 Code Apps Script (copy toàn bộ):</div>
+      <div style="position:relative">
+        <button class="btn btn-ghost btn-xs" style="position:absolute;top:8px;right:8px;z-index:2" onclick="copyAppsScript()">📋 Copy</button>
+        <textarea id="apps-script-code" class="fi" rows="18" style="font-family:monospace;font-size:11px;background:#1E1E1E;color:#D4D4D4;border:1px solid #444;border-radius:8px;padding:12px;resize:none;width:100%" readonly></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="https://docs.google.com/spreadsheets/d/1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4" target="_blank" class="btn btn-primary">🔗 Mở Google Sheet</a>
+      <button class="btn btn-ghost" onclick="closeModal('modal-setup')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSetupGuide(){
+  document.getElementById('apps-script-code').value = "const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';\nconst SHEET_YCBH = 'YCBH';\nconst SHEET_KHO  = 'PhuTung';\nconst SHEET_KT   = 'KeToan';\n\n// ---- HEADERS ----\nconst HDR_YCBH = ['id','vin','model','wo','kh','hm','loai','cvdv','moLSC','htLSC','guiYCBH','soYCBH','gt','capPD','ngayPD','tt','traVe','ngayTV','hk','bkThang','ngayTT','ghichu','updatedAt'];\nconst HDR_KHO  = ['id','vin','ycbh','maPT','tenPT','phanLoai','sl','ngayPD','loaiKho','ttKho','ghichu','updatedAt'];\nconst HDR_KT   = ['ycbhId','tt','thangBK','ngayTT','ghichu','updatedAt'];\n\nfunction doGet(e){\n  try{\n    const action = e&&e.parameter&&e.parameter.action ? e.parameter.action : 'getAll';\n    if(action==='getAll'){\n      const ss = SpreadsheetApp.openById(SHEET_ID);\n      const ycbh = sheetToArr(ss, SHEET_YCBH);\n      const kho  = sheetToArr(ss, SHEET_KHO);\n      const kt   = sheetToObj(ss, SHEET_KT);\n      return jsonResp({success:true, ycbh, kho, kt});\n    }\n    return jsonResp({success:false, error:'Unknown action'});\n  }catch(err){return jsonResp({success:false, error:err.toString()});}\n}\n\nfunction doPost(e){\n  try{\n    const body = JSON.parse(e.postData.contents);\n    const {type, data, action} = body;\n    const ss = SpreadsheetApp.openById(SHEET_ID);\n    if(type==='ycbh') upsertRow(ss, SHEET_YCBH, HDR_YCBH, data, 'id');\n    else if(type==='kho') upsertRow(ss, SHEET_KHO, HDR_KHO, data, 'id');\n    else if(type==='kt')  upsertRow(ss, SHEET_KT, HDR_KT, data, 'ycbhId');\n    else if(type==='bulkYCBH') bulkUpsert(ss, SHEET_YCBH, HDR_YCBH, data, 'id');\n    else if(type==='bulkKho')  bulkUpsert(ss, SHEET_KHO, HDR_KHO, data, 'id');\n    else if(type==='deleteYCBH') deleteRow(ss, SHEET_YCBH, 'id', data.id);\n    return jsonResp({success:true});\n  }catch(err){return jsonResp({success:false, error:err.toString()});}\n}\n\n// ---- UTILS ----\nfunction jsonResp(obj){\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\nfunction ensureSheet(ss, name, headers){\n  let ws = ss.getSheetByName(name);\n  if(!ws){\n    ws = ss.insertSheet(name);\n    ws.getRange(1,1,1,headers.length).setValues([headers])\n      .setFontWeight('bold').setBackground('#0055CC').setFontColor('#FFFFFF');\n    ws.setFrozenRows(1);\n  }\n  return ws;\n}\nfunction sheetToArr(ss, name){\n  const ws = ss.getSheetByName(name);\n  if(!ws||ws.getLastRow()<2) return [];\n  const data = ws.getDataRange().getValues();\n  const hdrs = data[0];\n  return data.slice(1).filter(r=>r[0]!=='').map(r=>{\n    const obj={};hdrs.forEach((h,i)=>obj[h]=r[i]===''?'':r[i]);return obj;\n  });\n}\nfunction sheetToObj(ss, name){\n  const arr = sheetToArr(ss, name);\n  const obj={};arr.forEach(r=>{if(r.ycbhId)obj[r.ycbhId]=r;});\n  return obj;\n}\nfunction upsertRow(ss, name, headers, data, keyField){\n  const ws = ensureSheet(ss, name, headers);\n  data.updatedAt = new Date().toISOString();\n  const vals = ws.getDataRange().getValues();\n  const hdrs = vals[0];\n  const keyIdx = hdrs.indexOf(keyField);\n  const keyVal = data[keyField];\n  // Find existing row\n  for(let i=1;i<vals.length;i++){\n    if(String(vals[i][keyIdx])===String(keyVal)){\n      const row = headers.map(h=>data[h]!==undefined?data[h]:'');\n      ws.getRange(i+1,1,1,headers.length).setValues([row]);\n      return;\n    }\n  }\n  // Append\n  const row = headers.map(h=>data[h]!==undefined?data[h]:'');\n  ws.appendRow(row);\n}\nfunction bulkUpsert(ss, name, headers, dataArr, keyField){\n  if(!dataArr||!dataArr.length)return;\n  dataArr.forEach(d=>upsertRow(ss,name,headers,d,keyField));\n}\nfunction deleteRow(ss, name, keyField, keyVal){\n  const ws = ss.getSheetByName(name);\n  if(!ws)return;\n  const vals = ws.getDataRange().getValues();\n  const keyIdx = vals[0].indexOf(keyField);\n  for(let i=vals.length-1;i>=1;i--){\n    if(String(vals[i][keyIdx])===String(keyVal)){ws.deleteRow(i+1);return;}\n  }\n}";
+  openModal('modal-setup');
+}
+function copyAppsScript(){
+  const el=document.getElementById('apps-script-code');
+  el.select();document.execCommand('copy');
+  toast('Đã copy code Apps Script!');
+}
 </script>
 </body>
 </html>
