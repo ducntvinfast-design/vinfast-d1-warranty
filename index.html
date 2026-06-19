@@ -1995,3 +1995,29 @@ function refreshAll(){
 // AUTO POLL
 // ============================================================
 let _pollTimer = null;
+function startAutoSync(){
+  if(!SCRIPT_URL) return;
+  stopAutoSync();
+  _pollTimer = setInterval(()=>{
+    if(!CU) return; 
+    fetch(SCRIPT_URL+'?action=getAll')
+      .then(r=>r.json())
+      .then(r=>{
+        if(r.ycbh){
+          DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{};
+          saveLocal(); refreshAll();
+          document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
+        }
+      })
+      .catch(()=>{});
+  }, 30000); 
+}
+function stopAutoSync(){
+  if(_pollTimer){ clearInterval(_pollTimer); _pollTimer=null; }
+}
+
+// INIT
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-overlay')&&!document.getElementById('auth-overlay').classList.contains('hidden'))doLogin();});
+</script>
+</body>
+</html>
