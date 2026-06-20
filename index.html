@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#0055CC">
-<title>Quản Trị Bảo Hành | VinFast Đồng Văn Cống</title>
+<title>Quản trị Xưởng Dịch Vụ 3S | VinFast Đồng Văn Cống</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ============================================================
@@ -539,7 +539,7 @@ textarea.fi{resize:vertical;min-height:64px}
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-vf-badge">VinFast 3S</div>
-    <div class="auth-title">Quản Trị Bảo Hành</div>
+    <div class="auth-title">Quản trị Xưởng Dịch Vụ 3S</div>
     <div class="auth-sub">Đồng Văn Cống — Vui lòng đăng nhập</div>
     <div class="auth-err" id="auth-err">Tên đăng nhập hoặc mật khẩu không đúng</div>
     <div class="auth-field">
@@ -578,7 +578,7 @@ textarea.fi{resize:vertical;min-height:64px}
 
     <div class="sidebar" id="sidebar">
       <div class="sb-brand">
-        <div class="sb-brand-name">Quản Trị Bảo Hành</div>
+        <div class="sb-brand-name">Quản trị Xưởng Dịch Vụ 3S</div>
         <div class="sb-brand-date" id="sb-date"></div>
       </div>
       <div class="sb-group">Điều hành</div>
@@ -1388,6 +1388,10 @@ let currentKtTab = 'ycbh';
 // MẢNG CẤU HÌNH LƯU TRỮ GOOGLE SCRIPT
 const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7hyiti1wcU5fh8xUs4Bz8XPdAeBikpXnPXT97eJf74A8onEgH6BGOlfiXmLfy9baP/exec';
+// ADDED: chống lỗi tự đồng bộ nền (30s/lần) ghi đè mất hồ sơ vừa lưu khi Apps Script chưa kịp ghi xong lên Sheet.
+// Mỗi lần gọi syncToSheet (lưu hồ sơ), tạm "khoá" việc áp dữ liệu tải về trong một khoảng thời gian ngắn.
+let _dirtyUntil = 0;
+function markDirty(ms){ _dirtyUntil = Date.now() + (ms || 12000); }
 const LS_KEY = 'vf_dvc_db_v1';
 
 function saveLocal(){
@@ -1456,6 +1460,25 @@ function canEdit(mod){return CU&&ROLE_ACCESS[CU.role].edit.includes(mod);}
 let filterMonth = (function(){ try{ return localStorage.getItem('vf_dvc_filter_month')||''; }catch(e){ return ''; } })();
 function getMonthKey(dateStr){ if(!dateStr) return null; return String(dateStr).slice(0,7); }
 function matchMonth(dateStr){ if(!filterMonth) return true; return getMonthKey(dateStr)===filterMonth; }
+// ADDED: chống lỗi "lưu xong hồ sơ tự biến mất" do bộ lọc tháng đang chọn khác tháng của hồ sơ vừa lưu.
+// Nếu hồ sơ vừa lưu không thuộc tháng đang lọc, tự động chuyển bộ lọc sang đúng tháng đó và báo cho người dùng biết.
+function ensureMonthVisible(dateStr){
+  if(!filterMonth) return; // đang xem "Tất cả các tháng" thì không cần xử lý gì
+  const key=getMonthKey(dateStr);
+  if(!key){
+    // hồ sơ chưa có ngày -> chắc chắn sẽ bị bộ lọc tháng ẩn đi, tạm thời bỏ lọc để người dùng thấy ngay
+    filterMonth='';
+    try{ localStorage.setItem('vf_dvc_filter_month',''); }catch(e){}
+    toast('📅 Hồ sơ chưa có ngày nên đã tự chuyển bộ lọc về "Tất cả các tháng" để hiển thị','info');
+    return;
+  }
+  if(key!==filterMonth){
+    filterMonth=key;
+    try{ localStorage.setItem('vf_dvc_filter_month',key); }catch(e){}
+    const [y,mo]=key.split('-');
+    toast(`📅 Hồ sơ thuộc Tháng ${mo}/${y} — đã tự chuyển bộ lọc tháng để hiển thị hồ sơ vừa lưu`,'info');
+  }
+}
 function getAllMonths(){
   const set=new Set();
   DB.ycbh.forEach(r=>{ if(r.htLSC) set.add(r.htLSC.slice(0,7)); });
@@ -1777,6 +1800,7 @@ function saveYCBH(){
   };
   if(editYCBHId){const i=DB.ycbh.findIndex(x=>x.id===editYCBHId);DB.ycbh[i]=obj;}
   else DB.ycbh.unshift(obj);
+  ensureMonthVisible(obj.htLSC);
   closeModal('modal-ycbh'); saveLocal(); refreshAll(); toast(editYCBHId?'✅ Đã cập nhật':'✅ Đã thêm mới');
   syncToSheet('ycbh',obj);
 }
@@ -1847,6 +1871,7 @@ function renderBH(){
 function openAddBH(){
   editBHId=null; document.getElementById('mbh-title').textContent='➕ Thêm Hồ sơ Bảo Hiểm';
   ['fbh-bienso','fbh-wo','fbh-kh','fbh-hang','fbh-cvdv','fbh-ngayvao','fbh-gia','fbh-ngayduyet'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fbh-ngayvao').value=today(); // ADDED: mặc định hôm nay, tránh bỏ trống gây lỗi ẩn theo bộ lọc tháng
   document.getElementById('fbh-tt-sc').value='Chưa Bắt Đầu';
   document.getElementById('fbh-tt-bh').value='10. Lý do khác';
   openModal('modal-bh');
@@ -1863,6 +1888,8 @@ function openEditBH(id){
 function saveBH(){
   const bienSo=document.getElementById('fbh-bienso').value.trim();
   if(!bienSo){toast('Vui lòng nhập Biển số','err');return;}
+  const ngayVao=document.getElementById('fbh-ngayvao').value;
+  if(!ngayVao){toast('Vui lòng nhập Ngày vào xưởng','err');return;} // ADDED: field này đã đánh dấu bắt buộc (*) nhưng trước đây chưa được kiểm tra
   const obj={
     id:editBHId||uid(),
     bienSo, wo:document.getElementById('fbh-wo').value.trim(), kh:document.getElementById('fbh-kh').value.trim(),
@@ -1873,6 +1900,7 @@ function saveBH(){
   };
   if(editBHId){const i=DB.bh.findIndex(x=>x.id===editBHId);DB.bh[i]=obj;}
   else DB.bh.unshift(obj);
+  ensureMonthVisible(obj.ngayVao);
   closeModal('modal-bh'); saveLocal(); refreshAll(); toast(editBHId?'✅ Đã cập nhật':'✅ Đã thêm BH mới');
   syncToSheet('bh',obj);
 }
@@ -2010,6 +2038,7 @@ function saveKho(){
   };
   if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;}
   else DB.kho.unshift(obj);
+  ensureMonthVisible(obj.ngayPD);
   closeModal('modal-kho'); saveLocal(); renderKho();updateBadges(); toast(editKhoId?'✅ Đã cập nhật':'✅ Đã thêm');
   syncToSheet('kho',obj);
 }
@@ -2220,6 +2249,7 @@ function saveCKTGSC(){
     trangThai:document.getElementById('ck-trang-thai').value,ghichu:document.getElementById('ck-ghichu').value,
   };
   if(editCktgscId){const i=DB.cktgsc.findIndex(x=>x.id===editCktgscId);DB.cktgsc[i]=obj;} else DB.cktgsc.unshift(obj);
+  ensureMonthVisible(obj.ngayNhan);
   closeModal('modal-cktgsc'); saveLocal(); refreshAll(); toast(editCktgscId?'✅ Đã cập nhật hồ sơ CKTGSC':'✅ Đã thêm hồ sơ CKTGSC'); syncToSheet('cktgsc',obj);
 }
 function delCKTGSC(id){
@@ -2607,6 +2637,7 @@ function syncToSheet(sheetType,data){
     document.getElementById('sync-status').textContent='⚠️ Offline — chưa cấu hình Apps Script URL';
     return;
   }
+  markDirty(); // ADDED: bảo vệ hồ sơ vừa lưu khỏi bị vòng tự đồng bộ tiếp theo ghi đè trong lúc Apps Script đang xử lý
   document.getElementById('sync-status').textContent='🔄 Đang đồng bộ...';
   fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:sheetType,data})})
     .then(r=>r.json())
@@ -2663,10 +2694,12 @@ function startAutoSync(){
   if(!SCRIPT_URL) return;
   stopAutoSync();
   _pollTimer = setInterval(()=>{
-    if(!CU) return; 
+    if(!CU) return;
+    if(Date.now() < _dirtyUntil) return; // ADDED: vừa lưu hồ sơ gần đây — bỏ qua lần tự đồng bộ này để không ghi đè mất dữ liệu local
     fetch(SCRIPT_URL+'?action=getAll')
       .then(r=>r.json())
       .then(r=>{
+        if(Date.now() < _dirtyUntil) return; // ADDED: kiểm tra lại lần nữa phòng trường hợp vừa có thao tác lưu trong lúc đang chờ phản hồi
         if(r.ycbh){
           DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           DB.bh=r.bh||[]; DB.ktbh=r.ktbh||{}; // Auto sync BH
