@@ -621,6 +621,10 @@ textarea.fi{resize:vertical;min-height:64px}
         <span class="nav-icon">📌</span>
         <span class="nav-label">Quy định</span>
       </div>
+      <div class="nav-item" data-pane="pane-log" onclick="goPane('pane-log')" data-roles="admin">
+        <span class="nav-icon">🕓</span>
+        <span class="nav-label">Lịch sử thao tác</span>
+      </div>
       <div style="flex:1"></div>
       <div class="sb-footer">
         <div>VF_HM13.1 &nbsp;·&nbsp; ĐC 06/05/2026</div>
@@ -743,13 +747,13 @@ textarea.fi{resize:vertical;min-height:64px}
             <option value="dang-luu">Đang lưu kho</option>
             <option value="da-xu-ly">Đã xử lý</option>
           </select>
-          <button class="btn btn-primary btn-sm" onclick="openAddKho()" data-roles="admin,cvdv,kho">＋ Nhập PT</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddKho()" data-roles="admin,kho">＋ Nhập PT</button>
         </div>
         <div class="card">
           <div class="tbl-wrap">
             <table>
               <thead><tr>
-                <th style="width:32px"><input type="checkbox" id="chk-all-kho" onchange="toggleAllKho(this)"></th>
+                <th style="width:32px"><input type="checkbox" id="chk-all-kho" onchange="toggleAllKho(this)" data-roles="admin,kho"></th>
                 <th>#</th><th>Nguồn</th><th>VIN / Biển số</th><th>CVDV</th><th>Mã PT</th><th>Tên PT</th><th>SL</th>
                 <th>Ngày PD</th><th>Lưu tối thiểu</th><th>Tiến độ</th>
                 <th>Trạng thái</th><th>Ghi chú</th><th>Thao tác</th>
@@ -1005,12 +1009,53 @@ textarea.fi{resize:vertical;min-height:64px}
               <thead><tr><th>Role</th><th>Tài khoản</th><th>Truy cập</th></tr></thead>
               <tbody>
                 <tr><td><span class="badge badge-green">Admin</span></td><td class="mono">admin, gdx</td><td style="font-size:12px">Toàn bộ</td></tr>
-                <tr><td><span class="badge badge-blue">CVDV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td style="font-size:12px">YCBH, Kho, CKTGSC, Import</td></tr>
+                <tr><td><span class="badge badge-blue">CVDV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td style="font-size:12px">YCBH, Bảo hiểm, CKTGSC, Import — Kho PT (chỉ xem)</td></tr>
                 <tr><td><span class="badge badge-purple">Kế Toán</span></td><td class="mono">ketoan1</td><td style="font-size:12px">Kế toán TT</td></tr>
-                <tr><td><span class="badge badge-yellow">Kho BH</span></td><td class="mono">kho1</td><td style="font-size:12px">Kho phụ tùng</td></tr>
+                <tr><td><span class="badge badge-yellow">Kho BH</span></td><td class="mono">kho1</td><td style="font-size:12px">Kho phụ tùng (toàn quyền)</td></tr>
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- ADDED: TRANG LỊCH SỬ THAO TÁC — chỉ admin truy cập được (xem ROLE_ACCESS.admin.panes) -->
+      <div class="pane" id="pane-log">
+        <div class="card-hdr" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;padding:12px 14px">
+          <span class="card-title">🕓 Lịch Sử Thao Tác (Admin)</span>
+          <input class="fi btn-sm" style="width:180px" placeholder="🔍 Tìm tài khoản / nội dung..." id="search-log" oninput="renderLog()">
+          <select class="fi btn-sm" style="width:auto" id="f-log-module" onchange="renderLog()">
+            <option value="">Tất cả module</option>
+            <option value="ycbh">YCBH Bảo hành</option>
+            <option value="bh">Bảo hiểm Đồng sơn</option>
+            <option value="kho">Kho Phụ tùng</option>
+            <option value="cktgsc">CKTGSC</option>
+            <option value="kt">Kế toán</option>
+            <option value="he_thong">Hệ thống (đăng nhập)</option>
+          </select>
+          <select class="fi btn-sm" style="width:auto" id="f-log-action" onchange="renderLog()">
+            <option value="">Tất cả hành động</option>
+            <option value="them">➕ Thêm mới</option>
+            <option value="sua">✏️ Cập nhật</option>
+            <option value="xoa">🗑️ Xóa</option>
+            <option value="dangnhap">🔑 Đăng nhập</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="exportLogCSV()">⬇️ Xuất CSV</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th style="width:36px">#</th><th>Thời gian</th><th>Tài khoản</th><th>Vai trò</th>
+                <th>Hành động</th><th>Module</th><th>Nội dung</th>
+              </tr></thead>
+              <tbody id="tbody-log"></tbody>
+            </table>
+          </div>
+          <div id="empty-log" style="padding:32px;text-align:center;color:var(--muted);display:none">🕓 Chưa có lịch sử thao tác nào.</div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted)">
+          Lưu ý: lịch sử thao tác lưu tối đa ${1000} dòng gần nhất trên mỗi thiết bị. Để admin xem được thao tác của
+          toàn bộ tài khoản từ mọi thiết bị, cần cấu hình thêm sheet "Log" phía Apps Script (liên hệ người phát triển).
         </div>
       </div>
 
@@ -1368,8 +1413,8 @@ const USERS = [
 ];
 // Đã thêm 'pane-bh' vào các quyền truy cập
 const ROLE_ACCESS = {
-  admin:  {panes:['pane-dash','pane-ycbh','pane-bh','pane-kho','pane-cktgsc','pane-kt','pane-import','pane-qd'],edit:['ycbh','bh','kho','cktgsc','kt','import']},
-  cvdv:   {panes:['pane-dash','pane-ycbh','pane-bh','pane-kho','pane-cktgsc','pane-import','pane-qd'],         edit:['ycbh','bh','kho','cktgsc','import']},
+  admin:  {panes:['pane-dash','pane-ycbh','pane-bh','pane-kho','pane-cktgsc','pane-kt','pane-import','pane-qd','pane-log'],edit:['ycbh','bh','kho','cktgsc','kt','import']}, // ADDED: pane-log chỉ admin
+  cvdv:   {panes:['pane-dash','pane-ycbh','pane-bh','pane-kho','pane-cktgsc','pane-import','pane-qd'],         edit:['ycbh','bh','cktgsc','import']}, // ADDED: bỏ 'kho' — CVDV chỉ được XEM Kho PT, không thao tác
   ketoan: {panes:['pane-dash','pane-kt','pane-qd'],                                                            edit:['kt']},
   kho:    {panes:['pane-dash','pane-kho','pane-qd'],                                                           edit:['kho']},
 };
@@ -1380,7 +1425,7 @@ let CU = null;
 // DATA & STATE
 // ============================================================
 // Đã thêm mảng bh và ktbh
-let DB = {ycbh:[], kho:[], kt:{}, cktgsc:[], bh:[], ktbh:{}};
+let DB = {ycbh:[], kho:[], kt:{}, cktgsc:[], bh:[], ktbh:{}, log:[]}; // ADDED: log = lịch sử thao tác
 let editYCBHId=null, editKhoId=null, editKtId=null, editCktgscId=null, editBHId=null, editKtType='ycbh';
 let importBuf={type:null,data:[]};
 let currentKtTab = 'ycbh';
@@ -1404,6 +1449,7 @@ function loadLocal(){
     if(parsed.ycbh && parsed.ycbh.length>0){
       DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; DB.cktgsc=parsed.cktgsc||[];
       DB.bh=parsed.bh||[]; DB.ktbh=parsed.ktbh||{}; // Load thêm
+      DB.log=parsed.log||[]; // ADDED: load lịch sử thao tác
       return true;
     }
   }catch(e){console.warn('loadLocal error',e);}
@@ -1423,6 +1469,7 @@ function doLogin(){
   document.getElementById('app').classList.add('show');
   applyRole(); loadRateSetting();
   const hasLocal = loadLocal();
+  logAction('dangnhap','he_thong',`Đăng nhập (${ROLE_LBL[CU.role]||CU.role})`); // ADDED — log sau loadLocal để không bị ghi đè bởi log cũ tải từ máy
   if(hasLocal){
     document.getElementById('sync-status').textContent='💾 Đã tải từ bộ nhớ cục bộ';
     initDate(); refreshAll();
@@ -1507,19 +1554,80 @@ function findRelatedYCBHForKho(khoRow){
   }
   return DB.ycbh.find(x=>x.vin===khoRow.vin || (khoRow.ycbh && (x.wo===khoRow.ycbh || x.soYCBH===khoRow.ycbh)));
 }
+// ADDED: tách logic tính "tháng cơ sở" của 1 dòng Kho PT ra hàm dùng chung (trước đây saveKho() dùng ngayPD
+// để xác định tháng hiển thị, nhưng monthScopedKho() lại ưu tiên ngày của hồ sơ YCBH/BH liên quan nếu tìm thấy
+// -> 2 nơi tính khác nhau khiến hồ sơ Kho PT vừa lưu có thể bị bộ lọc tháng ẩn đi dù đã sửa ensureMonthVisible).
+function khoMonthBasis(r){
+  const rel=findRelatedYCBHForKho(r);
+  return rel ? (rel.htLSC || rel.ngayVao) : r.ngayPD;
+}
 function monthScopedKho(){
-  return DB.kho.filter(r=>{
-    const rel=findRelatedYCBHForKho(r);
-    // Nếu là bảo hiểm thì tính theo ngày vào, ycbh tính theo htLSC
-    const basis = rel ? (rel.htLSC || rel.ngayVao) : r.ngayPD;
-    return matchMonth(basis);
-  });
+  return DB.kho.filter(r=>matchMonth(khoMonthBasis(r)));
 }
 
 // ============================================================
 // UTILS
 // ============================================================
 const uid=()=>'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+// ADDED: LỊCH SỬ THAO TÁC — ghi lại mọi hành động thêm/sửa/xóa của các tài khoản, chỉ admin xem được (xem pane-log).
+const LOG_MAX = 1000; // giới hạn số dòng lưu local để tránh đầy localStorage
+function logAction(action, module, summary){
+  if(!CU) return;
+  const entry={
+    id:uid(), ts:new Date().toISOString(),
+    u:CU.u, name:CU.name, role:CU.role,
+    action, module, summary:String(summary||'').slice(0,200)
+  };
+  DB.log.unshift(entry);
+  if(DB.log.length>LOG_MAX) DB.log.length=LOG_MAX;
+  saveLocal();
+  syncToSheet('log', entry); // nếu Apps Script chưa hỗ trợ type 'log' thì lệnh này chỉ báo lỗi đồng bộ, không ảnh hưởng dữ liệu local
+  const tbody=document.getElementById('tbody-log'); if(tbody) renderLog();
+}
+const LOG_ACTION_LBL = {them:'➕ Thêm mới', sua:'✏️ Cập nhật', xoa:'🗑️ Xóa', dangnhap:'🔑 Đăng nhập'};
+const LOG_MODULE_LBL = {ycbh:'YCBH Bảo hành', bh:'Bảo hiểm Đồng sơn', kho:'Kho Phụ tùng', cktgsc:'CKTGSC', kt:'Kế toán', he_thong:'Hệ thống'};
+// ADDED: render trang Lịch Sử Thao Tác (chỉ admin truy cập được pane này, xem ROLE_ACCESS)
+function renderLog(){
+  const tbody=document.getElementById('tbody-log'); if(!tbody)return;
+  const q=(document.getElementById('search-log')||{value:''}).value.toLowerCase();
+  const fMod=(document.getElementById('f-log-module')||{value:''}).value;
+  const fAct=(document.getElementById('f-log-action')||{value:''}).value;
+  const rows=(DB.log||[]).filter(r=>{
+    if(fMod && r.module!==fMod) return false;
+    if(fAct && r.action!==fAct) return false;
+    if(q && !`${r.name} ${r.u} ${r.summary}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  tbody.innerHTML=rows.map((r,i)=>{
+    const dt=new Date(r.ts);
+    const tStr=isNaN(dt)?r.ts:dt.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return`<tr>
+      <td class="fc-muted fs10">${i+1}</td>
+      <td class="fs11">${tStr}</td>
+      <td class="fw7">${esc(r.name)}<br><span class="fc-muted fs10">${esc(r.u)}</span></td>
+      <td class="fs11">${esc(ROLE_LBL[r.role]||r.role)}</td>
+      <td class="fs11">${LOG_ACTION_LBL[r.action]||esc(r.action)}</td>
+      <td class="fs11">${LOG_MODULE_LBL[r.module]||esc(r.module)}</td>
+      <td class="fc-muted fs11">${esc(r.summary)}</td>
+    </tr>`;
+  }).join('');
+  const empty=document.getElementById('empty-log'); if(empty) empty.style.display=rows.length?'none':'block';
+}
+function exportLogCSV(){
+  const rows=DB.log||[]; if(!rows.length){toast('Chưa có dữ liệu lịch sử để xuất','warn');return;}
+  const head=['Thời gian','Tài khoản','Tên','Vai trò','Hành động','Module','Nội dung'];
+  const lines=[head.join(',')];
+  rows.forEach(r=>{
+    const dt=new Date(r.ts); const tStr=isNaN(dt)?r.ts:dt.toLocaleString('vi-VN');
+    const cells=[tStr,r.u,r.name,ROLE_LBL[r.role]||r.role,LOG_ACTION_LBL[r.action]||r.action,LOG_MODULE_LBL[r.module]||r.module,r.summary]
+      .map(v=>`"${String(v||'').replace(/"/g,'""')}"`);
+    lines.push(cells.join(','));
+  });
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`lich-su-thao-tac_${today()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
 const fmtD=d=>{if(!d)return '—';const x=new Date(d);return isNaN(x)?String(d):x.toLocaleDateString('vi-VN');};
 const fmtMoney=n=>{if(!n||n==0)return '—';return Number(n).toLocaleString('vi-VN')+'đ';};
 const daysDiff=(a,b)=>{if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/86400000);};
@@ -1543,6 +1651,7 @@ const PANE_TITLES={
   'pane-dash':'Dashboard', 'pane-ycbh':'Hồ sơ YCBH Bảo Hành', 'pane-bh':'Hồ sơ Bảo Hiểm Đồng Sơn',
   'pane-kho':'Kho Phụ Tùng', 'pane-cktgsc':'Cam Kết Thời Gian Sửa Chữa (CKTGSC)',
   'pane-kt':'Kế Toán / Thanh Toán', 'pane-import':'Import Dữ Liệu', 'pane-qd':'Quy Định Mốc Thời Gian',
+  'pane-log':'Lịch Sử Thao Tác', // ADDED
 };
 function goPane(id){
   if(!CU)return; const acc=ROLE_ACCESS[CU.role]; if(!acc.panes.includes(id))return;
@@ -1558,6 +1667,7 @@ function goPane(id){
   else if(id==='pane-kho')renderKho();
   else if(id==='pane-cktgsc')renderCKTGSC();
   else if(id==='pane-kt')renderKT();
+  else if(id==='pane-log')renderLog(); // ADDED
 }
 
 function seedData(){
@@ -1801,6 +1911,7 @@ function saveYCBH(){
   if(editYCBHId){const i=DB.ycbh.findIndex(x=>x.id===editYCBHId);DB.ycbh[i]=obj;}
   else DB.ycbh.unshift(obj);
   ensureMonthVisible(obj.htLSC);
+  logAction(editYCBHId?'sua':'them','ycbh',`VIN ${obj.vin} — ${obj.kh||''}`); // ADDED
   closeModal('modal-ycbh'); saveLocal(); refreshAll(); toast(editYCBHId?'✅ Đã cập nhật':'✅ Đã thêm mới');
   syncToSheet('ycbh',obj);
 }
@@ -1824,6 +1935,7 @@ function bulkDeleteYCBH(scope){
   if(!ids.length)return; if(!confirm(`Xóa ${ids.length} hồ sơ đã chọn?\nHành động này không thể hoàn tác.`))return;
   DB.ycbh=DB.ycbh.filter(r=>!ids.includes(r.id));
   ids.forEach(id=>{delete DB.kt[id];});
+  logAction('xoa','ycbh',`Xóa ${ids.length} hồ sơ YCBH`); // ADDED
   saveLocal();clearSelYCBH(scope);refreshAll(); toast(`✅ Đã xóa ${ids.length} hồ sơ`,'warn');
 }
 
@@ -1901,6 +2013,7 @@ function saveBH(){
   if(editBHId){const i=DB.bh.findIndex(x=>x.id===editBHId);DB.bh[i]=obj;}
   else DB.bh.unshift(obj);
   ensureMonthVisible(obj.ngayVao);
+  logAction(editBHId?'sua':'them','bh',`Biển số ${obj.bienSo} — ${obj.hangBH||''}`); // ADDED
   closeModal('modal-bh'); saveLocal(); refreshAll(); toast(editBHId?'✅ Đã cập nhật':'✅ Đã thêm BH mới');
   syncToSheet('bh',obj);
 }
@@ -1968,7 +2081,7 @@ function renderKho(){
     let loaiBadge = r.loai === 'baohiem' ? '<span class="badge badge-purple">Bảo Hiểm</span>' : '<span class="badge badge-blue">Bảo Hành</span>';
 
     return`<tr>
-      <td><input type="checkbox" class="chk-kho-row" data-id="${r.id}" onchange="onChkKho()"></td>
+      <td>${canEdit('kho')?`<input type="checkbox" class="chk-kho-row" data-id="${r.id}" onchange="onChkKho()">`:''}</td>
       <td class="fc-muted fs10">${i+1}</td>
       <td>${loaiBadge}</td>
       <td class="mono fs10">${esc(r.vin)}<br><span class="fc-muted">${esc(r.ycbh)}</span></td>
@@ -1997,6 +2110,7 @@ function openAddKho(){
   document.getElementById('mkt-title').textContent='📦 Nhập PT kho';
   document.getElementById('fk-loai').value = 'baohanh'; toggleKhoNguon(); // Reset source
   ['fk-vin','fk-ycbh','fk-ma','fk-ten','fk-ghichu','fk-ngay-pd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fk-ngay-pd').value=today(); // ADDED: mặc định hôm nay, tránh để trống gây lỗi ẩn theo bộ lọc tháng
   document.getElementById('fk-sl').value=1;
   document.getElementById('fk-loai-kho').value='60';
   document.getElementById('fk-tt-kho').value='dang-luu';
@@ -2038,13 +2152,14 @@ function saveKho(){
   };
   if(editKhoId){const i=DB.kho.findIndex(x=>x.id===editKhoId);DB.kho[i]=obj;}
   else DB.kho.unshift(obj);
-  ensureMonthVisible(obj.ngayPD);
+  ensureMonthVisible(khoMonthBasis(obj)); // SỬA: dùng đúng cơ sở tháng giống monthScopedKho() thay vì chỉ obj.ngayPD
+  logAction(editKhoId?'sua':'them','kho',`PT ${obj.maPT} — ${obj.tenPT||''} (VIN/Biển số ${obj.vin||'—'})`); // ADDED
   closeModal('modal-kho'); saveLocal(); renderKho();updateBadges(); toast(editKhoId?'✅ Đã cập nhật':'✅ Đã thêm');
   syncToSheet('kho',obj);
 }
 function proposeHuy(id){
   const r=DB.kho.find(x=>x.id===id);if(!r)return;
-  r.ttKho='cho-vf'; saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT,'info');
+  r.ttKho='cho-vf'; logAction('sua','kho',`Đề xuất hủy PT ${r.maPT}`); saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT,'info');
 }
 
 // BULK SELECT — KHO
@@ -2060,12 +2175,14 @@ function clearSelKho(){ document.querySelectorAll('.chk-kho-row').forEach(c=>c.c
 function bulkProposeHuy(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   ids.forEach(id=>{const r=DB.kho.find(x=>x.id===id);if(r)r.ttKho='cho-vf';});
+  logAction('sua','kho',`Đề xuất hủy ${ids.length} phụ tùng`); // ADDED
   saveLocal();renderKho();updateBadges();clearSelKho(); toast(`📋 Đã đề xuất hủy ${ids.length} phụ tùng`,'info');
 }
 function bulkDeleteKho(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   if(!confirm(`Xóa ${ids.length} phụ tùng đã chọn?`))return;
   DB.kho=DB.kho.filter(r=>!ids.includes(r.id));
+  logAction('xoa','kho',`Xóa ${ids.length} phụ tùng`); // ADDED
   saveLocal();renderKho();updateBadges();clearSelKho(); toast(`✅ Đã xóa ${ids.length} phụ tùng`,'warn');
 }
 
@@ -2250,10 +2367,15 @@ function saveCKTGSC(){
   };
   if(editCktgscId){const i=DB.cktgsc.findIndex(x=>x.id===editCktgscId);DB.cktgsc[i]=obj;} else DB.cktgsc.unshift(obj);
   ensureMonthVisible(obj.ngayNhan);
+  logAction(editCktgscId?'sua':'them','cktgsc',`VIN/Biển số ${obj.vin} — ${obj.kh||''}`); // ADDED
   closeModal('modal-cktgsc'); saveLocal(); refreshAll(); toast(editCktgscId?'✅ Đã cập nhật hồ sơ CKTGSC':'✅ Đã thêm hồ sơ CKTGSC'); syncToSheet('cktgsc',obj);
 }
 function delCKTGSC(id){
-  if(!confirm('Xóa hồ sơ CKTGSC này?'))return; DB.cktgsc=DB.cktgsc.filter(x=>x.id!==id); saveLocal(); refreshAll();toast('Đã xóa','err');
+  if(!confirm('Xóa hồ sơ CKTGSC này?'))return;
+  const r=DB.cktgsc.find(x=>x.id===id);
+  DB.cktgsc=DB.cktgsc.filter(x=>x.id!==id);
+  logAction('xoa','cktgsc',`Xóa hồ sơ CKTGSC — VIN ${r?r.vin:id}`); // ADDED
+  saveLocal(); refreshAll();toast('Đã xóa','err');
 }
 function toggleAllCktgsc(el){ document.querySelectorAll('.chk-ck-row').forEach(c=>c.checked=el.checked); updateBulkBarCktgsc(); }
 function onChkCktgsc(){updateBulkBarCktgsc();}
@@ -2266,7 +2388,9 @@ function updateBulkBarCktgsc(){
 function clearSelCktgsc(){ document.querySelectorAll('.chk-ck-row').forEach(c=>c.checked=false); const hdr=document.getElementById('chk-all-ck');if(hdr){hdr.checked=false;hdr.indeterminate=false;} const bar=document.getElementById('bulk-bar-ck');if(bar)bar.classList.remove('show'); }
 function bulkDeleteCktgsc(){
   const ids=[...document.querySelectorAll('.chk-ck-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
-  if(!confirm(`Xóa ${ids.length} hồ sơ CKTGSC đã chọn?`))return; DB.cktgsc=DB.cktgsc.filter(r=>!ids.includes(r.id)); saveLocal();refreshAll();clearSelCktgsc(); toast(`✅ Đã xóa ${ids.length} hồ sơ CKTGSC`,'warn');
+  if(!confirm(`Xóa ${ids.length} hồ sơ CKTGSC đã chọn?`))return; DB.cktgsc=DB.cktgsc.filter(r=>!ids.includes(r.id));
+  logAction('xoa','cktgsc',`Xóa ${ids.length} hồ sơ CKTGSC`); // ADDED
+  saveLocal();refreshAll();clearSelCktgsc(); toast(`✅ Đã xóa ${ids.length} hồ sơ CKTGSC`,'warn');
 }
 
 // ============================================================
@@ -2426,6 +2550,7 @@ function saveKT(){
       ghichu:document.getElementById('kt-ghichu').value
     };
   }
+  logAction('sua','kt',`Cập nhật trạng thái TT (${editKtType==='bh'?'Bảo hiểm':'YCBH'}) — ${editKtId}`); // ADDED
   closeModal('modal-kt'); saveLocal(); renderKT();updateBadges(); toast('✅ Đã cập nhật trạng thái TT');
 }
 
@@ -2455,6 +2580,7 @@ function markSelectedTT(){
     DB.kt[c.dataset.id].tt='da-tt';
     DB.kt[c.dataset.id].ngayTT=today();
   });
+  logAction('sua','kt',`Đánh dấu Đã TT VF cho ${checked.length} hồ sơ`); // ADDED
   saveLocal(); renderKT(); updateBadges(); clearSelKT();
   toast(`Đã đánh dấu ${checked.length} hồ sơ là Đã TT VF`);
 }
@@ -2463,6 +2589,7 @@ function bulkResetKT(){
   if(!ids.length) return;
   if(!confirm(`Xóa dữ liệu kế toán của ${ids.length} hồ sơ đã chọn?`)) return;
   ids.forEach(id=>{ delete DB.kt[id]; });
+  logAction('xoa','kt',`Xóa dữ liệu TT của ${ids.length} hồ sơ`); // ADDED
   saveLocal(); renderKT(); updateBadges(); clearSelKT();
   toast(`✅ Đã xóa dữ liệu Thanh toán của ${ids.length} hồ sơ`, 'warn');
 }
@@ -2660,6 +2787,7 @@ function refreshData(){
         if(r.cktgsc)DB.cktgsc=r.cktgsc;
         if(r.bh)DB.bh=r.bh;           // Load BH
         if(r.ktbh)DB.ktbh=r.ktbh;     // Load KTBH
+        if(r.log)DB.log=r.log;        // ADDED: Load lịch sử thao tác (nếu Apps Script đã hỗ trợ sheet "Log")
         saveLocal(); 
         refreshAll();
         document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
@@ -2703,6 +2831,7 @@ function startAutoSync(){
         if(r.ycbh){
           DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           DB.bh=r.bh||[]; DB.ktbh=r.ktbh||{}; // Auto sync BH
+          if(r.log) DB.log=r.log; // ADDED: đồng bộ lịch sử thao tác từ Sheet (nếu backend đã hỗ trợ)
           saveLocal(); refreshAll();
           document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
         }
