@@ -1934,7 +1934,7 @@ function bulkDeleteYCBH(scope){
   const ids=[...document.querySelectorAll(`.chk-ycbh-${scope}:checked`)].map(c=>c.dataset.id);
   if(!ids.length)return; if(!confirm(`Xóa ${ids.length} hồ sơ đã chọn?\nHành động này không thể hoàn tác.`))return;
   DB.ycbh=DB.ycbh.filter(r=>!ids.includes(r.id));
-  ids.forEach(id=>{delete DB.kt[id];});
+  ids.forEach(id=>{delete DB.kt[id]; syncDelete('YCBH', id); syncDelete('KT', id);}); // ADDED: syncDelete
   logAction('xoa','ycbh',`Xóa ${ids.length} hồ sơ YCBH`); // ADDED
   saveLocal();clearSelYCBH(scope);refreshAll(); toast(`✅ Đã xóa ${ids.length} hồ sơ`,'warn');
 }
@@ -2159,7 +2159,7 @@ function saveKho(){
 }
 function proposeHuy(id){
   const r=DB.kho.find(x=>x.id===id);if(!r)return;
-  r.ttKho='cho-vf'; logAction('sua','kho',`Đề xuất hủy PT ${r.maPT}`); saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT,'info');
+  r.ttKho='cho-vf'; logAction('sua','kho',`Đề xuất hủy PT ${r.maPT}`); syncToSheet('kho', r); saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT,'info');
 }
 
 // BULK SELECT — KHO
@@ -2174,7 +2174,7 @@ function updateBulkBarKho(){
 function clearSelKho(){ document.querySelectorAll('.chk-kho-row').forEach(c=>c.checked=false); const hdr=document.getElementById('chk-all-kho');if(hdr){hdr.checked=false;hdr.indeterminate=false;} const bar=document.getElementById('bulk-bar-kho');if(bar)bar.classList.remove('show'); }
 function bulkProposeHuy(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
-  ids.forEach(id=>{const r=DB.kho.find(x=>x.id===id);if(r)r.ttKho='cho-vf';});
+  ids.forEach(id=>{const r=DB.kho.find(x=>x.id===id);if(r){r.ttKho='cho-vf'; syncToSheet('kho', r);}}); // ADDED: syncToSheet
   logAction('sua','kho',`Đề xuất hủy ${ids.length} phụ tùng`); // ADDED
   saveLocal();renderKho();updateBadges();clearSelKho(); toast(`📋 Đã đề xuất hủy ${ids.length} phụ tùng`,'info');
 }
@@ -2182,6 +2182,7 @@ function bulkDeleteKho(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   if(!confirm(`Xóa ${ids.length} phụ tùng đã chọn?`))return;
   DB.kho=DB.kho.filter(r=>!ids.includes(r.id));
+  ids.forEach(id=>syncDelete('KHO', id)); // ADDED
   logAction('xoa','kho',`Xóa ${ids.length} phụ tùng`); // ADDED
   saveLocal();renderKho();updateBadges();clearSelKho(); toast(`✅ Đã xóa ${ids.length} phụ tùng`,'warn');
 }
@@ -2374,6 +2375,7 @@ function delCKTGSC(id){
   if(!confirm('Xóa hồ sơ CKTGSC này?'))return;
   const r=DB.cktgsc.find(x=>x.id===id);
   DB.cktgsc=DB.cktgsc.filter(x=>x.id!==id);
+  syncDelete('CKTGSC', id); // ADDED
   logAction('xoa','cktgsc',`Xóa hồ sơ CKTGSC — VIN ${r?r.vin:id}`); // ADDED
   saveLocal(); refreshAll();toast('Đã xóa','err');
 }
@@ -2389,6 +2391,7 @@ function clearSelCktgsc(){ document.querySelectorAll('.chk-ck-row').forEach(c=>c
 function bulkDeleteCktgsc(){
   const ids=[...document.querySelectorAll('.chk-ck-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
   if(!confirm(`Xóa ${ids.length} hồ sơ CKTGSC đã chọn?`))return; DB.cktgsc=DB.cktgsc.filter(r=>!ids.includes(r.id));
+  ids.forEach(id=>syncDelete('CKTGSC', id)); // ADDED
   logAction('xoa','cktgsc',`Xóa ${ids.length} hồ sơ CKTGSC`); // ADDED
   saveLocal();refreshAll();clearSelCktgsc(); toast(`✅ Đã xóa ${ids.length} hồ sơ CKTGSC`,'warn');
 }
@@ -2542,6 +2545,7 @@ function saveKT(){
       ngayTT:document.getElementById('kt-ngay-tt').value,
       ghichu:document.getElementById('kt-ghichu').value
     };
+    syncToSheet('ktbh', {...DB.ktbh[editKtId], id: editKtId}); // ADDED: trước đây chưa từng đồng bộ lên Sheet
   } else {
     DB.kt[editKtId]={
       tt:document.getElementById('kt-tt-sel').value,
@@ -2549,6 +2553,7 @@ function saveKT(){
       ngayTT:document.getElementById('kt-ngay-tt').value,
       ghichu:document.getElementById('kt-ghichu').value
     };
+    syncToSheet('kt', {...DB.kt[editKtId], id: editKtId}); // ADDED: trước đây chưa từng đồng bộ lên Sheet
   }
   logAction('sua','kt',`Cập nhật trạng thái TT (${editKtType==='bh'?'Bảo hiểm':'YCBH'}) — ${editKtId}`); // ADDED
   closeModal('modal-kt'); saveLocal(); renderKT();updateBadges(); toast('✅ Đã cập nhật trạng thái TT');
@@ -2579,6 +2584,7 @@ function markSelectedTT(){
     if(!DB.kt[c.dataset.id]) DB.kt[c.dataset.id]={};
     DB.kt[c.dataset.id].tt='da-tt';
     DB.kt[c.dataset.id].ngayTT=today();
+    syncToSheet('kt', {...DB.kt[c.dataset.id], id: c.dataset.id}); // ADDED
   });
   logAction('sua','kt',`Đánh dấu Đã TT VF cho ${checked.length} hồ sơ`); // ADDED
   saveLocal(); renderKT(); updateBadges(); clearSelKT();
@@ -2588,7 +2594,7 @@ function bulkResetKT(){
   const ids=[...document.querySelectorAll('.chk-kt:checked')].map(c=>c.dataset.id);
   if(!ids.length) return;
   if(!confirm(`Xóa dữ liệu kế toán của ${ids.length} hồ sơ đã chọn?`)) return;
-  ids.forEach(id=>{ delete DB.kt[id]; });
+  ids.forEach(id=>{ delete DB.kt[id]; syncDelete('KT', id); }); // ADDED: syncDelete
   logAction('xoa','kt',`Xóa dữ liệu TT của ${ids.length} hồ sơ`); // ADDED
   saveLocal(); renderKT(); updateBadges(); clearSelKT();
   toast(`✅ Đã xóa dữ liệu Thanh toán của ${ids.length} hồ sơ`, 'warn');
@@ -2773,6 +2779,16 @@ function syncToSheet(sheetType,data){
       else{document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ: '+r.error;}
     })
     .catch(()=>document.getElementById('sync-status').textContent='⚠️ Mất kết nối Sheet');
+}
+// ADDED: đồng bộ XOÁ lên Apps Script (type 'deleteRecord' — cần bản Code.gs đã cập nhật mới hỗ trợ).
+// Trước đây các thao tác xoá chỉ xoá trên máy đang dùng, máy khác tải lại vẫn thấy hồ sơ cũ.
+function syncDelete(sheetName, id){
+  if(!SCRIPT_URL || !id) return;
+  markDirty();
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'deleteRecord',data:{sheet:sheetName,id}})})
+    .then(r=>r.json())
+    .then(r=>{ if(!r.success) document.getElementById('sync-status').textContent='⚠️ Lỗi đồng bộ xoá: '+r.error; })
+    .catch(()=>{});
 }
 function refreshData(){
   if(SCRIPT_URL){
