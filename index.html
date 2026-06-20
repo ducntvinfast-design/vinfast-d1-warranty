@@ -1214,15 +1214,21 @@ textarea.fi{resize:vertical;min-height:64px}
         </select>
       </div>
       <div class="form-grid g2 mb12">
-        <div class="form-group"><label class="form-label" id="lbl-kho-vin">Số VIN xe</label><input class="fi mono" id="fk-vin"></div>
-        <div class="form-group"><label class="form-label" id="lbl-kho-ref">Số WO / Số YCBH</label><input class="fi mono" id="fk-ycbh"></div>
+        <div class="form-group"><label class="form-label" id="lbl-kho-vin">Số VIN xe</label><input class="fi mono" id="fk-vin" oninput="updateKhoBHInfo()"></div>
+        <div class="form-group"><label class="form-label" id="lbl-kho-ref">Số WO / Số YCBH</label><input class="fi mono" id="fk-ycbh" oninput="updateKhoBHInfo()"></div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px">🔩 THÔNG TIN PHỤ TÙNG</div>
       <div class="form-grid g3 mb12">
         <div class="form-group"><label class="form-label req">Mã phụ tùng</label><input class="fi mono" id="fk-ma"></div>
         <div class="form-group"><label class="form-label req">Tên phụ tùng</label><input class="fi" id="fk-ten"></div>
-        <div class="form-group"><label class="form-label">Phân loại (Phụ lục IV)</label>
+        <div class="form-group" id="fld-phanloai">
+          <label class="form-label">Phân loại (Phụ lục IV)</label>
           <select class="fi" id="fk-phanloai"><option value="">-- Chọn loại --</option><option>Bình thường</option><option>PDU</option><option>Sạc ô tô/xe máy điện</option><option>Ắc quy/Pin xe máy điện</option><option>Động cơ điện</option><option>Khác</option></select>
+        </div>
+        <!-- ADDED: chỉ hiện khi nguồn = Bảo hiểm Đồng Sơn, thay chỗ cho Phân loại Phụ lục IV (không áp dụng cho BH) -->
+        <div class="form-group" id="fld-bh-info" style="display:none">
+          <label class="form-label">Hãng BH / CVDV phụ trách</label>
+          <div class="fi fc-muted" id="fk-bh-info" style="display:flex;align-items:center;min-height:36px">— Nhập Biển số/VIN để đối chiếu —</div>
         </div>
       </div>
       <div class="form-grid g2 mb12">
@@ -2036,12 +2042,41 @@ function khoStatus(row){
 // ADDED: Logic lọc Kho
 function toggleKhoNguon(){
   const loai = document.getElementById('fk-loai').value;
+  const fldPhanloai = document.getElementById('fld-phanloai');
+  const fldBHInfo = document.getElementById('fld-bh-info');
   if(loai === 'baohiem') {
     document.getElementById('lbl-kho-vin').textContent = 'Biển số / VIN (*)';
     document.getElementById('lbl-kho-ref').textContent = 'Số HSBH / WO';
+    // SỬA: Bảo hiểm Đồng Sơn không dùng "Phân loại Phụ lục IV" (quy định riêng của Bảo hành) —
+    // thay bằng ô tự tra Hãng BH / CVDV phụ trách theo hồ sơ Bảo hiểm đã có.
+    if(fldPhanloai) fldPhanloai.style.display = 'none';
+    if(fldBHInfo) fldBHInfo.style.display = '';
+    document.getElementById('fk-phanloai').value = ''; // tránh lưu nhầm phân loại Bảo hành cũ
+    updateKhoBHInfo();
   } else {
     document.getElementById('lbl-kho-vin').textContent = 'Số VIN xe (*)';
     document.getElementById('lbl-kho-ref').textContent = 'Số YCBH';
+    if(fldPhanloai) fldPhanloai.style.display = '';
+    if(fldBHInfo) fldBHInfo.style.display = 'none';
+  }
+}
+
+// ADDED: Tự tra Hãng BH / CVDV phụ trách từ hồ sơ Bảo hiểm đã có, khớp theo Biển số/VIN hoặc Số HSBH/WO.
+// Chỉ để xem đối chiếu nhanh, không ghi lại field này (Hãng BH vẫn lấy chuẩn từ hồ sơ Bảo hiểm gốc).
+function updateKhoBHInfo(){
+  const box = document.getElementById('fk-bh-info');
+  if(!box) return;
+  const vin = (document.getElementById('fk-vin').value||'').trim();
+  const ref = (document.getElementById('fk-ycbh').value||'').trim();
+  if(!vin && !ref){
+    box.textContent = '— Nhập Biển số/VIN để đối chiếu —';
+    return;
+  }
+  const b = DB.bh.find(x => (vin && x.bienSo===vin) || (ref && x.wo===ref));
+  if(b){
+    box.innerHTML = `<b>${esc(b.hangBH||'—')}</b>&nbsp;·&nbsp;CVDV: ${esc(b.cvdv||'—')}`;
+  } else {
+    box.textContent = '⚠️ Chưa tìm thấy hồ sơ Bảo hiểm khớp';
   }
 }
 
@@ -2132,6 +2167,7 @@ function openEditKho(id){
   document.getElementById('fk-loai-kho').value=String(r.loaiKho||60);
   document.getElementById('fk-tt-kho').value=r.ttKho||'dang-luu';
   document.getElementById('fk-ghichu').value=r.ghichu||'';
+  updateKhoBHInfo(); // ADDED: tra lại sau khi đã điền VIN/Số HSBH thật của hồ sơ đang sửa
   openModal('modal-kho');
 }
 function saveKho(){
