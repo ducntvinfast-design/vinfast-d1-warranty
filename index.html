@@ -127,6 +127,7 @@ input[type="checkbox"] {
 .tb-sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
 .tb-sync{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;max-width:200px}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.month-filter-sel{width:128px;flex-shrink:0;font-weight:700;color:var(--vf);border-color:rgba(0,85,204,0.3);background-color:var(--vf2)}
 .user-pill{
   display:flex;align-items:center;gap:8px;
   padding:5px 12px 5px 5px;
@@ -419,6 +420,7 @@ textarea.fi{resize:vertical;min-height:64px}
   .u-name,.u-role,.u-logout{display:none}
   .user-pill{padding:4px;border-radius:50%;border:1.5px solid var(--border);gap:0}
   .user-pill .u-av{width:30px;height:30px;font-size:11px}
+  .month-filter-sel{width:96px;font-size:10px;padding:6px 7px}
 
   /* Layout */
   .main-wrap{flex-direction:column-reverse} /* content on top, nav on bottom */
@@ -590,6 +592,7 @@ textarea.fi{resize:vertical;min-height:64px}
     <div class="tb-sep"></div>
     <span class="tb-sync" id="sync-status">☁️ Chế độ offline</span>
     <div class="tb-right">
+      <select class="fi btn-sm month-filter-sel" id="month-filter" onchange="onMonthFilterChange()" title="Lọc dữ liệu theo tháng — giảm tải hiển thị"></select>
       <button class="btn btn-ghost btn-sm" onclick="refreshData()" title="Đồng bộ">🔄 <span class="hide-mobile">Tải lại</span></button>
       <div class="user-pill" id="user-pill"></div>
     </div>
@@ -618,6 +621,11 @@ textarea.fi{resize:vertical;min-height:64px}
         <span class="nav-icon">📦</span>
         <span class="nav-label">Kho PT</span>
         <span class="nav-badge warn hidden" id="badge-kho">0</span>
+      </div>
+      <div class="nav-item" data-pane="pane-cktgsc" onclick="goPane('pane-cktgsc')" data-roles="admin,cvdv">
+        <span class="nav-icon">⏱️</span>
+        <span class="nav-label">CK SC (CKTGSC)</span>
+        <span class="nav-badge warn hidden" id="badge-cktgsc">0</span>
       </div>
       <div class="nav-item" data-pane="pane-kt" onclick="goPane('pane-kt')" data-roles="admin,ketoan">
         <span class="nav-icon">💳</span>
@@ -751,6 +759,53 @@ textarea.fi{resize:vertical;min-height:64px}
           <button class="btn btn-ghost btn-sm" onclick="clearSelKho()">✕ Bỏ chọn</button>
           <button class="btn btn-warn btn-sm" onclick="bulkProposeHuy()">📋 Đề xuất hủy</button>
           <button class="btn btn-danger btn-sm" onclick="bulkDeleteKho()">🗑️ Xóa</button>
+        </div>
+      </div>
+
+      <div class="pane" id="pane-cktgsc">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
+          <div class="kpi blue"><div class="kpi-label">Tổng hồ sơ CKTGSC</div><div class="kpi-val" id="ck-total">0</div></div>
+          <div class="kpi red"><div class="kpi-label">⏱️ Đang vượt CKTGSC</div><div class="kpi-val" id="ck-vuot">0</div></div>
+          <div class="kpi yellow"><div class="kpi-label">🏢 Đại lý chịu phí</div><div class="kpi-val" id="ck-dailychi">0</div></div>
+          <div class="kpi purple"><div class="kpi-label">💰 Tổng tiền hỗ trợ dự kiến</div><div class="kpi-val" id="ck-tien" style="font-size:18px">0đ</div></div>
+        </div>
+        <div class="card-hdr" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;padding:12px 14px">
+          <span class="card-title">⏱️ Cam Kết Thời Gian Sửa Chữa (CKTGSC)</span>
+          <input class="fi btn-sm" style="width:170px" placeholder="🔍 Tìm VIN / KH..." id="search-cktgsc" oninput="renderCKTGSC()">
+          <select class="fi btn-sm" style="width:auto" id="f-ck-tt" onchange="renderCKTGSC()">
+            <option value="">Tất cả TT hồ sơ</option>
+            <option>Chưa xử lý</option><option>Đang chuẩn bị hồ sơ</option><option>Đã gửi DMS</option>
+            <option>Đang thẩm định</option><option>Đã phê duyệt (PD)</option><option>Bị trả lại - bổ sung</option>
+            <option>Đã chi trả KH</option><option>Đã hậu kiểm</option>
+          </select>
+          <select class="fi btn-sm" style="width:auto" id="f-ck-tn" onchange="renderCKTGSC()">
+            <option value="">Tất cả bên chịu TN</option>
+            <option value="daily">Đại lý chịu</option>
+            <option value="vinfast">VinFast chịu</option>
+            <option value="khongho">Không hỗ trợ (lỗi KH)</option>
+            <option value="khongvuot">Không vượt CKTGSC</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="openRateSetting()" title="Chỉnh mức hỗ trợ mặc định/ngày">⚙️ <span id="ck-rate-label">500.000đ/ngày</span></button>
+          <button class="btn btn-primary btn-sm" onclick="openAddCKTGSC()" data-roles="admin,cvdv">＋ Thêm hồ sơ CKTGSC</button>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th style="width:32px"><input type="checkbox" id="chk-all-ck" onchange="toggleAllCktgsc(this)"></th>
+                <th>#</th><th>VIN / Biển số</th><th>Mẫu xe</th><th>Khách hàng</th><th>Ngày nhận</th>
+                <th>Loại hình SC</th><th>Số ngày chuẩn</th><th>Ngày cam kết</th><th>Ngày giao TT</th>
+                <th>Số ngày vượt</th><th>Bên chịu TN</th><th>Tiền hỗ trợ DK</th><th>Trạng thái</th><th>Thao tác</th>
+              </tr></thead>
+              <tbody id="tbody-cktgsc"></tbody>
+            </table>
+          </div>
+          <div id="empty-cktgsc" style="padding:32px;text-align:center;color:var(--muted);display:none">⏱️ Chưa có hồ sơ CKTGSC nào.</div>
+        </div>
+        <div class="bulk-bar" id="bulk-bar-ck">
+          <span class="bulk-count" id="bulk-count-ck">0 đã chọn</span>
+          <button class="btn btn-ghost btn-sm" onclick="clearSelCktgsc()">✕ Bỏ chọn</button>
+          <button class="btn btn-danger btn-sm" onclick="bulkDeleteCktgsc()">🗑️ Xóa đã chọn</button>
         </div>
       </div>
 
@@ -898,12 +953,25 @@ textarea.fi{resize:vertical;min-height:64px}
             </div>
           </div>
           <div class="card mt12">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">⏱️ Tiêu chuẩn Cam Kết Thời Gian Sửa Chữa (CKTGSC)</div>
+            <table style="min-width:unset"><tbody>
+              <tr><td style="padding:10px 14px;font-size:12px">Bảo dưỡng định kỳ</td><td style="padding:10px 14px"><span class="badge badge-gray">0,66 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Lỗi kỹ thuật thông thường</td><td style="padding:10px 14px"><span class="badge badge-gray">1 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa động cơ</td><td style="padding:10px 14px"><span class="badge badge-gray">10,5 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Thay thế động cơ</td><td style="padding:10px 14px"><span class="badge badge-gray">1,8 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Thay thế Pin</td><td style="padding:10px 14px"><span class="badge badge-gray">0,8 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa PDU/POD</td><td style="padding:10px 14px"><span class="badge badge-gray">18,5 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa Pin nặng — VinES / Gotion / CATL</td><td style="padding:10px 14px"><span class="badge badge-yellow">39,5 / 41,5 / 18,5 ngày</span></td></tr>
+              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa đồng sơn — Nhẹ / TB / TB nặng / Nặng</td><td style="padding:10px 14px"><span class="badge badge-yellow">4 / 8 / 24 / 34 ngày</span></td></tr>
+            </tbody></table>
+          </div>
+          <div class="card mt12">
             <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">👥 Phân quyền</div>
             <table style="min-width:unset">
               <thead><tr><th>Role</th><th>Tài khoản</th><th>Truy cập</th></tr></thead>
               <tbody>
                 <tr><td><span class="badge badge-green">Admin</span></td><td class="mono">admin, gdx</td><td style="font-size:12px">Toàn bộ</td></tr>
-                <tr><td><span class="badge badge-blue">CVDV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td style="font-size:12px">YCBH, Kho, Import</td></tr>
+                <tr><td><span class="badge badge-blue">CVDV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td style="font-size:12px">YCBH, Kho, CKTGSC, Import</td></tr>
                 <tr><td><span class="badge badge-purple">Kế Toán</span></td><td class="mono">ketoan1</td><td style="font-size:12px">Kế toán TT</td></tr>
                 <tr><td><span class="badge badge-yellow">Kho BH</span></td><td class="mono">kho1</td><td style="font-size:12px">Kho phụ tùng</td></tr>
               </tbody>
@@ -1053,6 +1121,123 @@ textarea.fi{resize:vertical;min-height:64px}
   </div>
 </div>
 
+<div class="overlay" id="modal-cktgsc">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <span class="modal-title" id="ckt-title">➕ Thêm hồ sơ CKTGSC</span>
+      <span class="modal-close" onclick="closeModal('modal-cktgsc')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px">🚗 THÔNG TIN XE & KHÁCH HÀNG</div>
+      <div class="form-grid g3 mb12">
+        <div class="form-group"><label class="form-label req">Số VIN / Biển số</label><input class="fi mono" id="ck-vin" placeholder="51K-123.45 hoặc RLJVF...">  </div>
+        <div class="form-group"><label class="form-label">Mẫu xe</label>
+          <select class="fi" id="ck-model"><option value="">-- Chọn model --</option><option>VF3</option><option>VF5</option><option>VF6</option><option>VF7</option><option>VF8</option><option>VF9</option><option>VF e34</option><option>FADIL</option><option>PRESIDENT</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Tên khách hàng</label><input class="fi" id="ck-kh"></div>
+      </div>
+      <div class="form-grid g3 mb12">
+        <div class="form-group"><label class="form-label">SĐT khách hàng</label><input class="fi" id="ck-sdt" placeholder="09xxxxxxxx"></div>
+        <div class="form-group"><label class="form-label req">Ngày nhận xe</label><input type="date" class="fi" id="ck-ngay-nhan" onchange="calcCKTGSC()"></div>
+        <div class="form-group"><label class="form-label">Ngày thực tế giao xe</label><input type="date" class="fi" id="ck-ngay-giao" onchange="calcCKTGSC()"></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px;margin-top:4px">🔧 LOẠI HÌNH SỬA CHỮA</div>
+      <div class="form-grid g3 mb12">
+        <div class="form-group"><label class="form-label req">Loại hình sửa chữa</label>
+          <select class="fi" id="ck-loai" onchange="onLoaiHinhCKChange()">
+            <option value="">-- Chọn loại hình --</option>
+            <option>Bảo dưỡng định kỳ</option>
+            <option>Lỗi kỹ thuật thông thường</option>
+            <option>Sửa chữa động cơ</option>
+            <option>Thay thế động cơ</option>
+            <option>Sửa chữa Pin nặng</option>
+            <option>Thay thế Pin</option>
+            <option>Sửa chữa PDU/POD</option>
+            <option>Sửa chữa đồng sơn</option>
+          </select>
+        </div>
+        <div class="form-group" id="ck-grp-mucdo" style="display:none"><label class="form-label">Mức độ (đồng sơn)</label>
+          <select class="fi" id="ck-muc-do" onchange="calcCKTGSC()">
+            <option value="">-- Chọn mức độ --</option>
+            <option>Nhẹ (&lt;10tr)</option><option>Trung bình (&lt;50tr)</option><option>Trung bình nặng (50-200tr)</option><option>Nặng (&gt;200tr)</option>
+          </select>
+        </div>
+        <div class="form-group" id="ck-grp-pin" style="display:none"><label class="form-label">Loại pin (SC pin nặng)</label>
+          <select class="fi" id="ck-loai-pin" onchange="calcCKTGSC()">
+            <option value="">-- Chọn loại pin --</option>
+            <option>VinES</option><option>Gotion</option><option>CATL</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid g3 mb12">
+        <div class="form-group"><label class="form-label">Nguyên nhân chậm trễ chính</label>
+          <select class="fi" id="ck-nguyen-nhan" onchange="calcCKTGSC()">
+            <option value="">-- Chọn nguyên nhân --</option>
+            <option>Lỗi Đại lý</option>
+            <option>Lỗi VinFast (phụ tùng/PASC)</option>
+            <option>Vận chuyển (VF/NCC)</option>
+            <option>Chờ duyệt giá Bảo hiểm</option>
+            <option>Lỗi NCC (lốp/linh kiện ngoài)/Bảo hiểm</option>
+            <option>Lỗi khách hàng</option>
+            <option>Không xác định/Không vượt</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Đơn giá hỗ trợ riêng/ngày (VNĐ)</label><input type="number" class="fi" id="ck-don-gia" placeholder="Để trống = dùng mức chung" onchange="calcCKTGSC()"></div>
+        <div class="form-group"><label class="form-label">Trạng thái xử lý hồ sơ</label>
+          <select class="fi" id="ck-trang-thai">
+            <option>Chưa xử lý</option><option>Đang chuẩn bị hồ sơ</option><option>Đã gửi DMS</option>
+            <option>Đang thẩm định</option><option>Đã phê duyệt (PD)</option><option>Bị trả lại - bổ sung</option>
+            <option>Đã chi trả KH</option><option>Đã hậu kiểm</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px">⏱️ KẾT QUẢ TÍNH TOÁN CAM KẾT (TỰ ĐỘNG)</div>
+      <div class="form-grid g3 mb12" style="background:#F5F7FA;border-radius:8px;padding:10px">
+        <div class="form-group"><label class="form-label">Số ngày tiêu chuẩn</label><input class="fi" id="ck-calc-k" readonly style="background:#EEF2F8;font-weight:700"></div>
+        <div class="form-group"><label class="form-label">Ngày cam kết giao xe</label><input class="fi" id="ck-calc-l" readonly style="background:#EEF2F8;font-weight:700;color:var(--vf)"></div>
+        <div class="form-group"><label class="form-label">Số ngày thực tế sử dụng</label><input class="fi" id="ck-calc-n" readonly style="background:#EEF2F8;font-weight:700"></div>
+      </div>
+      <div class="form-grid g2 mb12" style="background:#FEF8EE;border-radius:8px;padding:10px">
+        <div class="form-group"><label class="form-label">Số ngày vượt CKTGSC</label><input class="fi" id="ck-calc-o" readonly style="background:#FDF1E0;font-weight:800;color:var(--danger)"></div>
+        <div class="form-group"><label class="form-label">Bên chịu trách nhiệm</label><input class="fi" id="ck-calc-p" readonly style="background:#FDF1E0;font-weight:700"></div>
+      </div>
+      <div class="form-grid g2 mb12" style="background:#F2FBF7;border-radius:8px;padding:10px">
+        <div class="form-group"><label class="form-label">Hình thức hỗ trợ KH</label><input class="fi" id="ck-calc-q" readonly style="background:#E7F8EF;font-weight:700"></div>
+        <div class="form-group"><label class="form-label">Số tiền hỗ trợ tài chính dự kiến</label><input class="fi" id="ck-calc-u" readonly style="background:#E7F8EF;font-weight:800;color:var(--ok);font-size:14px"></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px">📝 GHI CHÚ</div>
+      <div class="form-group mb12"><textarea class="fi" id="ck-ghichu" rows="2" placeholder="Ghi chú thêm về hồ sơ..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cktgsc')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveCKTGSC()">💾 Lưu hồ sơ CKTGSC</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-rate">
+  <div class="modal modal-sm">
+    <div class="modal-hdr">
+      <span class="modal-title">⚙️ Mức hỗ trợ tài chính mặc định</span>
+      <span class="modal-close" onclick="closeModal('modal-rate')">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mức hỗ trợ mặc định / ngày vượt CKTGSC (VNĐ/ngày)</label>
+        <input type="number" class="fi" id="rate-input" placeholder="500000">
+        <div class="fs11 fc-muted mt8">(*) Đây là mức giả định — ĐL/VF cần chỉnh theo mức thực tế thỏa thuận/voucher áp dụng. Có thể nhập riêng theo từng hồ sơ ở mục "Đơn giá hỗ trợ riêng/ngày".</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rate')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveRateSetting()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -1069,8 +1254,8 @@ const USERS = [
   {u:'kho1',    p:'kho123',   name:'NV Kho Hưng',    role:'kho',    av:'KH', avc:'av-kho'},
 ];
 const ROLE_ACCESS = {
-  admin:  {panes:['pane-dash','pane-ycbh','pane-kho','pane-kt','pane-import','pane-qd'],edit:['ycbh','kho','kt','import']},
-  cvdv:   {panes:['pane-dash','pane-ycbh','pane-kho','pane-import','pane-qd'],         edit:['ycbh','kho','import']},
+  admin:  {panes:['pane-dash','pane-ycbh','pane-kho','pane-cktgsc','pane-kt','pane-import','pane-qd'],edit:['ycbh','kho','cktgsc','kt','import']},
+  cvdv:   {panes:['pane-dash','pane-ycbh','pane-kho','pane-cktgsc','pane-import','pane-qd'],         edit:['ycbh','kho','cktgsc','import']},
   ketoan: {panes:['pane-dash','pane-kt','pane-qd'],                                    edit:['kt']},
   kho:    {panes:['pane-dash','pane-kho','pane-qd'],                                   edit:['kho']},
 };
@@ -1083,7 +1268,7 @@ let CU = null; // current user
 const LS_KEY = 'vf_dvc_db_v1';
 function saveLocal(){
   try{
-    localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh, kho:DB.kho, kt:DB.kt, savedAt:new Date().toISOString()}));
+    localStorage.setItem(LS_KEY, JSON.stringify({ycbh:DB.ycbh, kho:DB.kho, kt:DB.kt, cktgsc:DB.cktgsc, savedAt:new Date().toISOString()}));
   }catch(e){console.warn('localStorage full',e);}
 }
 function loadLocal(){
@@ -1092,7 +1277,7 @@ function loadLocal(){
     if(!raw)return false;
     const parsed=JSON.parse(raw);
     if(parsed.ycbh&&parsed.ycbh.length>0){
-      DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{};
+      DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; DB.cktgsc=parsed.cktgsc||[];
       return true;
     }
   }catch(e){console.warn('loadLocal error',e);}
@@ -1111,6 +1296,7 @@ function doLogin(){
   document.getElementById('auth-overlay').classList.add('hidden');
   document.getElementById('app').classList.add('show');
   applyRole();
+  loadRateSetting();
   const hasLocal = loadLocal();
   if(hasLocal){
     document.getElementById('sync-status').textContent='💾 Đã tải từ bộ nhớ cục bộ';
@@ -1157,11 +1343,58 @@ function canEdit(mod){return CU&&ROLE_ACCESS[CU.role].edit.includes(mod);}
 // ============================================================
 // STATE & CONFIG
 // ============================================================
-let DB = {ycbh:[], kho:[], kt:{}};
-let editYCBHId=null, editKhoId=null, editKtId=null;
+let DB = {ycbh:[], kho:[], kt:{}, cktgsc:[]};
+let editYCBHId=null, editKhoId=null, editKtId=null, editCktgscId=null;
 let importBuf={type:null,data:[]};
 const SHEET_ID = '1RFjAYXJMrkfsWATEt2E5P-4LNUKbRbYUOMve_5fwte4';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7hyiti1wcU5fh8xUs4Bz8XPdAeBikpXnPXT97eJf74A8onEgH6BGOlfiXmLfy9baP/exec'; // TODO: paste Apps Script Web App URL here
+
+// ============================================================
+// LỌC DỮ LIỆU THEO THÁNG (giảm tải hiển thị trên trình duyệt)
+// ============================================================
+let filterMonth = (function(){ try{ return localStorage.getItem('vf_dvc_filter_month')||''; }catch(e){ return ''; } })();
+function getMonthKey(dateStr){ if(!dateStr) return null; return String(dateStr).slice(0,7); }
+function matchMonth(dateStr){
+  if(!filterMonth) return true; // 'Tất cả các tháng'
+  return getMonthKey(dateStr)===filterMonth;
+}
+function getAllMonths(){
+  const set=new Set();
+  DB.ycbh.forEach(r=>{ if(r.htLSC) set.add(r.htLSC.slice(0,7)); });
+  DB.kho.forEach(r=>{ if(r.ngayPD) set.add(r.ngayPD.slice(0,7)); });
+  DB.cktgsc.forEach(r=>{ if(r.ngayNhan) set.add(r.ngayNhan.slice(0,7)); });
+  set.add(today().slice(0,7));
+  return [...set].filter(Boolean).sort().reverse();
+}
+function populateMonthFilter(){
+  const sel=document.getElementById('month-filter');
+  if(!sel)return;
+  const months=getAllMonths();
+  sel.innerHTML='<option value="">📅 Tất cả các tháng</option>'+months.map(m=>{
+    const [y,mo]=m.split('-');
+    return `<option value="${m}">📅 Tháng ${mo}/${y}</option>`;
+  }).join('');
+  sel.value=months.includes(filterMonth)?filterMonth:'';
+}
+function onMonthFilterChange(){
+  filterMonth=document.getElementById('month-filter').value;
+  try{ localStorage.setItem('vf_dvc_filter_month', filterMonth); }catch(e){}
+  refreshAll();
+  toast(filterMonth?`📅 Đang lọc dữ liệu Tháng ${filterMonth.split('-')[1]}/${filterMonth.split('-')[0]}`:'📅 Hiển thị tất cả các tháng','info');
+}
+function monthScopedYCBH(){
+  return DB.ycbh.filter(r=>matchMonth(r.htLSC));
+}
+function findRelatedYCBHForKho(khoRow){
+  return DB.ycbh.find(x=>x.vin===khoRow.vin || (khoRow.ycbh && (x.wo===khoRow.ycbh || x.soYCBH===khoRow.ycbh)));
+}
+function monthScopedKho(){
+  return DB.kho.filter(r=>{
+    const rel=findRelatedYCBHForKho(r);
+    const basis = rel ? rel.htLSC : r.ngayPD;
+    return matchMonth(basis);
+  });
+}
 
 // ============================================================
 // UTILS
@@ -1195,6 +1428,7 @@ const PANE_TITLES={
   'pane-dash':'Dashboard',
   'pane-ycbh':'Hồ sơ Yêu Cầu Bảo Hành',
   'pane-kho':'Kho Phụ Tùng Bảo Hành',
+  'pane-cktgsc':'Cam Kết Thời Gian Sửa Chữa (CKTGSC)',
   'pane-kt':'Kế Toán / Thanh Toán VF',
   'pane-import':'Import Dữ Liệu',
   'pane-qd':'Quy Định Mốc Thời Gian',
@@ -1216,6 +1450,7 @@ function goPane(id){
   if(id==='pane-dash')renderDash();
   else if(id==='pane-ycbh')renderYCBH();
   else if(id==='pane-kho')renderKho();
+  else if(id==='pane-cktgsc')renderCKTGSC();
   else if(id==='pane-kt')renderKT();
 }
 
@@ -1235,6 +1470,11 @@ function seedData(){
   DB.kt={
     'y2':{tt:'dang-bk',thangBK:'Tháng 6/2026',ngayTT:'',ghichu:'Chờ xét duyệt BK'},
   };
+  DB.cktgsc=[
+    {id:'c1',vin:'51K-123.45',model:'VF8',kh:'Nguyễn Văn A',sdt:'0901234567',ngayNhan:df(-14),ngayGiao:df(0),
+     loaiHinh:'Sửa chữa động cơ',mucDo:'',loaiPin:'',nguyenNhan:'Lỗi VinFast (phụ tùng/PASC)',donGiaRieng:'',
+     trangThai:'Đang thẩm định',ghichu:'Xe đưa về nhà máy sửa, đã mượn xe cho KH'},
+  ];
 }
 
 function getDeadlineStatus(row){
@@ -1275,29 +1515,30 @@ function deadlineBadge(row){
 // DASHBOARD
 // ============================================================
 function renderDash(){
-  const total=DB.ycbh.length;
-  const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length;
-  const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length;
-  const paid=DB.ycbh.filter(r=>r.tt==='Đã thanh toán').length;
-  const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk'||k.ttKho==='cho-vf').length;
+  const scoped=monthScopedYCBH();
+  const total=scoped.length;
+  const overdue=scoped.filter(r=>getDeadlineStatus(r)==='overdue').length;
+  const near=scoped.filter(r=>getDeadlineStatus(r)==='near').length;
+  const paid=scoped.filter(r=>r.tt==='Đã thanh toán').length;
+  const khoAlert=monthScopedKho().filter(k=>k.ttKho==='du-dk'||k.ttKho==='cho-vf').length;
   document.getElementById('k-total').textContent=total;
   document.getElementById('k-overdue').textContent=overdue;
   document.getElementById('k-near').textContent=near;
   document.getElementById('k-paid').textContent=paid;
   document.getElementById('k-kho-alert').textContent=khoAlert;
   
-  const sent=DB.ycbh.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length;
-  const totalSent=DB.ycbh.filter(r=>r.guiYCBH).length;
+  const sent=scoped.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length;
+  const totalSent=scoped.filter(r=>r.guiYCBH).length;
   document.getElementById('k-d7').textContent=totalSent?Math.round(sent/totalSent*100)+'%':'—';
-  const returned=DB.ycbh.filter(r=>r.traVe>0).length;
+  const returned=scoped.filter(r=>r.traVe>0).length;
   document.getElementById('k-return').textContent=total?Math.round(returned/total*100)+'%':'—';
-  const hkDat=DB.ycbh.filter(r=>r.hk==='Đạt').length;
-  const hkDone=DB.ycbh.filter(r=>r.hk).length;
+  const hkDat=scoped.filter(r=>r.hk==='Đạt').length;
+  const hkDone=scoped.filter(r=>r.hk).length;
   document.getElementById('k-hk').textContent=hkDone?Math.round(hkDat/hkDone*100)+'%':'—';
   
   updateBadges();
   
-  const alertRows=DB.ycbh.filter(r=>['overdue','near'].includes(getDeadlineStatus(r)));
+  const alertRows=scoped.filter(r=>['overdue','near'].includes(getDeadlineStatus(r)));
   const sec=document.getElementById('alert-section');
   if(alertRows.length){
     sec.innerHTML=`<div class="alert-box mb12">
@@ -1319,16 +1560,23 @@ function renderDash(){
 }
 
 function updateBadges(){
-  const overdue=DB.ycbh.filter(r=>getDeadlineStatus(r)==='overdue').length;
-  const near=DB.ycbh.filter(r=>getDeadlineStatus(r)==='near').length;
+  const scoped=monthScopedYCBH();
+  const overdue=scoped.filter(r=>getDeadlineStatus(r)==='overdue').length;
+  const near=scoped.filter(r=>getDeadlineStatus(r)==='near').length;
   const alert=overdue+near;
-  const khoAlert=DB.kho.filter(k=>k.ttKho==='du-dk').length;
-  const ktAlert=DB.ycbh.filter(r=>r.ngayPD&&!DB.kt[r.id]).length;
+  const khoAlert=monthScopedKho().filter(k=>k.ttKho==='du-dk').length;
+  const ktAlert=scoped.filter(r=>r.ngayPD&&!DB.kt[r.id]).length;
+  const ckScoped=DB.cktgsc.filter(r=>matchMonth(r.ngayNhan));
+  const ckAlert=ckScoped.filter(r=>{
+    const c=computeCKTGSC(r);
+    return c.soNgayVuot>0 && r.trangThai!=='Đã chi trả KH' && r.trangThai!=='Đã hậu kiểm';
+  }).length;
   
   const bD=document.getElementById('badge-dash'); if(alert){bD.textContent=alert;bD.classList.remove('hidden');}else bD.classList.add('hidden');
   const bY=document.getElementById('badge-ycbh'); if(alert){bY.textContent=alert;bY.classList.remove('hidden');}else bY.classList.add('hidden');
   const bK=document.getElementById('badge-kho'); if(khoAlert){bK.textContent=khoAlert;bK.classList.remove('hidden');}else bK.classList.add('hidden');
   const bKt=document.getElementById('badge-kt'); if(ktAlert){bKt.textContent=ktAlert;bKt.classList.remove('hidden');}else bKt.classList.add('hidden');
+  const bCk=document.getElementById('badge-cktgsc'); if(ckAlert){bCk.textContent=ckAlert;bCk.classList.remove('hidden');}else bCk.classList.add('hidden');
 }
 
 // ============================================================
@@ -1456,7 +1704,7 @@ function filterYCBH(){
   const q=(document.getElementById('search-ycbh')||{value:''}).value.toLowerCase();
   const ftt=(document.getElementById('f-tt-filter')||{value:''}).value;
   const fdl=(document.getElementById('f-dl-filter')||{value:''}).value;
-  return DB.ycbh.filter(r=>{
+  return monthScopedYCBH().filter(r=>{
     if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false;
     if(ftt&&r.tt!==ftt)return false;
     if(fdl){const st=getDeadlineStatus(r);if(fdl==='overdue'&&st!=='overdue')return false;if(fdl==='near'&&st!=='near')return false;}
@@ -1604,7 +1852,7 @@ function khoStatus(row){
 }
 function renderKho(){
   const ftt=(document.getElementById('f-kho-tt')||{value:''}).value;
-  let rows=DB.kho.filter(r=>{
+  let rows=monthScopedKho().filter(r=>{
     if(!ftt)return true;
     const st=khoStatus(r);
     if(ftt==='du-dk')return st.txt.includes('Đủ ĐK');
@@ -1707,12 +1955,281 @@ function proposeHuy(id){
 }
 
 // ============================================================
+// CKTGSC — CAM KẾT THỜI GIAN SỬA CHỮA
+// Logic tính toán đồng bộ với file Excel "Quan_ly_CKTGSC_VinFast_DVC"
+// ============================================================
+const CK_STD_DAYS = {
+  'Bảo dưỡng định kỳ':0.66,
+  'Lỗi kỹ thuật thông thường':1,
+  'Sửa chữa động cơ':10.5,
+  'Thay thế động cơ':1.8,
+  'Thay thế Pin':0.8,
+  'Sửa chữa PDU/POD':18.5,
+};
+const CK_PIN_DAYS = {'VinES':39.5,'Gotion':41.5,'CATL':18.5};
+const CK_DONGSON_DAYS = {'Nhẹ (<10tr)':4,'Trung bình (<50tr)':8,'Trung bình nặng (50-200tr)':24,'Nặng (>200tr)':34};
+const CK_TRACHNHIEM_MAP = {
+  'Lỗi Đại lý':'Đại lý chịu 100% chi phí hỗ trợ',
+  'Lỗi VinFast (phụ tùng/PASC)':'VinFast chịu chi phí hỗ trợ',
+  'Vận chuyển (VF/NCC)':'VinFast chịu chi phí hỗ trợ',
+  'Chờ duyệt giá Bảo hiểm':'VinFast chịu chi phí hỗ trợ',
+  'Lỗi NCC (lốp/linh kiện ngoài)/Bảo hiểm':'VinFast chịu chi phí hỗ trợ',
+  'Lỗi khách hàng':'Không hỗ trợ (lỗi KH)',
+  'Không xác định/Không vượt':'Không vượt CKTGSC - không áp dụng',
+};
+let CK_DEFAULT_RATE = 500000; // Mức hỗ trợ tài chính mặc định/ngày (VNĐ) — như ô F2 trong Excel
+const CK_RATE_KEY = 'vf_dvc_cktgsc_rate';
+function loadRateSetting(){
+  try{ const v=localStorage.getItem(CK_RATE_KEY); if(v) CK_DEFAULT_RATE=parseFloat(v)||500000; }catch(e){}
+  const lbl=document.getElementById('ck-rate-label'); if(lbl)lbl.textContent=Number(CK_DEFAULT_RATE).toLocaleString('vi-VN')+'đ/ngày';
+}
+function openRateSetting(){
+  document.getElementById('rate-input').value=CK_DEFAULT_RATE;
+  openModal('modal-rate');
+}
+function saveRateSetting(){
+  const v=parseFloat(document.getElementById('rate-input').value)||500000;
+  CK_DEFAULT_RATE=v;
+  try{ localStorage.setItem(CK_RATE_KEY, String(v)); }catch(e){}
+  const lbl=document.getElementById('ck-rate-label'); if(lbl)lbl.textContent=Number(v).toLocaleString('vi-VN')+'đ/ngày';
+  closeModal('modal-rate');
+  renderCKTGSC();
+  if(document.getElementById('modal-cktgsc').classList.contains('open')) calcCKTGSC();
+  toast('✅ Đã cập nhật mức hỗ trợ mặc định');
+}
+
+function cktgscStdDays(loaiHinh,mucDo,loaiPin){
+  if(loaiHinh==='Sửa chữa đồng sơn') return (mucDo&&CK_DONGSON_DAYS[mucDo]!=null)?CK_DONGSON_DAYS[mucDo]:null;
+  if(loaiHinh==='Sửa chữa Pin nặng') return (loaiPin&&CK_PIN_DAYS[loaiPin]!=null)?CK_PIN_DAYS[loaiPin]:null;
+  return (loaiHinh&&CK_STD_DAYS[loaiHinh]!=null)?CK_STD_DAYS[loaiHinh]:null;
+}
+function computeCKTGSC(rec){
+  const std = cktgscStdDays(rec.loaiHinh, rec.mucDo, rec.loaiPin);
+  const ngayCamKet = (rec.ngayNhan && std!=null) ? addDays(rec.ngayNhan, Math.ceil(std)) : '';
+  const soNgayTT = (rec.ngayNhan && rec.ngayGiao) ? daysDiff(rec.ngayNhan, rec.ngayGiao) : null;
+  const soNgayVuot = (soNgayTT!=null && std!=null) ? Math.max(0, soNgayTT-std) : null;
+  let benTN='—', hinhThuc='—';
+  if(soNgayVuot!=null){
+    if(soNgayVuot===0){ benTN='Không vượt CKTGSC'; hinhThuc='Không áp dụng'; }
+    else{
+      benTN = CK_TRACHNHIEM_MAP[rec.nguyenNhan] || '— (chưa chọn nguyên nhân)';
+      if(benTN==='Không hỗ trợ (lỗi KH)') hinhThuc='Không hỗ trợ tài chính';
+      else if(rec.loaiHinh==='Sửa chữa Pin nặng') hinhThuc='Hỗ trợ mượn pin + hỗ trợ tài chính theo số ngày vượt';
+      else if(rec.loaiHinh==='Sửa chữa động cơ') hinhThuc='Hỗ trợ mượn xe + hỗ trợ tài chính theo số ngày vượt';
+      else hinhThuc='Hỗ trợ tài chính theo số ngày vượt (Voucher/chuyển khoản)';
+    }
+  }
+  let tien=0;
+  if(soNgayVuot>0 && benTN!=='Không hỗ trợ (lỗi KH)'){
+    const rate=(rec.donGiaRieng && +rec.donGiaRieng>0)?+rec.donGiaRieng:CK_DEFAULT_RATE;
+    tien=Math.round(soNgayVuot*rate);
+  }
+  return {std, ngayCamKet, soNgayTT, soNgayVuot, benTN, hinhThuc, tien};
+}
+const fmtDays = n => (n==null? '—' : (Number.isInteger(n)? n : n.toFixed(2)) + ' ngày');
+
+function onLoaiHinhCKChange(){
+  const loai=document.getElementById('ck-loai').value;
+  document.getElementById('ck-grp-mucdo').style.display = loai==='Sửa chữa đồng sơn' ? '' : 'none';
+  document.getElementById('ck-grp-pin').style.display = loai==='Sửa chữa Pin nặng' ? '' : 'none';
+  calcCKTGSC();
+}
+function readCKForm(){
+  return {
+    ngayNhan:document.getElementById('ck-ngay-nhan').value,
+    ngayGiao:document.getElementById('ck-ngay-giao').value,
+    loaiHinh:document.getElementById('ck-loai').value,
+    mucDo:document.getElementById('ck-muc-do').value,
+    loaiPin:document.getElementById('ck-loai-pin').value,
+    nguyenNhan:document.getElementById('ck-nguyen-nhan').value,
+    donGiaRieng:document.getElementById('ck-don-gia').value,
+  };
+}
+function calcCKTGSC(){
+  const rec=readCKForm();
+  const c=computeCKTGSC(rec);
+  document.getElementById('ck-calc-k').value = c.std!=null ? fmtDays(c.std) : '—';
+  document.getElementById('ck-calc-l').value = c.ngayCamKet ? fmtD(c.ngayCamKet) : '—';
+  document.getElementById('ck-calc-n').value = c.soNgayTT!=null ? c.soNgayTT+' ngày' : '—';
+  const oEl=document.getElementById('ck-calc-o');
+  oEl.value = c.soNgayVuot!=null ? fmtDays(c.soNgayVuot) : '—';
+  oEl.style.color = (c.soNgayVuot>0) ? 'var(--danger)' : 'var(--ok)';
+  document.getElementById('ck-calc-p').value = c.benTN;
+  document.getElementById('ck-calc-q').value = c.hinhThuc;
+  document.getElementById('ck-calc-u').value = c.tien>0 ? fmtMoney(c.tien) : '—';
+}
+
+function ckBenTNBadge(benTN){
+  if(!benTN || benTN==='—' || benTN.includes('chưa chọn')) return '<span class="chip chip-gray">—</span>';
+  if(benTN.includes('Đại lý')) return `<span class="chip chip-red">🏢 ${esc(benTN)}</span>`;
+  if(benTN.includes('VinFast')) return `<span class="chip chip-blue">🚗 ${esc(benTN)}</span>`;
+  if(benTN.includes('Không hỗ trợ')) return `<span class="chip chip-gray">${esc(benTN)}</span>`;
+  if(benTN.includes('Không vượt')) return `<span class="chip chip-green">✅ Không vượt</span>`;
+  return `<span class="chip chip-gray">${esc(benTN)}</span>`;
+}
+function ckTrangThaiBadge(tt){
+  const MAP={
+    'Chưa xử lý':'badge-gray','Đang chuẩn bị hồ sơ':'badge-yellow','Đã gửi DMS':'badge-blue',
+    'Đang thẩm định':'badge-blue','Đã phê duyệt (PD)':'badge-purple','Bị trả lại - bổ sung':'badge-red',
+    'Đã chi trả KH':'badge-green','Đã hậu kiểm':'badge-green',
+  };
+  return `<span class="badge ${MAP[tt]||'badge-gray'}">${esc(tt)}</span>`;
+}
+
+function filterCKTGSC(){
+  const q=(document.getElementById('search-cktgsc')||{value:''}).value.toLowerCase();
+  const ftt=(document.getElementById('f-ck-tt')||{value:''}).value;
+  const ftn=(document.getElementById('f-ck-tn')||{value:''}).value;
+  return DB.cktgsc.filter(r=>{
+    if(!matchMonth(r.ngayNhan))return false;
+    if(q&&!JSON.stringify(r).toLowerCase().includes(q))return false;
+    if(ftt&&r.trangThai!==ftt)return false;
+    if(ftn){
+      const c=computeCKTGSC(r);
+      if(ftn==='daily'&&!(c.benTN||'').includes('Đại lý'))return false;
+      if(ftn==='vinfast'&&!(c.benTN||'').includes('VinFast'))return false;
+      if(ftn==='khongho'&&!(c.benTN||'').includes('Không hỗ trợ'))return false;
+      if(ftn==='khongvuot'&&!(c.benTN||'').includes('Không vượt'))return false;
+    }
+    return true;
+  });
+}
+function renderCKTGSC(){
+  const rows=filterCKTGSC();
+  let totalVuot=0, totalDaiLy=0, totalTien=0;
+  rows.forEach(r=>{
+    const c=computeCKTGSC(r);
+    if(c.soNgayVuot>0)totalVuot++;
+    if((c.benTN||'').includes('Đại lý'))totalDaiLy++;
+    totalTien+=c.tien||0;
+  });
+  document.getElementById('ck-total').textContent=rows.length;
+  document.getElementById('ck-vuot').textContent=totalVuot;
+  document.getElementById('ck-dailychi').textContent=totalDaiLy;
+  document.getElementById('ck-tien').textContent=fmtMoney(totalTien);
+
+  const tbody=document.getElementById('tbody-cktgsc');
+  if(!tbody)return;
+  tbody.innerHTML=rows.map((r,i)=>{
+    const c=computeCKTGSC(r);
+    const rowCls=(c.soNgayVuot>0)?'row-danger':'';
+    return`<tr class="${rowCls}">
+      <td><input type="checkbox" class="chk-ck-row" data-id="${r.id}" onchange="onChkCktgsc()"></td>
+      <td class="fc-muted fs10">${i+1}</td>
+      <td class="mono fw7">${esc(r.vin)}</td>
+      <td>${esc(r.model)||'<span class="fc-muted">—</span>'}</td>
+      <td>${esc(r.kh)||'<span class="fc-muted">—</span>'}</td>
+      <td>${fmtD(r.ngayNhan)}</td>
+      <td class="fs11">${esc(r.loaiHinh)||'<span class="fc-muted">—</span>'}</td>
+      <td class="fs11">${fmtDays(c.std)}</td>
+      <td class="fs11">${c.ngayCamKet?fmtD(c.ngayCamKet):'—'}</td>
+      <td class="fs11">${r.ngayGiao?fmtD(r.ngayGiao):'<span class="fc-muted">Chưa giao</span>'}</td>
+      <td class="fw7" style="color:${c.soNgayVuot>0?'var(--danger)':'var(--ok)'}">${fmtDays(c.soNgayVuot)}</td>
+      <td>${ckBenTNBadge(c.benTN)}</td>
+      <td style="text-align:right" class="fw7">${fmtMoney(c.tien)}</td>
+      <td>${ckTrangThaiBadge(r.trangThai)}</td>
+      <td><div class="flex gap4">
+        ${canEdit('cktgsc')?`<button class="btn btn-ghost btn-xs" onclick="openEditCKTGSC('${r.id}')">✏️</button>`:''}
+        ${canEdit('cktgsc')?`<button class="btn btn-ghost btn-xs" onclick="delCKTGSC('${r.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+  const empty=document.getElementById('empty-cktgsc');
+  if(empty)empty.style.display=rows.length?'none':'block';
+  updateBulkBarCktgsc();
+}
+
+function openAddCKTGSC(){
+  editCktgscId=null;
+  document.getElementById('ckt-title').textContent='➕ Thêm hồ sơ CKTGSC';
+  ['ck-vin','ck-kh','ck-sdt','ck-ngay-nhan','ck-ngay-giao','ck-don-gia','ck-ghichu'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ck-model','ck-loai','ck-muc-do','ck-loai-pin','ck-nguyen-nhan'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ck-trang-thai').value='Chưa xử lý';
+  document.getElementById('ck-grp-mucdo').style.display='none';
+  document.getElementById('ck-grp-pin').style.display='none';
+  calcCKTGSC();
+  openModal('modal-cktgsc');
+}
+function openEditCKTGSC(id){
+  editCktgscId=id;
+  const r=DB.cktgsc.find(x=>x.id===id);if(!r)return;
+  document.getElementById('ckt-title').textContent='✏️ Sửa hồ sơ CKTGSC';
+  const set=(fid,val)=>{const el=document.getElementById(fid);if(el)el.value=val||'';};
+  set('ck-vin',r.vin);set('ck-model',r.model);set('ck-kh',r.kh);set('ck-sdt',r.sdt);
+  set('ck-ngay-nhan',r.ngayNhan);set('ck-ngay-giao',r.ngayGiao);set('ck-loai',r.loaiHinh);
+  set('ck-muc-do',r.mucDo);set('ck-loai-pin',r.loaiPin);set('ck-nguyen-nhan',r.nguyenNhan);
+  set('ck-don-gia',r.donGiaRieng);set('ck-trang-thai',r.trangThai||'Chưa xử lý');set('ck-ghichu',r.ghichu);
+  document.getElementById('ck-grp-mucdo').style.display = r.loaiHinh==='Sửa chữa đồng sơn' ? '' : 'none';
+  document.getElementById('ck-grp-pin').style.display = r.loaiHinh==='Sửa chữa Pin nặng' ? '' : 'none';
+  calcCKTGSC();
+  openModal('modal-cktgsc');
+}
+function saveCKTGSC(){
+  const vin=document.getElementById('ck-vin').value.trim();
+  const ngayNhan=document.getElementById('ck-ngay-nhan').value;
+  if(!vin){toast('Vui lòng nhập Số VIN / Biển số','err');return;}
+  if(!ngayNhan){toast('Vui lòng nhập Ngày nhận xe','err');return;}
+  const obj={
+    id:editCktgscId||uid(),
+    vin,model:document.getElementById('ck-model').value,
+    kh:document.getElementById('ck-kh').value.trim(),sdt:document.getElementById('ck-sdt').value.trim(),
+    ngayNhan,ngayGiao:document.getElementById('ck-ngay-giao').value,
+    loaiHinh:document.getElementById('ck-loai').value,mucDo:document.getElementById('ck-muc-do').value,
+    loaiPin:document.getElementById('ck-loai-pin').value,nguyenNhan:document.getElementById('ck-nguyen-nhan').value,
+    donGiaRieng:document.getElementById('ck-don-gia').value,
+    trangThai:document.getElementById('ck-trang-thai').value,ghichu:document.getElementById('ck-ghichu').value,
+  };
+  if(editCktgscId){const i=DB.cktgsc.findIndex(x=>x.id===editCktgscId);DB.cktgsc[i]=obj;}
+  else DB.cktgsc.unshift(obj);
+  closeModal('modal-cktgsc');
+  saveLocal();
+  refreshAll();
+  toast(editCktgscId?'✅ Đã cập nhật hồ sơ CKTGSC':'✅ Đã thêm hồ sơ CKTGSC');
+  syncToSheet('cktgsc',obj);
+}
+function delCKTGSC(id){
+  if(!confirm('Xóa hồ sơ CKTGSC này?'))return;
+  DB.cktgsc=DB.cktgsc.filter(x=>x.id!==id);
+  saveLocal();
+  refreshAll();toast('Đã xóa','err');
+}
+
+// Bulk select — CKTGSC
+function toggleAllCktgsc(el){
+  document.querySelectorAll('.chk-ck-row').forEach(c=>c.checked=el.checked);
+  updateBulkBarCktgsc();
+}
+function onChkCktgsc(){updateBulkBarCktgsc();}
+function updateBulkBarCktgsc(){
+  const all=[...document.querySelectorAll('.chk-ck-row')];
+  const sel=all.filter(c=>c.checked);
+  const bar=document.getElementById('bulk-bar-ck');
+  const cnt=document.getElementById('bulk-count-ck');
+  const hdr=document.getElementById('chk-all-ck');
+  if(bar){ if(sel.length) bar.classList.add('show'); else bar.classList.remove('show'); if(cnt)cnt.textContent=`${sel.length} đã chọn`; }
+  if(hdr){hdr.checked=sel.length>0&&sel.length===all.length;hdr.indeterminate=sel.length>0&&sel.length<all.length;}
+}
+function clearSelCktgsc(){
+  document.querySelectorAll('.chk-ck-row').forEach(c=>c.checked=false);
+  const hdr=document.getElementById('chk-all-ck');if(hdr){hdr.checked=false;hdr.indeterminate=false;}
+  const bar=document.getElementById('bulk-bar-ck');if(bar)bar.classList.remove('show');
+}
+function bulkDeleteCktgsc(){
+  const ids=[...document.querySelectorAll('.chk-ck-row:checked')].map(c=>c.dataset.id);
+  if(!ids.length)return;
+  if(!confirm(`Xóa ${ids.length} hồ sơ CKTGSC đã chọn?`))return;
+  DB.cktgsc=DB.cktgsc.filter(r=>!ids.includes(r.id));
+  saveLocal();refreshAll();clearSelCktgsc();
+  toast(`✅ Đã xóa ${ids.length} hồ sơ CKTGSC`,'warn');
+}
+
+// ============================================================
 // KẾ TOÁN
 // ============================================================
 function renderKT(){
   const q=(document.getElementById('search-kt')||{value:''}).value.toLowerCase();
   const ftt=(document.getElementById('f-kt-tt')||{value:''}).value;
-  let rows=DB.ycbh.filter(r=>{
+  let rows=monthScopedYCBH().filter(r=>{
     if(r.gt===0&&r.tt==='Chưa tạo YCBH')return false;
     if(!r.ngayPD&&r.gt===0)return false;
     const k=DB.kt[r.id];const ktt=k?k.tt:'chua-tt';
@@ -1968,6 +2485,7 @@ function refreshData(){
         if(r.ycbh)DB.ycbh=r.ycbh;
         if(r.kho)DB.kho=r.kho;
         if(r.kt)DB.kt=r.kt;
+        if(r.cktgsc)DB.cktgsc=r.cktgsc;
         saveLocal(); 
         refreshAll();
         document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
@@ -1984,9 +2502,11 @@ function refreshData(){
 }
 
 function refreshAll(){
+  populateMonthFilter();
   renderDash();
   renderYCBH();
   renderKho();
+  renderCKTGSC();
   renderKT();
   updateBadges();
 }
@@ -2004,7 +2524,7 @@ function startAutoSync(){
       .then(r=>r.json())
       .then(r=>{
         if(r.ycbh){
-          DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{};
+          DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           saveLocal(); refreshAll();
           document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
         }
