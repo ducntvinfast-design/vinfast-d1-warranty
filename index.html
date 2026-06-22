@@ -3349,7 +3349,7 @@ function handleFileTonKho(inp){const f=inp.files[0];if(f)parseFile(f,'tonkho');i
 // ADDED: parse ngày linh hoạt — chấp nhận cả Date object (XLSX cellDates), chuỗi dd/mm/yyyy (kể cả có giờ phía sau),
 // và chuỗi ISO yyyy-mm-dd sẵn có. Quan trọng vì DATA_DMS thường xuất dạng "15/06/2026 13:52" dạng text, không phải
 // Date thật, nếu chỉ .slice(0,10) như các hàm map cũ sẽ ra sai định dạng và làm hỏng bộ lọc tháng.
-function toDateSmart(v)function toDateSmart(v){
+function toDateSmart(v){
   if(!v) return '';
   if(v instanceof Date) {
     // Sửa lỗi lệch múi giờ của SheetJS (tránh bị lùi 1 ngày)
@@ -3374,7 +3374,7 @@ function toDateSmart(v)function toDateSmart(v){
   return '';
 }
 // ADDED: parse số linh hoạt — chấp nhận "388,800", "1.184.760", số có khoảng trắng, ô trống/"-" -> 0
-function toNum(v)function toNum(v){
+function toNum(v){
   if(v===undefined||v===null||v==='') return 0;
   if(typeof v==='number') return v;
   let s = String(v).trim();
