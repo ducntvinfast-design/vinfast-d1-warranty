@@ -3709,9 +3709,10 @@ function refreshData(){
         
         // CHỈNH SỬA LỖI MẤT DỮ LIỆU: Chỉ đè dữ liệu Dashboard nếu Sheet trả về mảng có thật (tránh đè rỗng)
         if(r.log && r.log.length > 0) DB.log=r.log;        
-        if(r.dms && r.dms.length > 0) DB.dms=r.dms;        
-        if(r.lichhen && r.lichhen.length > 0) DB.lichhen=r.lichhen; 
-        if(r.tonkho && r.tonkho.length > 0) DB.tonkho=r.tonkho;    
+        if(r.dms && r.dms.length > 0) DB.dms = r.dms.filter(x => x.soLenh || x.bienSo);
+      if(r.lichhen && r.lichhen.length > 0) DB.lichhen = r.lichhen.filter(x => x.maDatHen || x.bienSo);
+      if(r.tonkho && r.tonkho.length > 0) DB.tonkho = r.tonkho.filter(x => x.maHang || x.tenHang);
+      if(r.ycbh && r.ycbh.length > 0) DB.ycbh = r.ycbh.filter(x => x.vin);    
         
         saveLocal(); 
         refreshAll();
