@@ -1140,6 +1140,95 @@ textarea.fi{resize:vertical;min-height:64px}
               </tbody>
             </table>
           </div>
+           <div class="card mt12">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">
+              🔄 Quy trình làm việc phối hợp các bộ phận
+            </div>
+            <div class="tbl-wrap">
+              <table style="min-width:700px">
+                <thead>
+                  <tr>
+                    <th style="width: 50px">Bước</th>
+                    <th style="width: 120px">Bộ phận</th>
+                    <th>Trách nhiệm & Thao tác trên hệ thống</th>
+                    <th style="width: 120px">SLA cam kết</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw7" style="text-align: center">1</td>
+                    <td><span class="badge badge-blue">CVDV</span></td>
+                    <td>
+                      <div class="fw7 mb4">Tiếp nhận xe & Tạo hồ sơ</div>
+                      <div class="fs11 fc-muted">- Mở LSC trên DMS. Đánh giá sơ bộ thuộc diện Bảo hành (VF) hay Bảo hiểm.</div>
+                      <div class="fs11 fc-muted">- Thêm mới YCBH hoặc Hồ sơ Bảo Hiểm trên hệ thống quản trị này.</div>
+                    </td>
+                    <td><span class="badge badge-gray">Ngay khi nhận xe</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">2</td>
+                    <td><span class="badge badge-blue">CVDV</span><br><span class="badge badge-yellow mt4">Kho</span></td>
+                    <td>
+                      <div class="fw7 mb4">Xác nhận phụ tùng & CKTGSC</div>
+                      <div class="fs11 fc-muted">- <b>CVDV:</b> Lên danh sách PT cần thiết. Tính toán mốc CKTGSC.</div>
+                      <div class="fs11 fc-muted">- <b>Kho:</b> Kiểm tra tồn kho, phản hồi thời gian đặt hàng (ETA) nếu thiếu.</div>
+                    </td>
+                    <td><span class="badge badge-gray">Trong 2h-4h</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">3</td>
+                    <td><span class="badge badge-gray">Kỹ thuật</span><br><span class="badge badge-blue mt4">CVDV</span></td>
+                    <td>
+                      <div class="fw7 mb4">Thi công & Theo dõi tiến độ</div>
+                      <div class="fs11 fc-muted">- Tiến hành sửa chữa/đồng sơn/thay Pin theo chuẩn VinFast.</div>
+                      <div class="fs11 fc-muted">- <b>CVDV:</b> Cập nhật trạng thái LSC. Nếu có rủi ro vượt CKTGSC phải cập nhật ngay vào mục CKTGSC để xin chỉ đạo.</div>
+                    </td>
+                    <td><span class="badge badge-red">Đúng hạn CKTGSC</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">4</td>
+                    <td><span class="badge badge-blue">CVDV</span><br><span class="badge badge-green mt4">Admin / GĐX</span></td>
+                    <td>
+                      <div class="fw7 mb4">Gửi duyệt YCBH / Bảo hiểm</div>
+                      <div class="fs11 fc-muted">- <b>CVDV:</b> Hoàn thiện hồ sơ trên DMS (trước D+7). Cập nhật trạng thái "Đã gửi - chờ PD".</div>
+                      <div class="fs11 fc-muted">- Nếu bị trả về: Xử lý bổ sung ngay trong vòng 3 ngày.</div>
+                    </td>
+                    <td><span class="badge badge-red">D+7</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">5</td>
+                    <td><span class="badge badge-yellow">Kho</span></td>
+                    <td>
+                      <div class="fw7 mb4">Nhập kho PT thu hồi</div>
+                      <div class="fs11 fc-muted">- Nhận PT cũ/lỗi từ xưởng. In phiếu dán nhận diện.</div>
+                      <div class="fs11 fc-muted">- Nhập thông tin vào tab <b>Kho PT</b> trên hệ thống. Lưu kho đủ 30 ngày (Ắc quy/Pin) hoặc 60 ngày (PT khác).</div>
+                    </td>
+                    <td><span class="badge badge-gray">Khi hoàn thành SC</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">6</td>
+                    <td><span class="badge badge-purple">Kế Toán</span></td>
+                    <td>
+                      <div class="fw7 mb4">Khớp bảng kê & Thanh toán</div>
+                      <div class="fs11 fc-muted">- Kiểm tra các hồ sơ "Đã phê duyệt". Làm bảng kê thanh toán với VinFast hoặc xuất hóa đơn cho Bảo hiểm.</div>
+                      <div class="fs11 fc-muted">- Khai báo "Đã TT VF" hoặc "Tiền đã về" để đóng luồng hồ sơ.</div>
+                    </td>
+                    <td><span class="badge badge-gray">Ngày 26-28 hằng tháng</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw7" style="text-align: center">7</td>
+                    <td><span class="badge badge-yellow">Kho</span><br><span class="badge badge-green mt4">Admin / GĐX</span></td>
+                    <td>
+                      <div class="fw7 mb4">Xử lý Phụ tùng tồn</div>
+                      <div class="fs11 fc-muted">- Theo dõi cảnh báo "Đủ ĐK hủy" trên hệ thống. Đề xuất hủy.</div>
+                      <div class="fs11 fc-muted">- Trình GĐX/VinFast phê duyệt biên bản tiêu hủy.</div>
+                    </td>
+                    <td><span class="badge badge-blue">Ngày 7 hằng tháng</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
