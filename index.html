@@ -3695,12 +3695,15 @@ function refreshData(){
         if(r.kho)DB.kho=r.kho;
         if(r.kt)DB.kt=r.kt;
         if(r.cktgsc)DB.cktgsc=r.cktgsc;
-        if(r.bh)DB.bh=r.bh;           // Load BH
-        if(r.ktbh)DB.ktbh=r.ktbh;     // Load KTBH
-        if(r.log)DB.log=r.log;        // ADDED: Load lịch sử thao tác (nếu Apps Script đã hỗ trợ sheet "Log")
-        if(r.dms)DB.dms=r.dms;        // ADDED: Load dữ liệu doanh thu DMS (nếu Apps Script đã hỗ trợ sheet "DMS")
-        if(r.lichhen)DB.lichhen=r.lichhen; // ADDED: Load lịch hẹn
-        if(r.tonkho)DB.tonkho=r.tonkho;    // ADDED: Load tồn kho phụ tùng
+        if(r.bh)DB.bh=r.bh;            // Load BH
+        if(r.ktbh)DB.ktbh=r.ktbh;      // Load KTBH
+        
+        // CHỈNH SỬA LỖI MẤT DỮ LIỆU: Chỉ đè dữ liệu Dashboard nếu Sheet trả về mảng có thật (tránh đè rỗng)
+        if(r.log && r.log.length > 0) DB.log=r.log;        
+        if(r.dms && r.dms.length > 0) DB.dms=r.dms;        
+        if(r.lichhen && r.lichhen.length > 0) DB.lichhen=r.lichhen; 
+        if(r.tonkho && r.tonkho.length > 0) DB.tonkho=r.tonkho;    
+        
         saveLocal(); 
         refreshAll();
         document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
@@ -3744,10 +3747,13 @@ function startAutoSync(){
         if(r.ycbh){
           DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           DB.bh=r.bh||[]; DB.ktbh=r.ktbh||{}; // Auto sync BH
-          if(r.log) DB.log=r.log; // ADDED: đồng bộ lịch sử thao tác từ Sheet (nếu backend đã hỗ trợ)
-          if(r.dms) DB.dms=r.dms; // ADDED: đồng bộ dữ liệu doanh thu DMS từ Sheet (nếu backend đã hỗ trợ)
-          if(r.lichhen) DB.lichhen=r.lichhen; // ADDED
-          if(r.tonkho) DB.tonkho=r.tonkho;    // ADDED
+          
+          // CHỈNH SỬA LỖI MẤT DỮ LIỆU: Tương tự như refreshData
+          if(r.log && r.log.length > 0) DB.log=r.log; 
+          if(r.dms && r.dms.length > 0) DB.dms=r.dms; 
+          if(r.lichhen && r.lichhen.length > 0) DB.lichhen=r.lichhen; 
+          if(r.tonkho && r.tonkho.length > 0) DB.tonkho=r.tonkho;    
+          
           saveLocal(); refreshAll();
           document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
         }
