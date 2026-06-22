@@ -1811,7 +1811,16 @@ document.getElementById('more-sheet-body').addEventListener('click', e=>{
 // LỌC DỮ LIỆU THEO THÁNG
 // ============================================================
 let filterMonth = (function(){ try{ return localStorage.getItem('vf_dvc_filter_month')||''; }catch(e){ return ''; } })();
-function getMonthKey(dateStr){ if(!dateStr) return null; return String(dateStr).slice(0,7); }
+function getMonthKey(dateStr){
+  if(!dateStr) return null;
+  const str = String(dateStr).trim();
+  // Nếu đã chuẩn ISO (VD: 2026-06-15) thì cắt lấy YYYY-MM
+  if (/^\d{4}-\d{2}/.test(str)) return str.slice(0, 7);
+  // Nếu trả về dạng DD/MM/YYYY từ Sheet, dùng toDateSmart để parse lại
+  const smartDate = toDateSmart(str);
+  if (smartDate) return smartDate.slice(0, 7);
+  return str.slice(0, 7);
+}
 function matchMonth(dateStr){ if(!filterMonth) return true; return getMonthKey(dateStr)===filterMonth; }
 // ADDED: chống lỗi "lưu xong hồ sơ tự biến mất" do bộ lọc tháng đang chọn khác tháng của hồ sơ vừa lưu.
 // Nếu hồ sơ vừa lưu không thuộc tháng đang lọc, tự động chuyển bộ lọc sang đúng tháng đó và báo cho người dùng biết.
