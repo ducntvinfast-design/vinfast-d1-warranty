@@ -3391,20 +3391,32 @@ function toNum(v){
 }
 // ADDED: map 1 dòng DATA_DMS (lệnh sửa chữa) sang cấu trúc lưu trong DB.dms
 function mapDMSTxRow(raw){
-  // ADDED: colVal giờ tìm theo 3 bước: (1) khớp chính xác, (2) khớp sau khi trim, (3) khớp không phân biệt hoa thường + trim
-  // Giải quyết trường hợp XLSX thật có tên cột "Tổng Tiền" (chữ T viết hoa) hay có khoảng trắng thừa đầu/cuối
   const rawKeys = Object.keys(raw);
   const colVal=(candidates)=>{
-    for(const c of candidates){
-      if(raw[c]!==undefined&&raw[c]!=='') return raw[c]; // khớp chính xác
-    }
+    for(const c of candidates){ if(raw[c]!==undefined&&raw[c]!=='') return raw[c]; }
     for(const c of candidates){
       const ct=c.trim().toLowerCase();
       const k=rawKeys.find(k=>k.trim().toLowerCase()===ct);
-      if(k&&raw[k]!==undefined&&raw[k]!=='') return raw[k]; // khớp case-insensitive
+      if(k&&raw[k]!==undefined&&raw[k]!=='') return raw[k];
     }
     return '';
   };
+  return{
+    soLenh:       String(colVal(['Lệnh sửa chữa','Số LSC','Số RO','Mã RO','Mã lệnh sửa chữa','soLenh'])||'').trim(),
+    ngayGD:       toDateSmart(colVal(['Ngày giao dịch','Ngày hóa đơn','Ngày Quyết Toán','Ngày hoàn thành','Ngày xuất HD','ngayGD'])),
+    trangThai:    String(colVal(['Trạng thái','Trạng thái LSC','Tình trạng','trangThai'])||'').trim(),
+    bienSo:       String(colVal(['Biển số xe','Biển số','bienSo'])||'').trim(),
+    dongXe:       String(colVal(['Dòng xe','Mẫu xe','Model xe','dongXe'])||'').trim(),
+    yeuCau:       String(colVal(['Yêu cầu khách hàng','Nội dung yêu cầu','Yêu cầu','yeuCau'])||'').trim(),
+    tienNhanCong: toNum(colVal(['Tổng tiền nhân công','Tiền nhân công','Doanh thu nhân công','Nhân công','Công lao động','tienNhanCong'])),
+    tienPhuTung:  toNum(colVal(['Tổng tiền phụ tùng','Tiền phụ tùng','Doanh thu phụ tùng','Phụ tùng','tienPhuTung'])),
+    tongTien:     toNum(colVal(['Tổng tiền','Tổng cộng','Tổng cộng (có VAT)','Tổng giá trị','tongTien'])),
+    cvdv:         String(colVal(['Cố vấn dịch vụ','CVDV','Người tiếp nhận','Người tạo','cvdv'])||'').trim(),
+    mucUuTien:    String(colVal(['Mức ưu tiên','Ưu tiên','mucUuTien'])||'').trim(),
+    phanLoai:     String(colVal(['Phân loại Doanh thu (Auto)','Phân loại Doanh thu','Phân loại','Loại hình','phanLoai'])||'').trim(),
+    ghichu:       '',
+  };
+}
   return{
     soLenh:   String(colVal(['Lệnh sửa chữa','soLenh'])||'').trim(),
     ngayGD:   toDateSmart(colVal(['Ngày giao dịch','ngayGD'])),
