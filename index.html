@@ -3374,23 +3374,20 @@ function toDateSmart(v)function toDateSmart(v){
   return '';
 }
 // ADDED: parse số linh hoạt — chấp nhận "388,800", "1.184.760", số có khoảng trắng, ô trống/"-" -> 0
-function toNum(v){
+function toNum(v)function toNum(v){
   if(v===undefined||v===null||v==='') return 0;
-  if(typeof v==='number') return Math.abs(v); // ADDED: một số XLSX lưu số âm kế toán
+  if(typeof v==='number') return v;
   let s = String(v).trim();
-  // ADDED: xử lý format kế toán DMS — "- 388,800 -" hoặc "-" (dòng chưa có giá trị) hoặc "—"
-  s = s.replace(/[^\d.,]/g,''); // giữ lại chỉ số, dấu chấm, dấu phẩy
+  let isNeg = s.startsWith('-');
+  s = s.replace(/[^\d.,]/g,''); // Giữ lại số, dấu chấm, dấu phẩy
   if(!s) return 0;
-  // ADDED: phát hiện format VN (dấu chấm = hàng nghìn, dấu phẩy = thập phân): "1.184.760,00"
-  // Nếu sau dấu phẩy cuối có đúng 2 chữ số → đây là phần thập phân kiểu VN/châu Âu
-  if(/,\d{2}$/.test(s)){
-    s = s.replace(/\./g,'').replace(',','.'); // "1184760.00"
-  } else {
-    // Format Mỹ/phổ thông: dấu phẩy = hàng nghìn → xoá hết phẩy, giữ chấm thập phân
-    s = s.replace(/,/g,'').replace(/\.(?=\d{3})/g,''); // xoá chấm hàng nghìn kiểu VN
+  if(/,\d{2}$/.test(s)){ // Chuẩn VN: 1.234.567,89
+    s = s.replace(/\./g,'').replace(',','.');
+  } else { // Chuẩn US: 1,234,567.89
+    s = s.replace(/,/g,'');
   }
   const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
+  return isNaN(n) ? 0 : (isNeg ? -n : n);
 }
 // ADDED: map 1 dòng DATA_DMS (lệnh sửa chữa) sang cấu trúc lưu trong DB.dms
 function mapDMSTxRow(raw){
