@@ -345,6 +345,15 @@ textarea.fi{resize:vertical;min-height:64px}
 /* ADDED: Bottom sheet "Thêm" cho thanh điều hướng mobile khi có quá nhiều mục */
 #more-sheet{align-items:flex-end}
 .more-sheet-card{width:100%;border-radius:18px 18px 0 0;max-height:75dvh;margin:0}
+
+/* ADDED: bảng danh sách phụ tùng bên trong form Hồ sơ Bảo Hiểm */
+.bh-pt-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}
+.bh-pt-table th{text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:2px solid var(--border)}
+.bh-pt-table td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.bh-pt-table input{width:100%;border:none;background:transparent;font-size:12px;color:var(--text);outline:none;padding:0}
+.bh-pt-table input:focus{background:var(--surface2);border-radius:4px;padding:2px 4px}
+.bh-pt-table .del-pt{color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px;line-height:1}
+.bh-pt-table .del-pt:hover{color:var(--danger)}
 #more-sheet-body{
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
   padding:14px 16px calc(16px + env(safe-area-inset-bottom));
@@ -1305,6 +1314,18 @@ textarea.fi{resize:vertical;min-height:64px}
       <div class="form-grid g2 mb12">
         <div class="form-group"><label class="form-label">Giá trị được duyệt (VNĐ)</label><input type="number" class="fi" id="fbh-gia"></div>
         <div class="form-group"><label class="form-label">Ngày BH duyệt</label><input type="date" class="fi" id="fbh-ngayduyet"></div>
+      </div>
+      <!-- ADDED: Danh sách phụ tùng — 1 lệnh Bảo hiểm Đồng Sơn có thể nhiều PT, lưu vào obj.phuTung[] -->
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label class="form-label" style="margin:0">🔩 Danh sách phụ tùng</label>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addBHPhuTung()" style="font-size:11px">＋ Thêm PT</button>
+        </div>
+        <table class="bh-pt-table" id="bh-pt-table">
+          <thead><tr><th style="width:34%">Mã phụ tùng</th><th>Tên phụ tùng</th><th style="width:30px"></th></tr></thead>
+          <tbody id="bh-pt-tbody"></tbody>
+        </table>
+        <div id="bh-pt-empty" class="fc-muted" style="font-size:11px;padding:4px 6px;display:none">Chưa có phụ tùng — bấm "＋ Thêm PT" để thêm.</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -2394,9 +2415,24 @@ function renderBH(){
 }
 
 // ADDED: Tạo & in phiếu nhận dạng phụ tùng (cắt dán lên PT gửi kho) từ 1 hồ sơ Bảo hiểm Đồng Sơn
+// ============================================================
+// PHIẾU IN PHỤ TÙNG BẢO HIỂM
+// ============================================================
 function printPTTag(id){
   const r = DB.bh.find(x => x.id === id);
   if(!r){ toast('Không tìm thấy hồ sơ', 'err'); return; }
+  const pts = (r.phuTung||[]);
+  // ADDED: Phiếu in giờ gồm danh sách phụ tùng (nhiều PT/lệnh).
+  // Nếu chưa nhập PT, vẫn in phiếu bình thường nhưng phần PT để trống.
+  const ptRows = pts.length
+    ? pts.map((p,i)=>`<div class="pt-tag-row" style="align-items:flex-start">
+        <b style="min-width:18px;color:#888">${i+1}.</b>
+        <span style="flex:1;text-align:left;margin-left:4px">
+          <span style="font-size:10px;color:#888;display:block">${esc(p.ma)||'—'}</span>
+          ${esc(p.ten)||'—'}
+        </span>
+      </div>`).join('')
+    : `<div class="pt-tag-row" style="color:#999;font-size:11px;justify-content:center">— Chưa nhập phụ tùng —</div>`;
   const box = document.getElementById('pt-tag-print');
   box.innerHTML = `
     <div class="pt-tag-card">
@@ -2408,17 +2444,63 @@ function printPTTag(id){
       <div class="pt-tag-row"><b>Số WO</b><span>${esc(r.wo)||'—'}</span></div>
       <div class="pt-tag-row"><b>Ngày vào xưởng</b><span>${fmtD(r.ngayVao)||'—'}</span></div>
       <div class="pt-tag-row"><b>Trạng thái</b><span>${esc(r.ttBH)||'—'}</span></div>
+      <div style="border-top:1.5px dashed #bbb;margin:8px 0;padding-top:8px">
+        <div style="font-size:10px;font-weight:700;color:#666;margin-bottom:6px">DANH SÁCH PHỤ TÙNG (${pts.length})</div>
+        ${ptRows}
+      </div>
       <div class="pt-tag-ftr">In lúc ${new Date().toLocaleString('vi-VN')}</div>
     </div>`;
   setTimeout(()=>window.print(), 80);
 }
 
+// ADDED: render lại bảng phụ tùng bên trong form — gọi mỗi khi thêm/xoá dòng
+function renderBHPhuTungTable(pts){
+  const tbody = document.getElementById('bh-pt-tbody');
+  const empty = document.getElementById('bh-pt-empty');
+  if(!tbody) return;
+  if(!pts||!pts.length){
+    tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  tbody.innerHTML = pts.map((p,i)=>`
+    <tr id="bh-pt-row-${i}">
+      <td><input value="${esc(p.ma)}" placeholder="VD: EEP20000588" oninput="bhPTFieldChange(${i},'ma',this.value)" class="mono"></td>
+      <td><input value="${esc(p.ten)}" placeholder="Tên phụ tùng" oninput="bhPTFieldChange(${i},'ten',this.value)"></td>
+      <td><span class="del-pt" onclick="delBHPhuTung(${i})" title="Xoá dòng này">✕</span></td>
+    </tr>`).join('');
+}
+
+// ADDED: danh sách phụ tùng tạm trong form — lưu trên window để cả inline onclick và test đều truy cập được
+window._bhPtDraft = window._bhPtDraft || [];
+
+function addBHPhuTung(){
+  window._bhPtDraft.push({ma:'',ten:''});
+  renderBHPhuTungTable(window._bhPtDraft);
+  // focus vào ô mã PT của dòng mới
+  const rows = document.querySelectorAll('#bh-pt-tbody tr');
+  const lastInput = rows[rows.length-1]&&rows[rows.length-1].querySelector('input');
+  if(lastInput) setTimeout(()=>lastInput.focus(),50);
+}
+
+function delBHPhuTung(i){
+  window._bhPtDraft.splice(i,1);
+  renderBHPhuTungTable(window._bhPtDraft);
+}
+
+function bhPTFieldChange(i, field, val){
+  if(window._bhPtDraft[i]) window._bhPtDraft[i][field]=val.trim();
+}
+
 function openAddBH(){
   editBHId=null; document.getElementById('mbh-title').textContent='➕ Thêm Hồ sơ Bảo Hiểm';
   ['fbh-bienso','fbh-wo','fbh-kh','fbh-hang','fbh-cvdv','fbh-ngayvao','fbh-gia','fbh-ngayduyet'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fbh-ngayvao').value=today(); // ADDED: mặc định hôm nay, tránh bỏ trống gây lỗi ẩn theo bộ lọc tháng
+  document.getElementById('fbh-ngayvao').value=today();
   document.getElementById('fbh-tt-sc').value='Chưa Bắt Đầu';
   document.getElementById('fbh-tt-bh').value='10. Lý do khác';
+  window._bhPtDraft = []; // ADDED: reset danh sách phụ tùng
+  renderBHPhuTungTable(window._bhPtDraft);
   openModal('modal-bh');
 }
 function openEditBH(id){
@@ -2428,28 +2510,42 @@ function openEditBH(id){
   set('fbh-bienso',r.bienSo); set('fbh-wo',r.wo); set('fbh-kh',r.kh); set('fbh-hang',r.hangBH);
   set('fbh-cvdv',r.cvdv); set('fbh-ngayvao',r.ngayVao); set('fbh-gia',r.gt); set('fbh-ngayduyet',r.ngayDuyet);
   set('fbh-tt-sc',r.ttSC); set('fbh-tt-bh',r.ttBH);
+  // ADDED: load danh sách phụ tùng cũ (backward-compat: hồ sơ cũ không có phuTung thì khởi tạo rỗng)
+  window._bhPtDraft = (r.phuTung||[]).map(p=>({...p}));
+  renderBHPhuTungTable(window._bhPtDraft);
   openModal('modal-bh');
 }
 function saveBH(){
   const bienSo=document.getElementById('fbh-bienso').value.trim();
   if(!bienSo){toast('Vui lòng nhập Biển số','err');return;}
   const ngayVao=document.getElementById('fbh-ngayvao').value;
-  if(!ngayVao){toast('Vui lòng nhập Ngày vào xưởng','err');return;} // ADDED: field này đã đánh dấu bắt buộc (*) nhưng trước đây chưa được kiểm tra
+  if(!ngayVao){toast('Vui lòng nhập Ngày vào xưởng','err');return;}
+  // ADDED: đồng bộ giá trị đang nhập dở trong input (người dùng chưa rời ô) vào draft
+  document.querySelectorAll('#bh-pt-tbody tr').forEach((tr,i)=>{
+    const inputs=tr.querySelectorAll('input');
+    if(window._bhPtDraft[i]){
+      window._bhPtDraft[i].ma=(inputs[0]&&inputs[0].value||'').trim();
+      window._bhPtDraft[i].ten=(inputs[1]&&inputs[1].value||'').trim();
+    }
+  });
+  // ADDED: lọc bỏ dòng trống hoàn toàn (cả mã lẫn tên đều rỗng)
+  const phuTung=window._bhPtDraft.filter(p=>p.ma||p.ten);
   const obj={
     id:editBHId||uid(),
     bienSo, wo:document.getElementById('fbh-wo').value.trim(), kh:document.getElementById('fbh-kh').value.trim(),
     hangBH:document.getElementById('fbh-hang').value, cvdv:document.getElementById('fbh-cvdv').value,
-    ngayVao:document.getElementById('fbh-ngayvao').value, gt:parseFloat(document.getElementById('fbh-gia').value)||0,
+    ngayVao, gt:parseFloat(document.getElementById('fbh-gia').value)||0,
     ngayDuyet:document.getElementById('fbh-ngayduyet').value, ttSC:document.getElementById('fbh-tt-sc').value,
-    ttBH:document.getElementById('fbh-tt-bh').value
+    ttBH:document.getElementById('fbh-tt-bh').value,
+    phuTung // ADDED: danh sách phụ tùng [{ma, ten}, ...]
   };
   if(editBHId){const i=DB.bh.findIndex(x=>x.id===editBHId);DB.bh[i]=obj;}
   else DB.bh.unshift(obj);
   ensureMonthVisible(obj.ngayVao);
-  logAction(editBHId?'sua':'them','bh',`Biển số ${obj.bienSo} — ${obj.hangBH||''}`); // ADDED
+  logAction(editBHId?'sua':'them','bh',`Biển số ${obj.bienSo} — ${obj.hangBH||''} — ${phuTung.length} PT`);
   closeModal('modal-bh'); saveLocal(); refreshAll(); toast(editBHId?'✅ Đã cập nhật':'✅ Đã thêm BH mới');
   syncToSheet('bh',obj);
-  return obj.id; // ADDED: trả về id để có thể in phiếu ngay sau khi lưu
+  return obj.id;
 }
 
 
