@@ -3389,7 +3389,6 @@ function toNum(v){
   const n = parseFloat(s);
   return isNaN(n) ? 0 : (isNeg ? -n : n);
 }
-// ADDED: map 1 dòng DATA_DMS (lệnh sửa chữa) sang cấu trúc lưu trong DB.dms
 function mapDMSTxRow(raw){
   const rawKeys = Object.keys(raw);
   const colVal=(candidates)=>{
@@ -3415,22 +3414,6 @@ function mapDMSTxRow(raw){
     mucUuTien:    String(colVal(['Mức ưu tiên','Ưu tiên','mucUuTien'])||'').trim(),
     phanLoai:     String(colVal(['Phân loại Doanh thu (Auto)','Phân loại Doanh thu','Phân loại','Loại hình','phanLoai'])||'').trim(),
     ghichu:       '',
-  };
-}
-  return{
-    soLenh:   String(colVal(['Lệnh sửa chữa','soLenh'])||'').trim(),
-    ngayGD:   toDateSmart(colVal(['Ngày giao dịch','ngayGD'])),
-    trangThai:String(colVal(['Trạng thái','trangThai'])||'').trim(),
-    bienSo:   String(colVal(['Biển số xe','bienSo'])||'').trim(),
-    dongXe:   String(colVal(['Dòng xe','dongXe'])||'').trim(),
-    yeuCau:   String(colVal(['Yêu cầu khách hàng','yeuCau'])||'').trim(),
-    tienNhanCong: toNum(colVal(['Tiền nhân công','tienNhanCong'])),
-    tienPhuTung:  toNum(colVal(['Tiền phụ tùng','tienPhuTung'])),
-    tongTien: toNum(colVal(['Tổng tiền','tongTien'])),
-    cvdv:     String(colVal(['Cố vấn dịch vụ','cvdv'])||'').trim(),
-    mucUuTien:String(colVal(['Mức ưu tiên','mucUuTien'])||'').trim(),
-    phanLoai: String(colVal(['Phân loại Doanh thu (Auto)','Phân loại Doanh thu','phanLoai'])||'').trim(),
-    ghichu:   '',
   };
 }
 // ADDED: map 1 dòng Lịch Hẹn (đặt hẹn DMS)
