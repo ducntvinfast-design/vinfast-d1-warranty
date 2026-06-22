@@ -316,6 +316,50 @@ textarea.fi{resize:vertical;min-height:64px}
 .overlay.open{display:flex}
 .modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-height:92dvh;overflow-y:auto;box-shadow:var(--shadow-md)}
 .modal-sm{max-width:480px}.modal-md{max-width:720px}.modal-lg{max-width:960px}
+
+/* ADDED: Phiếu nhận dạng phụ tùng (in để dán lên PT gửi kho) — ẩn lúc dùng bình thường, chỉ hiện khi in */
+#pt-tag-print{display:none}
+.pt-tag-card{
+  width:9cm;border:2px dashed #888;border-radius:10px;padding:14px 16px;
+  font-family:Arial,sans-serif;color:#111;
+}
+.pt-tag-hdr{
+  text-align:center;font-weight:800;font-size:11px;letter-spacing:0.5px;
+  color:#fff;background:#1B365D;padding:6px 8px;border-radius:6px;margin-bottom:10px;
+}
+.pt-tag-hdr small{display:block;font-weight:600;font-size:9px;opacity:0.85;margin-top:2px}
+.pt-tag-bienso{
+  text-align:center;font-weight:900;font-size:26px;letter-spacing:1px;
+  border:2px solid #1B365D;border-radius:6px;padding:6px;margin-bottom:10px;color:#1B365D;
+}
+.pt-tag-row{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;padding:3px 0;border-bottom:1px dotted #ccc}
+.pt-tag-row b{color:#444;font-weight:700}
+.pt-tag-row span{font-weight:700;text-align:right}
+.pt-tag-ftr{text-align:center;font-size:9px;color:#777;margin-top:10px}
+@media print{
+  body *{visibility:hidden}
+  #pt-tag-print, #pt-tag-print *{visibility:visible}
+  #pt-tag-print{display:block;position:fixed;top:18px;left:18px}
+}
+
+/* ADDED: Bottom sheet "Thêm" cho thanh điều hướng mobile khi có quá nhiều mục */
+#more-sheet{align-items:flex-end}
+.more-sheet-card{width:100%;border-radius:18px 18px 0 0;max-height:75dvh;margin:0}
+#more-sheet-body{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+}
+#more-sheet-body .nav-item{
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:16px 8px;border-radius:12px;
+  border:1.5px solid var(--border)!important;
+  color:var(--text);font-size:11px;font-weight:600;
+  height:auto;min-width:unset;width:auto;
+}
+#more-sheet-body .nav-item.active{border-color:var(--vf)!important;background:var(--vf3);color:var(--vf)}
+#more-sheet-body .nav-icon{font-size:24px}
+#more-sheet-body .nav-label{font-size:11px;white-space:normal;text-align:center;line-height:1.3}
+#more-sheet-body .nav-badge{margin-top:2px}
 .modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--surface);z-index:3}
 .modal-title{font-size:14px;font-weight:700;flex:1}
 .modal-close{cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px;border-radius:6px}
@@ -355,6 +399,14 @@ textarea.fi{resize:vertical;min-height:64px}
 .prog-wrap{background:#E5E7EB;border-radius:99px;height:6px;overflow:hidden;min-width:60px}
 .prog-bar{height:100%;border-radius:99px;transition:width .4s}
 .prog-bar.ok{background:var(--ok)}.prog-bar.warn{background:var(--warn)}.prog-bar.red{background:var(--danger)}
+
+/* ADDED: Biểu đồ thanh ngang cho khối Cơ Cấu Doanh Thu (DMS) trên Dashboard */
+.dms-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dms-bar-label{width:108px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--dim)}
+.dms-bar-track{flex:1;background:var(--surface2);border-radius:6px;height:22px;overflow:hidden;position:relative}
+.dms-bar-fill{height:100%;border-radius:6px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+.dms-bar-fill span{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+.dms-bar-amount{width:108px;flex-shrink:0;text-align:right;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
 
 /* ============================================================
    BULK ACTION BAR
@@ -625,6 +677,11 @@ textarea.fi{resize:vertical;min-height:64px}
         <span class="nav-icon">🕓</span>
         <span class="nav-label">Lịch sử thao tác</span>
       </div>
+      <!-- ADDED: nút "Thêm" — chỉ hiện trên mobile khi số mục điều hướng nhiều hơn chỗ chứa, gom bớt cho gọn -->
+      <div class="nav-item" id="nav-more-btn" onclick="openModal('more-sheet')" style="display:none">
+        <span class="nav-icon">⋯</span>
+        <span class="nav-label">Thêm</span>
+      </div>
       <div style="flex:1"></div>
       <div class="sb-footer">
         <div>VF_HM13.1 &nbsp;·&nbsp; ĐC 06/05/2026</div>
@@ -646,6 +703,35 @@ textarea.fi{resize:vertical;min-height:64px}
           <div class="kpi yellow"><div class="kpi-label">📦 PT cần xử lý</div><div class="kpi-val" id="k-kho-alert">0</div><div class="kpi-sub">Đủ ĐK hủy</div></div>
         </div>
         <div id="alert-section"></div>
+        <!-- ADDED: Khối Cơ Cấu Doanh Thu — tính từ dữ liệu DATA_DMS do Admin import (mục Import) -->
+        <div class="card mb12" id="dms-dashboard-section">
+          <div class="card-hdr">
+            <span class="card-title">💰 Cơ Cấu Doanh Thu</span>
+            <span class="fc-muted fs11" id="dms-updated-note"></span>
+          </div>
+          <div id="dms-dashboard-body" style="padding:14px"></div>
+        </div>
+        <!-- ADDED: Trạng Thái Xử Lý lệnh sửa chữa — tận dụng luôn dữ liệu DMS đã import, không cần import thêm -->
+        <div class="card mb12" id="rostatus-dashboard-section">
+          <div class="card-hdr"><span class="card-title">🔧 Trạng Thái Xử Lý Lệnh Sửa Chữa</span></div>
+          <div id="rostatus-dashboard-body" style="padding:14px"></div>
+        </div>
+        <!-- ADDED: Khối Lịch Hẹn — tính từ dữ liệu Lịch Hẹn do Admin import -->
+        <div class="card mb12" id="lichhen-dashboard-section">
+          <div class="card-hdr">
+            <span class="card-title">📅 Lịch Hẹn</span>
+            <span class="fc-muted fs11" id="lichhen-updated-note"></span>
+          </div>
+          <div id="lichhen-dashboard-body" style="padding:14px"></div>
+        </div>
+        <!-- ADDED: Khối Tồn Kho Phụ Tùng — tính từ dữ liệu Tồn Kho do Admin import -->
+        <div class="card mb12" id="tonkho-dashboard-section">
+          <div class="card-hdr">
+            <span class="card-title">📦 Tồn Kho Phụ Tùng</span>
+            <span class="fc-muted fs11" id="tonkho-updated-note"></span>
+          </div>
+          <div id="tonkho-dashboard-body" style="padding:14px"></div>
+        </div>
         <div class="card">
           <div class="card-hdr">
             <span class="card-title">📋 Danh sách hồ sơ</span>
@@ -912,6 +998,36 @@ textarea.fi{resize:vertical;min-height:64px}
               <input type="file" id="fi-kho" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileKho(this)">
               <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="downloadTemplate('kho')">⬇️ Tải template CSV Phụ tùng</button>
             </div>
+          </div>
+          <!-- ADDED: Import dữ liệu doanh thu DMS (DATA_DMS) — CHỈ ADMIN thấy và import được -->
+          <div data-roles="admin" style="margin-bottom:16px">
+            <div style="font-weight:700;font-size:12px;margin-bottom:8px">💰 Import Dữ Liệu Doanh Thu (DATA_DMS) <span class="badge badge-purple" style="margin-left:6px">Admin</span></div>
+            <div class="drop-zone" id="dz-dms" onclick="document.getElementById('fi-dms').click()" ondragover="dzOver(event,'dz-dms')" ondragleave="dzLeave('dz-dms')" ondrop="dzDrop(event,'dms')">
+              <div class="drop-icon">💰</div>
+              <div class="drop-label">Kéo thả hoặc bấm chọn file xuất từ DMS (lệnh sửa chữa)</div>
+              <div class="drop-sub">Hỗ trợ: <strong>.xlsx</strong> và <strong>.csv</strong> — dùng để tính Doanh thu & hiệu suất CVDV trên Dashboard</div>
+            </div>
+            <input type="file" id="fi-dms" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileDMS(this)">
+          </div>
+          <!-- ADDED: Import Lịch Hẹn — CHỈ ADMIN -->
+          <div data-roles="admin" style="margin-bottom:16px">
+            <div style="font-weight:700;font-size:12px;margin-bottom:8px">📅 Import Lịch Hẹn (Đặt hẹn DMS) <span class="badge badge-purple" style="margin-left:6px">Admin</span></div>
+            <div class="drop-zone" id="dz-lichhen" onclick="document.getElementById('fi-lichhen').click()" ondragover="dzOver(event,'dz-lichhen')" ondragleave="dzLeave('dz-lichhen')" ondrop="dzDrop(event,'lichhen')">
+              <div class="drop-icon">📅</div>
+              <div class="drop-label">Kéo thả hoặc bấm chọn file Lịch Hẹn xuất từ DMS</div>
+              <div class="drop-sub">Hỗ trợ: <strong>.xlsx</strong> và <strong>.csv</strong> — dùng để tính tỷ lệ đúng hẹn & cơ chế thưởng đặt hẹn</div>
+            </div>
+            <input type="file" id="fi-lichhen" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileLichHen(this)">
+          </div>
+          <!-- ADDED: Import Tồn Kho Phụ Tùng — CHỈ ADMIN -->
+          <div data-roles="admin" style="margin-bottom:16px">
+            <div style="font-weight:700;font-size:12px;margin-bottom:8px">📦 Import Tồn Kho Phụ Tùng <span class="badge badge-purple" style="margin-left:6px">Admin</span></div>
+            <div class="drop-zone" id="dz-tonkho" onclick="document.getElementById('fi-tonkho').click()" ondragover="dzOver(event,'dz-tonkho')" ondragleave="dzLeave('dz-tonkho')" ondrop="dzDrop(event,'tonkho')">
+              <div class="drop-icon">📦</div>
+              <div class="drop-label">Kéo thả hoặc bấm chọn file Tồn Kho Phụ Tùng</div>
+              <div class="drop-sub">Hỗ trợ: <strong>.xlsx</strong> và <strong>.csv</strong> — cần có cột Hạn mức tối thiểu để tự tính cảnh báo hết hàng/cần nhập</div>
+            </div>
+            <input type="file" id="fi-tonkho" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileTonKho(this)">
           </div>
           <div class="form-grid g2">
             <div class="card">
@@ -1193,10 +1309,22 @@ textarea.fi{resize:vertical;min-height:64px}
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-bh')">Hủy</button>
+      <button class="btn btn-ghost" onclick="const _id=saveBH(); if(_id) printPTTag(_id);" title="Lưu hồ sơ và in luôn phiếu dán phụ tùng gửi kho">🏷️ Lưu & In phiếu PT</button>
       <button class="btn btn-primary" onclick="saveBH()">💾 Lưu hồ sơ</button>
     </div>
   </div>
 </div>
+<!-- ADDED: Bottom sheet chứa các mục điều hướng bị gom lại trên mobile (xem nav-more-btn + setupMobileNav) -->
+<div class="overlay" id="more-sheet">
+  <div class="modal modal-sm more-sheet-card">
+    <div class="modal-hdr">
+      <span class="modal-title">⋯ Thêm</span>
+      <span class="modal-close" onclick="closeModal('more-sheet')">✕</span>
+    </div>
+    <div class="modal-body" id="more-sheet-body"></div>
+  </div>
+</div>
+
 <div class="overlay" id="modal-kho">
   <div class="modal modal-md">
     <div class="modal-hdr">
@@ -1215,7 +1343,8 @@ textarea.fi{resize:vertical;min-height:64px}
       </div>
       <div class="form-grid g2 mb12">
         <div class="form-group"><label class="form-label" id="lbl-kho-vin">Số VIN xe</label><input class="fi mono" id="fk-vin" oninput="updateKhoBHInfo()"></div>
-        <div class="form-group"><label class="form-label" id="lbl-kho-ref">Số WO / Số YCBH</label><input class="fi mono" id="fk-ycbh" oninput="updateKhoBHInfo()"></div>
+        <!-- ADDED: ẩn khi nguồn = Bảo hiểm Đồng Sơn (phiếu BH chỉ cần Biển số, không cần Số HSBH/WO riêng) -->
+        <div class="form-group" id="fld-kho-ref"><label class="form-label" id="lbl-kho-ref">Số WO / Số YCBH</label><input class="fi mono" id="fk-ycbh" oninput="updateKhoBHInfo()"></div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--vf);margin-bottom:10px">🔩 THÔNG TIN PHỤ TÙNG</div>
       <div class="form-grid g3 mb12">
@@ -1225,18 +1354,25 @@ textarea.fi{resize:vertical;min-height:64px}
           <label class="form-label">Phân loại (Phụ lục IV)</label>
           <select class="fi" id="fk-phanloai"><option value="">-- Chọn loại --</option><option>Bình thường</option><option>PDU</option><option>Sạc ô tô/xe máy điện</option><option>Ắc quy/Pin xe máy điện</option><option>Động cơ điện</option><option>Khác</option></select>
         </div>
-        <!-- ADDED: chỉ hiện khi nguồn = Bảo hiểm Đồng Sơn, thay chỗ cho Phân loại Phụ lục IV (không áp dụng cho BH) -->
+        <!-- ADDED: chỉ hiện khi nguồn = Bảo hiểm Đồng Sơn, thay chỗ cho Phân loại Phụ lục IV (không áp dụng cho BH).
+             Giờ gồm cả Ngày BH duyệt lấy tự động từ hồ sơ Bảo hiểm liên kết. -->
         <div class="form-group" id="fld-bh-info" style="display:none">
-          <label class="form-label">Hãng BH / CVDV phụ trách</label>
-          <div class="fi fc-muted" id="fk-bh-info" style="display:flex;align-items:center;min-height:36px">— Nhập Biển số/VIN để đối chiếu —</div>
+          <label class="form-label">Hãng BH / Ngày duyệt / CVDV</label>
+          <div class="fi fc-muted" id="fk-bh-info" style="display:flex;align-items:center;min-height:36px;font-size:12px">— Nhập Biển số/VIN để đối chiếu —</div>
         </div>
       </div>
       <div class="form-grid g2 mb12">
-        <div class="form-group"><label class="form-label">Số lượng</label><input type="number" class="fi" id="fk-sl" value="1" min="1"></div>
-        <div class="form-group"><label class="form-label req">Ngày PD YCBH</label><input type="date" class="fi" id="fk-ngay-pd"></div>
+        <div class="form-group" id="fld-kho-sl"><label class="form-label">Số lượng</label><input type="number" class="fi" id="fk-sl" value="1" min="1"></div>
+        <!-- ADDED: chỉ hiện khi nguồn = Bảo hiểm Đồng Sơn, thay chỗ Số lượng — Hạn lưu kho tự tính = Ngày lưu kho + 1 tháng -->
+        <div class="form-group" id="fld-han-luukho" style="display:none">
+          <label class="form-label">Hạn lưu kho (tự động, 1 tháng)</label>
+          <div class="fi fc-muted" id="fk-han-luukho">—</div>
+        </div>
+        <div class="form-group"><label class="form-label req" id="lbl-kho-ngaypd">Ngày PD YCBH</label><input type="date" class="fi" id="fk-ngay-pd" onchange="updateKhoHanLuuKho()"></div>
       </div>
       <div class="form-grid g2 mb12">
-        <div class="form-group"><label class="form-label">Loại PT lưu kho</label>
+        <!-- ADDED: ẩn khi nguồn = Bảo hiểm Đồng Sơn — thay bằng mốc 1 tháng cố định, không cần chọn 30/60 ngày -->
+        <div class="form-group" id="fld-loai-kho"><label class="form-label">Loại PT lưu kho</label>
           <select class="fi" id="fk-loai-kho"><option value="60">Phụ tùng khác (≥60 ngày)</option><option value="30">Ắc quy / Pin xe máy điện (≥30 ngày)</option></select>
         </div>
         <div class="form-group"><label class="form-label">Trạng thái lưu kho</label>
@@ -1431,7 +1567,13 @@ let CU = null;
 // DATA & STATE
 // ============================================================
 // Đã thêm mảng bh và ktbh
-let DB = {ycbh:[], kho:[], kt:{}, cktgsc:[], bh:[], ktbh:{}, log:[]}; // ADDED: log = lịch sử thao tác
+let DB = {ycbh:[], kho:[], kt:{}, cktgsc:[], bh:[], ktbh:{}, log:[], dms:[], lichhen:[], tonkho:[]}; // ADDED: lichhen = lịch hẹn DMS, tonkho = tồn kho phụ tùng (chỉ admin import)
+// ADDED: DỮ LIỆU MẪU minh hoạ — 38 dòng lấy đúng từ DATA_DMS anh gửi, để mở file lên là thấy giao diện
+// Dashboard có dữ liệu thật ngay, không cần tự import. Khi import dữ liệu thật của tháng khác, phần này
+// sẽ tự được thay thế bình thường (xoá đoạn DB.dms = [...] này nếu không muốn giữ dữ liệu minh hoạ nữa).
+DB.dms = [{"soLenh": "S44301-WO-26-06-15-008", "ngayGD": "2026-06-15", "trangThai": "Lệnh sửa chữa", "bienSo": "50H80816", "dongXe": "VF 5", "yeuCau": "Tân RSA kéo xe 26", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Bảo hành", "ghichu": "", "id": "seed_5czohcwa"}, {"soLenh": "S44301-WO-26-06-15-007", "ngayGD": "2026-06-15", "trangThai": "Lệnh sửa chữa", "bienSo": "49A94687", "dongXe": "VF 3", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 388800, "tienPhuTung": 239002, "tongTien": 627802, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_vcjrtcji"}, {"soLenh": "S44301-WO-26-06-15-006", "ngayGD": "2026-06-15", "trangThai": "Lệnh sửa chữa", "bienSo": "51L74619", "dongXe": "VF 3", "yeuCau": "Quân KHTT bảo dưỡng", "tienNhanCong": 388800, "tienPhuTung": 239002, "tongTien": 627802, "cvdv": "Trần Toàn Quân", "mucUuTien": "W - Xe mất hoàn toàn khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_smvybftf"}, {"soLenh": "S44301-WO-26-06-15-005", "ngayGD": "2026-06-15", "trangThai": "Hoàn thành", "bienSo": "62A17102", "dongXe": "LUX SA2.0", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 97200, "tienPhuTung": 424000, "tongTien": 521200, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_o7xn2quf"}, {"soLenh": "S44301-WO-26-06-15-004", "ngayGD": "2026-06-15", "trangThai": "Hoàn thành thanh toán", "bienSo": "51H82891", "dongXe": "LUX SA2.0", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 1184760, "tienPhuTung": 4302242, "tongTien": 5487002, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_8lybjdsl"}, {"soLenh": "S44301-WO-26-06-15-003", "ngayGD": "2026-06-15", "trangThai": "Hoàn thành thanh toán", "bienSo": "50E25857", "dongXe": "Limo Green", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 567000, "tienPhuTung": 843760, "tongTien": 1410760, "cvdv": "Trần Toàn Quân", "mucUuTien": "A - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_1cecv56b"}, {"soLenh": "S44301-WO-26-06-15-002", "ngayGD": "2026-06-15", "trangThai": "Lệnh sửa chữa", "bienSo": "51K65902", "dongXe": "LUX SA2.0", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 1006560, "tienPhuTung": 3273100, "tongTien": 4279660, "cvdv": "Trần Toàn Quân", "mucUuTien": "A - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_qm87z6pe"}, {"soLenh": "S44301-WO-26-06-15-001", "ngayGD": "2026-06-15", "trangThai": "Hoàn thành thanh toán", "bienSo": "64H02808", "dongXe": "VF 5", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 648000, "tienPhuTung": 683346, "tongTien": 1331346, "cvdv": "Trần Toàn Quân", "mucUuTien": "W - Xe mất hoàn toàn khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_gld2xmes"}, {"soLenh": "S44301-WO-26-06-13-003", "ngayGD": "2026-06-13", "trangThai": "Lệnh sửa chữa", "bienSo": "51L98102", "dongXe": "VF 3", "yeuCau": "QUỐC KHTT đèn", "tienNhanCong": 64800, "tienPhuTung": 1523501, "tongTien": 1588301, "cvdv": "Phạm Kiến Quốc", "mucUuTien": "", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_qm6fhlu7"}, {"soLenh": "S44301-WO-26-06-13-002", "ngayGD": "2026-06-13", "trangThai": "Hoàn thành", "bienSo": "51K09384", "dongXe": "VF 8", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 64800, "tienPhuTung": 643946, "tongTien": 708746, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_lqsxb61j"}, {"soLenh": "S44301-WO-26-06-13-001", "ngayGD": "2026-06-13", "trangThai": "Hoàn thành thanh toán", "bienSo": "12A23777", "dongXe": "VF 3", "yeuCau": "QUỐC KHTT ĐÈN", "tienNhanCong": 324000, "tienPhuTung": 4101840, "tongTien": 4425840, "cvdv": "Phạm Kiến Quốc", "mucUuTien": "", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_yhast3ea"}, {"soLenh": "S44301-WE-26-06-13-001", "ngayGD": "2026-06-13", "trangThai": "Báo giá", "bienSo": "50H53159", "dongXe": "VF 5", "yeuCau": "Quân KHTT báo giá GSM", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "", "ghichu": "", "id": "seed_mxjfvi33"}, {"soLenh": "S44301-WO-26-06-12-008", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành thanh toán", "bienSo": "60H17832", "dongXe": "VF 5", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 168480, "tienPhuTung": 1332000, "tongTien": 1500480, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_s9iouzlb"}, {"soLenh": "S44301-WO-26-06-12-007", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "PDI718992", "dongXe": "VF 3", "yeuCau": "QUỐC PDI718992", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Phạm Kiến Quốc", "mucUuTien": "", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_k928acfv"}, {"soLenh": "S44301-WO-26-06-12-006", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "29E30095", "dongXe": "Limo Green", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 567000, "tienPhuTung": 843760, "tongTien": 1410760, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_gzjgj4l4"}, {"soLenh": "S44301-WO-26-06-12-005", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "50E66358", "dongXe": "Limo Green", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 32400, "tienPhuTung": 163998, "tongTien": 196398, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_scsxkaq5"}, {"soLenh": "S44301-WO-26-06-12-004", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "50E66373", "dongXe": "Limo Green", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 437400, "tienPhuTung": 0, "tongTien": 437400, "cvdv": "Trần Toàn Quân", "mucUuTien": "A - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_uz1t6p11"}, {"soLenh": "S44301-WO-26-06-12-003", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "51M78216", "dongXe": "LUX SA2.0", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 1036800, "tienPhuTung": 6903611, "tongTien": 7940411, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_279qw54o"}, {"soLenh": "S44301-WO-26-06-12-002", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành thanh toán", "bienSo": "51H61687", "dongXe": "VF 5", "yeuCau": "Quân KHTT bảo dưỡng", "tienNhanCong": 442800, "tienPhuTung": 720745, "tongTien": 1163545, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_kidmcz00"}, {"soLenh": "S44301-WO-26-06-12-001", "ngayGD": "2026-06-12", "trangThai": "Hoàn thành", "bienSo": "51L52870", "dongXe": "VF 3", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 388800, "tienPhuTung": 239002, "tongTien": 627802, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_w4e6fg5k"}, {"soLenh": "S44301-WO-26-06-11-007", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành thanh toán", "bienSo": "50E84680", "dongXe": "Limo Green", "yeuCau": "Quân KHTT bảo dưỡng", "tienNhanCong": 129600, "tienPhuTung": 455760, "tongTien": 585360, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_md8tfkuz"}, {"soLenh": "S44301-WO-26-06-11-006", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "PDI721855", "dongXe": "VF 3", "yeuCau": "QUỐC PDI721855", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Phạm Kiến Quốc", "mucUuTien": "", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_htckvsnv"}, {"soLenh": "S44301-WO-26-06-11-005", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "50E76524", "dongXe": "Limo Green", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 437400, "tienPhuTung": 388000, "tongTien": 825400, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_lhtc02l2"}, {"soLenh": "S44301-WO-26-06-11-004", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "PDI760047", "dongXe": "Limo Green", "yeuCau": "Tân PDI760047 giao xe", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_02anqhst"}, {"soLenh": "S44301-WO-26-06-11-003", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "PDI721882", "dongXe": "VF 3", "yeuCau": "Tân PDI721882 giao xe", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_b27l1jte"}, {"soLenh": "S44301-WO-26-06-11-002", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "PDI717655", "dongXe": "VF 7", "yeuCau": "PDI giao xe", "tienNhanCong": 664200, "tienPhuTung": 388000, "tongTien": 1052200, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_tfkmqdmu"}, {"soLenh": "S44301-WO-26-06-01-009", "ngayGD": "2026-06-11", "trangThai": "Hoàn thành", "bienSo": "PDI764134", "dongXe": "Limo Green", "yeuCau": "PDI giao xe", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Trần Toàn Quân", "mucUuTien": "C - Xe giảm khả năng hoạt động", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_to526wdk"}, {"soLenh": "S44301-WO-26-06-10-006", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành", "bienSo": "PDI722807", "dongXe": "VF 3", "yeuCau": "PDI giao xe", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Nội bộ", "ghichu": "", "id": "seed_y0oa4pio"}, {"soLenh": "S44301-WO-26-06-10-005", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành", "bienSo": "50E26356", "dongXe": "Limo Green", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 129600, "tienPhuTung": 455760, "tongTien": 585360, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_4dro2863"}, {"soLenh": "S44301-WO-26-06-10-004", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành", "bienSo": "51M83670", "dongXe": "VF 7", "yeuCau": "Tân KHTT bảo dưỡng", "tienNhanCong": 437400, "tienPhuTung": 255273, "tongTien": 692673, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_6hoq4y2d"}, {"soLenh": "S44301-WO-26-06-10-003", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành thanh toán", "bienSo": "64H05912", "dongXe": "VF 5", "yeuCau": "Quân KHTT bảo dưỡng", "tienNhanCong": 680400, "tienPhuTung": 85418, "tongTien": 765818, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_r1uui3n3"}, {"soLenh": "S44301-WO-26-06-10-002", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành thanh toán", "bienSo": "60H29185", "dongXe": "VF 5", "yeuCau": "Quân KHTT bảo dưỡng", "tienNhanCong": 453600, "tienPhuTung": 781529, "tongTien": 1235129, "cvdv": "Trần Toàn Quân", "mucUuTien": "B - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_uca1uzdl"}, {"soLenh": "S44301-WO-26-06-10-001", "ngayGD": "2026-06-10", "trangThai": "Hoàn thành thanh toán", "bienSo": "51K73269", "dongXe": "VF 5", "yeuCau": "quân khtt bảo dưỡng", "tienNhanCong": 421200, "tienPhuTung": 0, "tongTien": 421200, "cvdv": "Trần Toàn Quân", "mucUuTien": "", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_v9bvvum0"}, {"soLenh": "S44301-WE-26-06-10-007", "ngayGD": "2026-06-10", "trangThai": "Báo giá", "bienSo": "50H44287", "dongXe": "VF 7", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "", "ghichu": "", "id": "seed_zyytol2l"}, {"soLenh": "S44301-WE-26-06-10-006", "ngayGD": "2026-06-10", "trangThai": "Báo giá", "bienSo": "51K20584", "dongXe": "VF e34", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 0, "tienPhuTung": 0, "tongTien": 0, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "", "ghichu": "", "id": "seed_mzkosi3m"}, {"soLenh": "S44301-WO-26-06-09-007", "ngayGD": "2026-06-09", "trangThai": "Hoàn thành thanh toán", "bienSo": "51L72804", "dongXe": "VF 3", "yeuCau": "Quân KHTT", "tienNhanCong": 324000, "tienPhuTung": 2416000, "tongTien": 2740000, "cvdv": "Trần Toàn Quân", "mucUuTien": "A - Xe giảm khả năng hoạt động", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_v4r1j9on"}, {"soLenh": "S44301-WO-26-06-09-006", "ngayGD": "2026-06-09", "trangThai": "Hoàn thành", "bienSo": "60H34950", "dongXe": "VF 3", "yeuCau": "Quân KHTT", "tienNhanCong": 32400, "tienPhuTung": 51000, "tongTien": 83400, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_ymiwzkg5"}, {"soLenh": "S44301-WO-26-06-09-005", "ngayGD": "2026-06-09", "trangThai": "Hoàn thành", "bienSo": "51L71534", "dongXe": "VF 3", "yeuCau": "Tân KHTT SCC theo yêu cầu khách hàng", "tienNhanCong": 129600, "tienPhuTung": 450000, "tongTien": 579600, "cvdv": "Nguyễn Minh Tân", "mucUuTien": "N/A - Không áp dụng", "phanLoai": "Khách trả", "ghichu": "", "id": "seed_ogzd9eld"}];
+DB.lichhen = [{"id": "seedlh1", "maDatHen": "S44301-SB-26-06-0040", "lenhSC": "", "trangThai": "Mở", "bienSo": "50H55426", "model": "VF 5", "khachHang": "Nguyễn Thanh Vân An", "sdt": "84868866007", "ngayDatHen": "2026-06-15", "ngayDuKien": "2026-06-16", "ngayGocKH": "2026-06-16", "bookingSource": "C-App", "serviceType": "Maintenance", "danhGia": "Trễ hẹn", "ghichu": ""}, {"id": "seedlh2", "maDatHen": "S44301-SB-26-06-0037", "lenhSC": "S44301-WO-26-06-15-006", "trangThai": "Phát hành đặt hẹn", "bienSo": "51L74619", "model": "VF 3", "khachHang": "Phạm Anh Khôi", "sdt": "84931539522", "ngayDatHen": "2026-06-13", "ngayDuKien": "2026-06-15", "ngayGocKH": "2026-06-15", "bookingSource": "C-App", "serviceType": "Maintenance", "danhGia": "Đúng hẹn", "ghichu": ""}, {"id": "seedlh3", "maDatHen": "S44301-SB-26-06-0031", "lenhSC": "", "trangThai": "Hoàn thành", "bienSo": "51L52870", "model": "VF 3", "khachHang": "lê hoàng mỹ xuân", "sdt": "84933449490", "ngayDatHen": "2026-06-11", "ngayDuKien": "2026-06-12", "ngayGocKH": "2026-06-12", "bookingSource": "C-App", "serviceType": "Maintenance", "danhGia": "Đúng hẹn", "ghichu": ""}, {"id": "seedlh4", "maDatHen": "S44301-SB-26-06-0036", "lenhSC": "", "trangThai": "Hủy", "bienSo": "PDILIMO701622", "model": "Limo Green", "khachHang": "LÊ THỊ MỸ DUYÊN", "sdt": "84938679299", "ngayDatHen": "2026-06-13", "ngayDuKien": "2026-06-13", "ngayGocKH": "2026-06-13", "bookingSource": "C-App", "serviceType": "Maintenance", "danhGia": "Đã hủy", "ghichu": ""}, {"id": "seedlh5", "maDatHen": "S44301-SB-26-06-0018", "lenhSC": "S44301-WO-26-06-08-005", "trangThai": "Hoàn thành", "bienSo": "82A16059", "model": "VF 3", "khachHang": "LÊ HỮU TÂM", "sdt": "84913390008", "ngayDatHen": "2026-06-06", "ngayDuKien": "2026-06-08", "ngayGocKH": "2026-06-08", "bookingSource": "C-App", "serviceType": "Maintenance", "danhGia": "Đúng hẹn", "ghichu": ""}]; // ADDED: 5 dòng mẫu Lịch Hẹn lấy từ dữ liệu thật anh gửi
+DB.tonkho = [{"id": "seedtk1", "maHang": "SVC32000128", "tenHang": "MECHANICAL_KEY_UNCUT", "nhomHang": "Phụ tùng Vinfast", "dvt": "Cái", "queKe": "C02-02-14", "slTon": 0, "giaVon": 109130, "dongXeApDung": "VF-Limo", "hanMuc": 1}, {"id": "seedtk2", "maHang": "EEP32121010AA", "tenHang": "12V_BATTERY", "nhomHang": "Phụ tùng Vinfast", "dvt": "Cái", "queKe": "QK", "slTon": 2, "giaVon": 1267778, "dongXeApDung": "VF-Limo", "hanMuc": 1}, {"id": "seedtk3", "maHang": "CHS20000072", "tenHang": "VALVE_TIRE", "nhomHang": "Phụ tùng Vinfast", "dvt": "Chiếc", "queKe": "A01-03-19", "slTon": 5, "giaVon": 6084, "dongXeApDung": "VFe34", "hanMuc": 6}, {"id": "seedtk4", "maHang": "EEP20000588", "tenHang": "ELE_HORN", "nhomHang": "Phụ tùng Vinfast", "dvt": "Cái", "queKe": "B01-03-08", "slTon": 2, "giaVon": 163336, "dongXeApDung": "VFe34", "hanMuc": 4}, {"id": "seedtk5", "maHang": "EEP32041001AB", "tenHang": "PITCHED_HORN", "nhomHang": "Phụ tùng Vinfast", "dvt": "Cái", "queKe": "A01-03-13", "slTon": 1, "giaVon": 149723, "dongXeApDung": "VF-Limo", "hanMuc": 1}]; // ADDED: 5 dòng mẫu Tồn Kho Phụ Tùng lấy từ dữ liệu thật anh gửi
 let editYCBHId=null, editKhoId=null, editKtId=null, editCktgscId=null, editBHId=null, editKtType='ycbh';
 let importBuf={type:null,data:[]};
 let currentKtTab = 'ycbh';
@@ -1456,6 +1598,9 @@ function loadLocal(){
       DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; DB.cktgsc=parsed.cktgsc||[];
       DB.bh=parsed.bh||[]; DB.ktbh=parsed.ktbh||{}; // Load thêm
       DB.log=parsed.log||[]; // ADDED: load lịch sử thao tác
+      DB.dms=parsed.dms||[]; // ADDED: load dữ liệu doanh thu DMS
+      DB.lichhen=parsed.lichhen||[]; // ADDED: load lịch hẹn
+      DB.tonkho=parsed.tonkho||[]; // ADDED: load tồn kho phụ tùng
       return true;
     }
   }catch(e){console.warn('loadLocal error',e);}
@@ -1504,8 +1649,53 @@ function applyRole(){
     const roles=el.getAttribute('data-roles').split(','); el.style.display=roles.includes(CU.role)?'':'none';
   });
   goPane(acc.panes[0]||'pane-dash');
+  setupMobileNav(); // ADDED: gom bớt mục điều hướng trên mobile cho gọn, đỡ rối
 }
 function canEdit(mod){return CU&&ROLE_ACCESS[CU.role].edit.includes(mod);}
+
+// ADDED: Gom các mục điều hướng ít dùng vào nút "Thêm" trên mobile (chỉ giữ 4 mục chính ngoài thanh dưới),
+// tránh tình trạng 7-9 mục chen chúc nhìn rối trên màn hình điện thoại.
+const MOBILE_NAV_MAX_VISIBLE = 4;
+function setupMobileNav(){
+  const sidebar = document.querySelector('.sidebar');
+  const moreBody = document.getElementById('more-sheet-body');
+  const moreBtn = document.getElementById('nav-more-btn');
+  if(!sidebar || !moreBody || !moreBtn) return;
+
+  // Luôn trả các mục đã gom về đúng vị trí cũ trước, rồi tính lại từ đầu (tránh sai lệch khi đổi role/resize)
+  document.querySelectorAll('span[data-more-placeholder]').forEach(ph=>{
+    const real = document.getElementById(ph.getAttribute('data-more-placeholder'));
+    if(real) sidebar.insertBefore(real, ph);
+    ph.remove();
+  });
+
+  if(window.innerWidth > 768){ moreBtn.style.display='none'; return; } // Desktop: sidebar dọc, không cần gom
+
+  const items=[...sidebar.querySelectorAll('.nav-item')].filter(el=>
+    el.id!=='nav-more-btn' && getComputedStyle(el).display!=='none'
+  );
+  if(items.length > MOBILE_NAV_MAX_VISIBLE){
+    items.slice(MOBILE_NAV_MAX_VISIBLE).forEach(el=>{
+      if(!el.id) el.id='navitem-'+Math.random().toString(36).slice(2,8);
+      const placeholder=document.createElement('span');
+      placeholder.style.display='none';
+      placeholder.setAttribute('data-more-placeholder', el.id);
+      sidebar.insertBefore(placeholder, el);
+      moreBody.appendChild(el);
+    });
+    moreBtn.style.display='flex';
+  } else {
+    moreBtn.style.display='none';
+  }
+}
+let _navResizeTimer=null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_navResizeTimer);
+  _navResizeTimer=setTimeout(()=>{ if(CU) setupMobileNav(); }, 200);
+});
+document.getElementById('more-sheet-body').addEventListener('click', e=>{
+  if(e.target.closest('.nav-item')) closeModal('more-sheet'); // ADDED: chạm vào mục nào trong "Thêm" thì tự đóng sheet luôn
+});
 
 // ============================================================
 // LỌC DỮ LIỆU THEO THÁNG
@@ -1725,18 +1915,231 @@ function deadlineBadge(row){
 // ============================================================
 // DASHBOARD
 // ============================================================
+// ADDED: tính & vẽ khối "Cơ Cấu Doanh Thu" trên Dashboard, dữ liệu lấy từ DB.dms (import DATA_DMS, chỉ Admin import được)
+function monthScopedDMS(){ return DB.dms.filter(r=>matchMonth(r.ngayGD)); }
+function renderDMSDashboard(){
+  const body=document.getElementById('dms-dashboard-body');
+  const note=document.getElementById('dms-updated-note');
+  if(!body) return;
+  if(!DB.dms.length){
+    body.innerHTML = (CU && CU.role==='admin')
+      ? `<div style="text-align:center;padding:24px;color:var(--muted)">📊 Chưa có dữ liệu doanh thu.<br>Vào mục <b>Import</b> để tải lên file DATA_DMS.</div>`
+      : `<div style="text-align:center;padding:24px;color:var(--muted)">📊 Chưa có dữ liệu doanh thu. Liên hệ Admin để import dữ liệu DMS.</div>`;
+    if(note) note.textContent='';
+    return;
+  }
+  const scoped = monthScopedDMS();
+  if(note) note.textContent = `${DB.dms.length} lệnh đã import`;
+  if(!scoped.length){
+    body.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">📊 Không có dữ liệu doanh thu trong tháng đang lọc.</div>`;
+    return;
+  }
+
+  const tongLuotXe = scoped.length;
+  const tongDTGioCong = scoped.reduce((s,r)=>s+r.tienNhanCong,0);
+  const tongDTPhuTung = scoped.reduce((s,r)=>s+r.tienPhuTung,0);
+  const tongDoanhThu = scoped.reduce((s,r)=>s+r.tongTien,0);
+
+  const cats = [
+    {key:'Khách trả', label:'Khách Trả (KHTT)', color:'var(--vf)'},
+    {key:'Bảo hành', label:'Bảo Hành (VF)', color:'var(--ok)'},
+    {key:'Bảo hiểm', label:'Bảo Hiểm (BH)', color:'var(--purple)'},
+    {key:'Nội bộ', label:'Nội Bộ (NB)', color:'var(--muted)'},
+  ];
+  const catSums = cats.map(c=>({...c, amount: scoped.filter(r=>r.phanLoai===c.key).reduce((s,r)=>s+r.tongTien,0)}));
+  const maxCat = Math.max(1, ...catSums.map(c=>c.amount));
+
+  const cvdvMap = {};
+  scoped.forEach(r=>{
+    const name = r.cvdv || '(Chưa gán)';
+    if(!cvdvMap[name]) cvdvMap[name] = {soLuotXe:0, doanhThu:0};
+    cvdvMap[name].soLuotXe++;
+    cvdvMap[name].doanhThu += r.tongTien;
+  });
+  const cvdvList = Object.entries(cvdvMap).map(([name,v])=>({name,...v})).sort((a,b)=>b.doanhThu-a.doanhThu);
+  const maxCvdv = Math.max(1, ...cvdvList.map(c=>c.doanhThu));
+  const cvdvColors=['var(--vf)','var(--ok)','var(--purple)','var(--warn)'];
+
+  body.innerHTML = `
+    <div class="kpi-grid" style="margin-bottom:18px">
+      <div class="kpi blue"><div class="kpi-label">🚗 Tổng lượt xe tiếp nhận</div><div class="kpi-val">${tongLuotXe}</div></div>
+      <div class="kpi green"><div class="kpi-label">🔧 Doanh thu giờ công</div><div class="kpi-val" style="font-size:17px">${fmtMoney(tongDTGioCong)}</div></div>
+      <div class="kpi yellow"><div class="kpi-label">📦 Doanh thu phụ tùng</div><div class="kpi-val" style="font-size:17px">${fmtMoney(tongDTPhuTung)}</div></div>
+      <div class="kpi blue"><div class="kpi-label">💰 Tổng doanh thu toàn xưởng</div><div class="kpi-val" style="font-size:17px">${fmtMoney(tongDoanhThu)}</div></div>
+    </div>
+    <div class="form-grid g2" style="gap:24px">
+      <div>
+        <div style="font-weight:700;font-size:12px;margin-bottom:10px;color:var(--dim)">Theo nguồn doanh thu</div>
+        ${catSums.map(c=>`
+          <div class="dms-bar-row">
+            <div class="dms-bar-label">${c.label}</div>
+            <div class="dms-bar-track"><div class="dms-bar-fill" style="width:${tongDoanhThu&&c.amount?Math.max(4,Math.round(c.amount/maxCat*100)):0}%;background:${c.color}"><span>${tongDoanhThu?Math.round(c.amount/tongDoanhThu*100):0}%</span></div></div>
+            <div class="dms-bar-amount">${fmtMoney(c.amount)}</div>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:12px;margin-bottom:10px;color:var(--dim)">Theo Cố vấn dịch vụ</div>
+        ${cvdvList.map((c,i)=>`
+          <div class="dms-bar-row">
+            <div class="dms-bar-label">${esc(c.name)} <span class="fc-muted">(${c.soLuotXe} xe)</span></div>
+            <div class="dms-bar-track"><div class="dms-bar-fill" style="width:${Math.max(4,Math.round(c.doanhThu/maxCvdv*100))}%;background:${cvdvColors[i%4]}"></div></div>
+            <div class="dms-bar-amount">${fmtMoney(c.doanhThu)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+// ADDED: "Trạng Thái Xử Lý Lệnh Sửa Chữa" — tận dụng lại dữ liệu DMS (DB.dms) đã import cho Doanh Thu, không cần import thêm
+function renderROStatusDashboard(){
+  const body=document.getElementById('rostatus-dashboard-body');
+  if(!body) return;
+  if(!DB.dms.length){ body.innerHTML=`<div style="text-align:center;padding:16px;color:var(--muted)">Chưa có dữ liệu DMS.</div>`; return; }
+  const scoped=monthScopedDMS();
+  if(!scoped.length){ body.innerHTML=`<div style="text-align:center;padding:16px;color:var(--muted)">Không có lệnh sửa chữa trong tháng đang lọc.</div>`; return; }
+  const order=['Báo giá','Lệnh sửa chữa','Đang sửa chữa','Quyết toán','Hoàn thành','Hoàn thành thanh toán'];
+  const counts={};
+  scoped.forEach(r=>{ const k=r.trangThai||'(Chưa rõ)'; counts[k]=(counts[k]||0)+1; });
+  const keys=[...new Set([...order.filter(k=>counts[k]), ...Object.keys(counts).filter(k=>!order.includes(k))])];
+  const max=Math.max(1,...keys.map(k=>counts[k]));
+  const colors={'Báo giá':'var(--warn)','Lệnh sửa chữa':'var(--vf)','Đang sửa chữa':'var(--vf)','Quyết toán':'var(--purple)','Hoàn thành':'var(--ok)','Hoàn thành thanh toán':'var(--ok)'};
+  body.innerHTML=keys.map(k=>`
+    <div class="dms-bar-row">
+      <div class="dms-bar-label">${esc(k)}</div>
+      <div class="dms-bar-track"><div class="dms-bar-fill" style="width:${Math.max(4,Math.round(counts[k]/max*100))}%;background:${colors[k]||'var(--dim)'}"><span>${counts[k]}</span></div></div>
+      <div class="dms-bar-amount">${counts[k]} lệnh</div>
+    </div>`).join('');
+}
+
+// ADDED: "Lịch Hẹn" — tính từ DB.lichhen (import bởi Admin, mục Import)
+function monthScopedLichHen(){ return DB.lichhen.filter(r=>matchMonth(r.ngayDatHen)); }
+function renderLichHenDashboard(){
+  const body=document.getElementById('lichhen-dashboard-body');
+  const note=document.getElementById('lichhen-updated-note');
+  if(!body) return;
+  if(!DB.lichhen.length){
+    body.innerHTML=(CU&&CU.role==='admin')
+      ?`<div style="text-align:center;padding:24px;color:var(--muted)">📅 Chưa có dữ liệu lịch hẹn.<br>Vào mục <b>Import</b> để tải lên file Lịch Hẹn.</div>`
+      :`<div style="text-align:center;padding:24px;color:var(--muted)">📅 Chưa có dữ liệu lịch hẹn. Liên hệ Admin để import.</div>`;
+    if(note) note.textContent=''; return;
+  }
+  const scoped=monthScopedLichHen();
+  if(note) note.textContent=`${DB.lichhen.length} lịch hẹn đã import`;
+  if(!scoped.length){ body.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted)">📅 Không có lịch hẹn trong tháng đang lọc.</div>`; return; }
+
+  const tong=scoped.length;
+  const dungHen=scoped.filter(r=>r.danhGia==='Đúng hẹn').length;
+  const treHen=scoped.filter(r=>r.danhGia==='Trễ hẹn').length;
+  const daHuy=scoped.filter(r=>r.danhGia==='Đã hủy').length;
+  const tyLe=tong?Math.round(dungHen/tong*1000)/10:0;
+
+  // Cơ chế thưởng 4 tiêu chí (xấp xỉ theo công thức gốc — xem ghi chú giả định bên dưới)
+  const dapUng = tong? Math.round(dungHen/tong*1000)/10 : 0;
+  const huy = tong? Math.round(daHuy/tong*1000)/10 : 0;
+  const online = tong? Math.round(scoped.filter(r=>/c-app|zalo|tổng đài/i.test(r.bookingSource||'')).length/tong*1000)/10 : 0;
+  const xuLy = tong? Math.round(scoped.filter(r=>r.trangThai && r.trangThai!=='Mở').length/tong*1000)/10 : 0;
+  const tieuChi=[
+    {ten:'Đáp ứng lịch hẹn', mt:90, kq:dapUng},
+    {ten:'Hủy lịch hẹn (≤1%)', mt:1, kq:huy, nguoc:true},
+    {ten:'Đặt hẹn online (≥70%)', mt:70, kq:online},
+    {ten:'Lịch hẹn được xử lý', mt:100, kq:xuLy},
+  ];
+  const soDat=tieuChi.filter(t=>t.nguoc? t.kq<=t.mt : t.kq>=t.mt).length;
+
+  body.innerHTML=`
+    <div class="kpi-grid" style="margin-bottom:18px">
+      <div class="kpi blue"><div class="kpi-label">📅 Tổng lịch hẹn</div><div class="kpi-val">${tong}</div></div>
+      <div class="kpi green"><div class="kpi-label">✅ Đến đúng hẹn</div><div class="kpi-val">${dungHen}</div></div>
+      <div class="kpi yellow"><div class="kpi-label">⏰ Trễ hẹn</div><div class="kpi-val">${treHen}</div></div>
+      <div class="kpi blue"><div class="kpi-label">🎯 Tỷ lệ đúng hẹn</div><div class="kpi-val">${tyLe}%</div></div>
+    </div>
+    <div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--dim)">Cơ chế thưởng đặt hẹn (đủ điều kiện thi đua: ≥150 lịch hẹn/tháng)</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="text-align:left;color:var(--muted)"><th style="padding:4px 0">Tiêu chí</th><th>Mục tiêu</th><th>Kết quả</th><th>Đánh giá</th></tr></thead>
+      <tbody>
+      ${tieuChi.map(t=>{
+        const dat = t.nguoc? t.kq<=t.mt : t.kq>=t.mt;
+        return `<tr style="border-top:1px solid var(--border)">
+          <td style="padding:6px 0">${t.ten}</td>
+          <td>${t.nguoc?'≤':'≥'}${t.mt}%</td>
+          <td class="fw7">${t.kq}%</td>
+          <td>${dat?'<span class="chip chip-green">Đạt</span>':'<span class="chip chip-yellow">Chưa đạt</span>'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:12px;font-weight:700">Số tiêu chí đạt: ${soDat}/4 ${tong<150?`<span class="fc-muted" style="font-weight:400">— Chưa đủ điều kiện thi đua (cần ≥150 lịch hẹn/tháng, hiện có ${tong})</span>`:''}</div>
+    <div style="margin-top:6px;font-size:10.5px;color:var(--muted)">* Công thức tính gần đúng dựa trên dữ liệu có sẵn (so khớp ngày dự kiến vs ngày khách yêu cầu ban đầu, Booking Source chứa C-App/Zalo/Tổng đài). Báo lại nếu cần khớp đúng cách VinFast tính chính thức.</div>`;
+}
+
+// ADDED: "Tồn Kho Phụ Tùng" — tính từ DB.tonkho (import bởi Admin, mục Import)
+function tonKhoStatus(r){
+  if(!r.slTon || r.slTon<=0) return {cls:'chip-purple',txt:'Hết hàng'};
+  if(r.hanMuc && r.slTon < r.hanMuc) return {cls:'chip-yellow',txt:'Cần nhập'};
+  return {cls:'chip-green',txt:'Đủ'};
+}
+function renderTonKhoDashboard(){
+  const body=document.getElementById('tonkho-dashboard-body');
+  const note=document.getElementById('tonkho-updated-note');
+  if(!body) return;
+  if(!DB.tonkho.length){
+    body.innerHTML=(CU&&CU.role==='admin')
+      ?`<div style="text-align:center;padding:24px;color:var(--muted)">📦 Chưa có dữ liệu tồn kho.<br>Vào mục <b>Import</b> để tải lên file Tồn Kho Phụ Tùng.</div>`
+      :`<div style="text-align:center;padding:24px;color:var(--muted)">📦 Chưa có dữ liệu tồn kho. Liên hệ Admin để import.</div>`;
+    if(note) note.textContent=''; return;
+  }
+  if(note) note.textContent=`${DB.tonkho.length} mã hàng đã import`;
+
+  const tongGiaTri=DB.tonkho.reduce((s,r)=>s+r.slTon*r.giaVon,0);
+  const tongSL=DB.tonkho.reduce((s,r)=>s+r.slTon,0);
+  const heHang=DB.tonkho.filter(r=>tonKhoStatus(r).txt==='Hết hàng');
+  const canNhap=DB.tonkho.filter(r=>tonKhoStatus(r).txt==='Cần nhập');
+  const duToanTong=[...heHang,...canNhap].reduce((s,r)=>s+Math.max(0,(r.hanMuc||0)-r.slTon)*r.giaVon,0);
+  const canhBao=[...canNhap,...heHang].sort((a,b)=>(b.hanMuc-b.slTon)-(a.hanMuc-a.slTon)).slice(0,8);
+
+  body.innerHTML=`
+    <div class="kpi-grid" style="margin-bottom:18px">
+      <div class="kpi blue"><div class="kpi-label">💰 Tổng giá trị tồn kho</div><div class="kpi-val" style="font-size:17px">${fmtMoney(tongGiaTri)}</div></div>
+      <div class="kpi blue"><div class="kpi-label">📦 Tổng số lượng tồn</div><div class="kpi-val">${tongSL}</div></div>
+      <div class="kpi yellow"><div class="kpi-label">⚠️ Cần nhập thêm</div><div class="kpi-val">${canNhap.length}</div></div>
+      <div class="kpi" style="background:#F3E8E0"><div class="kpi-label">🟣 Hết hàng</div><div class="kpi-val" style="color:#8A6D3B">${heHang.length}</div></div>
+    </div>
+    ${canhBao.length?`
+    <div style="font-weight:700;font-size:12px;margin-bottom:8px;color:var(--dim)">⚠️ Cần chú ý nhất (${canhBao.length})</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="text-align:left;color:var(--muted)"><th style="padding:4px 0">Mã hàng</th><th>Tên hàng</th><th>SL tồn</th><th>Hạn mức</th><th>Trạng thái</th><th>Dự toán nhập</th></tr></thead>
+      <tbody>
+      ${canhBao.map(r=>{const st=tonKhoStatus(r); const slCan=Math.max(0,(r.hanMuc||0)-r.slTon);
+        return `<tr style="border-top:1px solid var(--border)">
+          <td class="mono" style="padding:6px 0">${esc(r.maHang)}</td>
+          <td>${esc(r.tenHang)}</td>
+          <td>${r.slTon}</td>
+          <td>${r.hanMuc}</td>
+          <td><span class="chip ${st.cls}">${st.txt}</span></td>
+          <td class="fw7">${fmtMoney(slCan*r.giaVon)}</td>
+        </tr>`;}).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:12px;font-weight:700">Tổng dự toán chi phí cần nhập: ${fmtMoney(duToanTong)}</div>`
+    :`<div style="text-align:center;padding:16px;color:var(--muted)">✅ Tất cả phụ tùng đều đủ hàng.</div>`}`;
+}
+
 function renderDash(){
   const scoped=monthScopedYCBH();
   const total=scoped.length;
   const overdue=scoped.filter(r=>getDeadlineStatus(r)==='overdue').length;
   const near=scoped.filter(r=>getDeadlineStatus(r)==='near').length;
   const paid=scoped.filter(r=>r.tt==='Đã thanh toán').length;
-  const khoAlert=monthScopedKho().filter(k=>k.ttKho==='du-dk'||k.ttKho==='cho-vf').length;
+  // SỬA: đồng bộ với updateBadges() — dùng khoStatus() để tự nhảy theo ngày (kể cả mốc 1 tháng của Bảo hiểm
+  // Đồng Sơn), trước đây dòng này còn sót logic cũ chỉ đếm khi ai đó tự gõ tay trạng thái 'du-dk'/'cho-vf'.
+  const khoAlert=monthScopedKho().filter(k=>khoStatus(k).txt.includes('Đủ ĐK')).length;
   document.getElementById('k-total').textContent=total;
   document.getElementById('k-overdue').textContent=overdue;
   document.getElementById('k-near').textContent=near;
   document.getElementById('k-paid').textContent=paid;
   document.getElementById('k-kho-alert').textContent=khoAlert;
+  renderDMSDashboard(); // ADDED: khối Cơ Cấu Doanh Thu (DMS)
+  renderROStatusDashboard(); // ADDED: Trạng Thái Xử Lý Lệnh Sửa Chữa
+  renderLichHenDashboard();  // ADDED: Lịch Hẹn
+  renderTonKhoDashboard();   // ADDED: Tồn Kho Phụ Tùng
   
   const sent=scoped.filter(r=>r.guiYCBH&&r.htLSC&&daysDiff(r.htLSC,r.guiYCBH)<=7).length;
   const totalSent=scoped.filter(r=>r.guiYCBH).length;
@@ -1777,7 +2180,10 @@ function updateBadges(){
   const scopedB=monthScopedBH();
   const alertB=scopedB.filter(r=>daysDiff(r.ngayVao,today())>=16).length;
 
-  const khoAlert=monthScopedKho().filter(k=>k.ttKho==='du-dk').length;
+  // SỬA: trước đây chỉ đếm khi ai đó GÕ TAY trạng thái = 'du-dk', không tự nhảy theo ngày.
+  // Giờ dùng đúng kết quả tính toán của khoStatus() (đã gồm cả mốc 1 tháng của Bảo hiểm Đồng Sơn)
+  // để badge tự động báo ngay khi đủ điều kiện, không cần ai cập nhật trạng thái thủ công.
+  const khoAlert=monthScopedKho().filter(k=>khoStatus(k).txt.includes('Đủ ĐK')).length;
   const ktAlertY=scopedY.filter(r=>r.ngayPD&&!DB.kt[r.id]).length;
   const ktAlertB=scopedB.filter(r=>r.ngayDuyet&&!DB.ktbh[r.id]).length;
   const ktAlert = ktAlertY + ktAlertB;
@@ -1979,11 +2385,32 @@ function renderBH(){
         <td><div class="flex gap4">
           ${canEdit('bh')?`<button class="btn btn-ghost btn-xs" onclick="openEditBH('${r.id}')">✏️</button>`:''}
           <button class="btn btn-ghost btn-xs" onclick="openKTModal('${r.id}', 'bh')">💳</button>
+          <button class="btn btn-ghost btn-xs" onclick="printPTTag('${r.id}')" title="In phiếu dán phụ tùng gửi kho">🏷️</button>
         </div></td>
       </tr>`;
     }).join('');
     document.getElementById('empty-bh').style.display=rows.length?'none':'block';
   }
+}
+
+// ADDED: Tạo & in phiếu nhận dạng phụ tùng (cắt dán lên PT gửi kho) từ 1 hồ sơ Bảo hiểm Đồng Sơn
+function printPTTag(id){
+  const r = DB.bh.find(x => x.id === id);
+  if(!r){ toast('Không tìm thấy hồ sơ', 'err'); return; }
+  const box = document.getElementById('pt-tag-print');
+  box.innerHTML = `
+    <div class="pt-tag-card">
+      <div class="pt-tag-hdr">PHIẾU NHẬN DẠNG PHỤ TÙNG<small>Bảo Hiểm Đồng Sơn — VinFast D1 Đồng Văn Cống</small></div>
+      <div class="pt-tag-bienso">${esc(r.bienSo)}</div>
+      <div class="pt-tag-row"><b>Khách hàng</b><span>${esc(r.kh)||'—'}</span></div>
+      <div class="pt-tag-row"><b>Hãng bảo hiểm</b><span>${esc(r.hangBH)||'—'}</span></div>
+      <div class="pt-tag-row"><b>CVDV phụ trách</b><span>${esc(r.cvdv)||'—'}</span></div>
+      <div class="pt-tag-row"><b>Số WO</b><span>${esc(r.wo)||'—'}</span></div>
+      <div class="pt-tag-row"><b>Ngày vào xưởng</b><span>${fmtD(r.ngayVao)||'—'}</span></div>
+      <div class="pt-tag-row"><b>Trạng thái</b><span>${esc(r.ttBH)||'—'}</span></div>
+      <div class="pt-tag-ftr">In lúc ${new Date().toLocaleString('vi-VN')}</div>
+    </div>`;
+  setTimeout(()=>window.print(), 80);
 }
 
 function openAddBH(){
@@ -2022,6 +2449,7 @@ function saveBH(){
   logAction(editBHId?'sua':'them','bh',`Biển số ${obj.bienSo} — ${obj.hangBH||''}`); // ADDED
   closeModal('modal-bh'); saveLocal(); refreshAll(); toast(editBHId?'✅ Đã cập nhật':'✅ Đã thêm BH mới');
   syncToSheet('bh',obj);
+  return obj.id; // ADDED: trả về id để có thể in phiếu ngay sau khi lưu
 }
 
 
@@ -2031,7 +2459,9 @@ function saveBH(){
 function khoStatus(row){
   if(!row.ngayPD)return{cls:'chip-gray',txt:'Chưa có ngày PD'};
   const days=daysDiff(row.ngayPD,today());
-  const min=row.loaiKho||60;
+  // SỬA: Bảo hiểm Đồng Sơn dùng mốc cố định 1 tháng (30 ngày) kể từ Ngày lưu kho,
+  // KHÔNG dùng quy định ≥30/60 ngày của Bảo hành (loaiKho) — đây là 2 quy định khác bản chất.
+  const min = row.loai==='baohiem' ? 30 : (row.loaiKho||60);
   if(row.ttKho==='da-xu-ly')return{cls:'chip-green',txt:'✅ Đã xử lý / hủy'};
   if(row.ttKho==='cho-vf')return{cls:'chip-purple',txt:'⏳ Chờ VF PD hủy'};
   if(days>=min||row.ttKho==='du-dk')return{cls:'chip-yellow',txt:'🔔 Đủ ĐK hủy'};
@@ -2044,25 +2474,67 @@ function toggleKhoNguon(){
   const loai = document.getElementById('fk-loai').value;
   const fldPhanloai = document.getElementById('fld-phanloai');
   const fldBHInfo = document.getElementById('fld-bh-info');
+  const fldKhoRef = document.getElementById('fld-kho-ref');
+  const fldKhoSl = document.getElementById('fld-kho-sl');
+  const fldHanLuuKho = document.getElementById('fld-han-luukho');
+  const fldLoaiKho = document.getElementById('fld-loai-kho');
+  const lblNgayPD = document.getElementById('lbl-kho-ngaypd');
   if(loai === 'baohiem') {
     document.getElementById('lbl-kho-vin').textContent = 'Biển số / VIN (*)';
     document.getElementById('lbl-kho-ref').textContent = 'Số HSBH / WO';
-    // SỬA: Bảo hiểm Đồng Sơn không dùng "Phân loại Phụ lục IV" (quy định riêng của Bảo hành) —
-    // thay bằng ô tự tra Hãng BH / CVDV phụ trách theo hồ sơ Bảo hiểm đã có.
+    // SỬA: Phiếu Kho PT Bảo hiểm Đồng Sơn chỉ cần Biển số xe, Mã PT, Tên PT, Ngày BH duyệt (tự tra),
+    // Ngày lưu kho, Hạn lưu kho (tự tính 1 tháng) — ẩn các trường chỉ áp dụng cho Bảo hành.
     if(fldPhanloai) fldPhanloai.style.display = 'none';
     if(fldBHInfo) fldBHInfo.style.display = '';
+    if(fldKhoRef) fldKhoRef.style.display = 'none';
+    if(fldKhoSl) fldKhoSl.style.display = 'none';
+    if(fldHanLuuKho) fldHanLuuKho.style.display = '';
+    if(fldLoaiKho) fldLoaiKho.style.display = 'none';
+    if(lblNgayPD) lblNgayPD.textContent = 'Ngày lưu kho (*)';
     document.getElementById('fk-phanloai').value = ''; // tránh lưu nhầm phân loại Bảo hành cũ
+    document.getElementById('fk-sl').value = 1; // ẩn ô số lượng -> ngầm định 1
+    // SỬA: trước dùng option.hidden nhưng iOS Safari KHÔNG hỗ trợ ẩn <option> bằng cách này
+    // (picker iOS vẫn hiện ra) -> đổi sang xoá hẳn khỏi DOM, hoạt động đúng trên mọi trình duyệt.
+    setChoVFOptionVisible(false);
     updateKhoBHInfo();
+    updateKhoHanLuuKho();
   } else {
     document.getElementById('lbl-kho-vin').textContent = 'Số VIN xe (*)';
     document.getElementById('lbl-kho-ref').textContent = 'Số YCBH';
     if(fldPhanloai) fldPhanloai.style.display = '';
     if(fldBHInfo) fldBHInfo.style.display = 'none';
+    if(fldKhoRef) fldKhoRef.style.display = '';
+    if(fldKhoSl) fldKhoSl.style.display = '';
+    if(fldHanLuuKho) fldHanLuuKho.style.display = 'none';
+    if(fldLoaiKho) fldLoaiKho.style.display = '';
+    if(lblNgayPD) lblNgayPD.textContent = 'Ngày PD YCBH';
+    setChoVFOptionVisible(true);
   }
 }
 
-// ADDED: Tự tra Hãng BH / CVDV phụ trách từ hồ sơ Bảo hiểm đã có, khớp theo Biển số/VIN hoặc Số HSBH/WO.
-// Chỉ để xem đối chiếu nhanh, không ghi lại field này (Hãng BH vẫn lấy chuẩn từ hồ sơ Bảo hiểm gốc).
+// ADDED: thêm/xoá hẳn <option value="cho-vf"> khỏi DOM của select Trạng thái lưu kho.
+// KHÔNG dùng option.hidden vì iOS Safari không hỗ trợ ẩn option trong picker gốc.
+function setChoVFOptionVisible(visible){
+  const sel = document.getElementById('fk-tt-kho');
+  if(!sel) return;
+  let opt = sel.querySelector('option[value="cho-vf"]');
+  if(visible){
+    if(!opt){
+      opt = document.createElement('option');
+      opt.value = 'cho-vf';
+      opt.textContent = 'Chờ VF phê duyệt';
+      const daXuLy = sel.querySelector('option[value="da-xu-ly"]');
+      if(daXuLy) sel.insertBefore(opt, daXuLy); else sel.appendChild(opt);
+    }
+  } else {
+    // Nếu hồ sơ cũ đang thực sự chọn giá trị này (dữ liệu cũ trước khi có quy định mới) thì giữ lại,
+    // tránh xoá option làm select tự nhảy sang giá trị khác mà người dùng không hay biết.
+    if(opt && sel.value !== 'cho-vf') opt.remove();
+  }
+}
+
+// ADDED: Tự tra Hãng BH / Ngày BH duyệt / CVDV phụ trách từ hồ sơ Bảo hiểm đã có, khớp theo Biển số/VIN hoặc Số HSBH/WO.
+// Chỉ để xem đối chiếu nhanh, không ghi lại các field này (dữ liệu gốc vẫn nằm ở hồ sơ Bảo hiểm).
 function updateKhoBHInfo(){
   const box = document.getElementById('fk-bh-info');
   if(!box) return;
@@ -2074,10 +2546,19 @@ function updateKhoBHInfo(){
   }
   const b = DB.bh.find(x => (vin && x.bienSo===vin) || (ref && x.wo===ref));
   if(b){
-    box.innerHTML = `<b>${esc(b.hangBH||'—')}</b>&nbsp;·&nbsp;CVDV: ${esc(b.cvdv||'—')}`;
+    box.innerHTML = `<b>${esc(b.hangBH||'—')}</b>&nbsp;·&nbsp;Duyệt: ${b.ngayDuyet?fmtD(b.ngayDuyet):'Chưa duyệt'}&nbsp;·&nbsp;CVDV: ${esc(b.cvdv||'—')}`;
   } else {
     box.textContent = '⚠️ Chưa tìm thấy hồ sơ Bảo hiểm khớp';
   }
+}
+
+// ADDED: Hạn lưu kho cho phụ tùng Bảo hiểm Đồng Sơn = Ngày lưu kho + 1 tháng (30 ngày), tự tính, không cần nhập tay.
+function updateKhoHanLuuKho(){
+  const box = document.getElementById('fk-han-luukho');
+  if(!box) return;
+  const ngayLuuKho = document.getElementById('fk-ngay-pd').value;
+  if(!ngayLuuKho){ box.textContent = '—'; return; }
+  box.textContent = fmtD(addDays(ngayLuuKho, 30)) + '  (1 tháng)';
 }
 
 function renderKho(){
@@ -2099,7 +2580,8 @@ function renderKho(){
   tbody.innerHTML=rows.map((r,i)=>{
     const st=khoStatus(r);
     const days=r.ngayPD?daysDiff(r.ngayPD,today()):0;
-    const min=r.loaiKho||60;
+    // SỬA: Bảo hiểm Đồng Sơn dùng mốc cố định 1 tháng (30 ngày), không dùng loaiKho (quy định riêng Bảo hành)
+    const min=r.loai==='baohiem'?30:(r.loaiKho||60);
     const pct=Math.min(100,Math.round((days/min)*100));
     const progCls=pct>=100?'ok':pct>=70?'warn':'red';
     
@@ -2114,6 +2596,7 @@ function renderKho(){
     }
 
     let loaiBadge = r.loai === 'baohiem' ? '<span class="badge badge-purple">Bảo Hiểm</span>' : '<span class="badge badge-blue">Bảo Hành</span>';
+    const durLabel = r.loai==='baohiem' ? '1 tháng (BH)' : (min===30?'≥30ng':'≥60ng');
 
     return`<tr>
       <td>${canEdit('kho')?`<input type="checkbox" class="chk-kho-row" data-id="${r.id}" onchange="onChkKho()">`:''}</td>
@@ -2125,13 +2608,13 @@ function renderKho(){
       <td>${esc(r.tenPT)}</td>
       <td>${r.sl||1}</td>
       <td>${fmtD(r.ngayPD)}</td>
-      <td class="fc-muted fs11">${min==='30'||min===30?'≥30ng':'≥60ng'}</td>
+      <td class="fc-muted fs11">${durLabel}</td>
       <td><div class="prog-wrap" style="margin-bottom:2px"><div class="prog-bar ${progCls}" style="width:${pct}%"></div></div><span class="fc-muted fs10">${days}/${min}ng</span></td>
       <td><span class="chip ${st.cls}">${st.txt}</span></td>
       <td class="fc-muted fs10">${esc(r.ghichu)}</td>
       <td><div class="flex gap4">
         ${canEdit('kho')?`<button class="btn btn-ghost btn-xs" onclick="openEditKho('${r.id}')">✏️</button>`:''}
-        ${(canEdit('kho')&&st.cls!=='chip-green')?`<button class="btn btn-warn btn-xs" onclick="proposeHuy('${r.id}')">Hủy</button>`:''}
+        ${(canEdit('kho')&&st.cls!=='chip-green')?`<button class="btn btn-warn btn-xs" onclick="proposeHuy('${r.id}')">${r.loai==='baohiem'?'✅ Tự hủy':'Đề xuất hủy'}</button>`:''}
       </div></td>
     </tr>`;
   }).join('');
@@ -2165,9 +2648,12 @@ function openEditKho(id){
   document.getElementById('fk-sl').value=r.sl||1;
   document.getElementById('fk-ngay-pd').value=r.ngayPD||'';
   document.getElementById('fk-loai-kho').value=String(r.loaiKho||60);
+  setChoVFOptionVisible(true); // ADDED: đảm bảo option tồn tại trước khi gán giá trị hồ sơ cũ (tránh bị mất giá trị nếu trước đó đã bị xoá khỏi DOM)
   document.getElementById('fk-tt-kho').value=r.ttKho||'dang-luu';
+  setChoVFOptionVisible((r.loai||'baohanh')!=='baohiem'); // ADDED: áp lại đúng theo nguồn của hồ sơ đang sửa (giữ nguyên nếu hồ sơ cũ đang chọn cho-vf)
   document.getElementById('fk-ghichu').value=r.ghichu||'';
   updateKhoBHInfo(); // ADDED: tra lại sau khi đã điền VIN/Số HSBH thật của hồ sơ đang sửa
+  updateKhoHanLuuKho(); // ADDED: tính lại Hạn lưu kho sau khi đã điền Ngày lưu kho thật
   openModal('modal-kho');
 }
 function saveKho(){
@@ -2195,7 +2681,20 @@ function saveKho(){
 }
 function proposeHuy(id){
   const r=DB.kho.find(x=>x.id===id);if(!r)return;
-  r.ttKho='cho-vf'; logAction('sua','kho',`Đề xuất hủy PT ${r.maPT}`); syncToSheet('kho', r); saveLocal(); renderKho();updateBadges(); toast('Đã đề xuất hủy PT '+r.maPT,'info');
+  // SỬA: PT Bảo hiểm Đồng Sơn — sau khi BH duyệt mà đủ 1 tháng lưu kho BH không lấy, đại lý
+  // MẶC NHIÊN tự quyết định hủy, KHÔNG cần qua bước "Chờ VF phê duyệt" như Bảo hành.
+  if(r.loai === 'baohiem'){
+    if(!confirm(`PT ${r.maPT} (Bảo hiểm Đồng Sơn) đã đủ 1 tháng lưu kho — đại lý tự quyết định hủy, không cần chờ VF duyệt.\nXác nhận hủy / thu hồi?`))return;
+    r.ttKho='da-xu-ly';
+    logAction('sua','kho',`Đại lý tự hủy PT Bảo hiểm ${r.maPT} (không qua VF)`);
+    syncToSheet('kho', r); saveLocal(); renderKho();updateBadges();
+    toast('✅ Đã hủy / thu hồi PT '+r.maPT+' (đại lý tự quyết)','warn');
+  } else {
+    r.ttKho='cho-vf';
+    logAction('sua','kho',`Đề xuất hủy PT ${r.maPT}`);
+    syncToSheet('kho', r); saveLocal(); renderKho();updateBadges();
+    toast('Đã đề xuất hủy PT '+r.maPT,'info');
+  }
 }
 
 // BULK SELECT — KHO
@@ -2210,9 +2709,19 @@ function updateBulkBarKho(){
 function clearSelKho(){ document.querySelectorAll('.chk-kho-row').forEach(c=>c.checked=false); const hdr=document.getElementById('chk-all-kho');if(hdr){hdr.checked=false;hdr.indeterminate=false;} const bar=document.getElementById('bulk-bar-kho');if(bar)bar.classList.remove('show'); }
 function bulkProposeHuy(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
-  ids.forEach(id=>{const r=DB.kho.find(x=>x.id===id);if(r){r.ttKho='cho-vf'; syncToSheet('kho', r);}}); // ADDED: syncToSheet
-  logAction('sua','kho',`Đề xuất hủy ${ids.length} phụ tùng`); // ADDED
-  saveLocal();renderKho();updateBadges();clearSelKho(); toast(`📋 Đã đề xuất hủy ${ids.length} phụ tùng`,'info');
+  const rows = ids.map(id=>DB.kho.find(x=>x.id===id)).filter(Boolean);
+  const nBH = rows.filter(r=>r.loai==='baohiem').length;
+  const nBHanh = rows.length - nBH;
+  const parts = [];
+  if(nBH) parts.push(`${nBH} PT Bảo hiểm → đại lý tự hủy thẳng, không qua VF`);
+  if(nBHanh) parts.push(`${nBHanh} PT Bảo hành → chuyển Chờ VF phê duyệt`);
+  if(!confirm(`Xử lý ${rows.length} phụ tùng đã chọn?\n` + parts.join('\n'))) return;
+  rows.forEach(r=>{
+    r.ttKho = r.loai==='baohiem' ? 'da-xu-ly' : 'cho-vf'; // SỬA: Bảo hiểm tự hủy thẳng, không qua 'cho-vf'
+    syncToSheet('kho', r);
+  });
+  logAction('sua','kho',`Xử lý ${rows.length} phụ tùng (tự hủy: ${nBH}, chờ VF: ${nBHanh})`); // ADDED
+  saveLocal();renderKho();updateBadges();clearSelKho(); toast(`📋 Đã xử lý ${rows.length} phụ tùng`,'info');
 }
 function bulkDeleteKho(){
   const ids=[...document.querySelectorAll('.chk-kho-row:checked')].map(c=>c.dataset.id); if(!ids.length)return;
@@ -2647,6 +3156,90 @@ function dzDrop(ev,type){
 }
 function handleFileYCBH(inp){const f=inp.files[0];if(f)parseFile(f,'ycbh');inp.value='';}
 function handleFileKho(inp){const f=inp.files[0];if(f)parseFile(f,'kho');inp.value='';}
+function handleFileDMS(inp){const f=inp.files[0];if(f)parseFile(f,'dms');inp.value='';} // ADDED
+function handleFileLichHen(inp){const f=inp.files[0];if(f)parseFile(f,'lichhen');inp.value='';} // ADDED
+function handleFileTonKho(inp){const f=inp.files[0];if(f)parseFile(f,'tonkho');inp.value='';} // ADDED
+
+// ADDED: parse ngày linh hoạt — chấp nhận cả Date object (XLSX cellDates), chuỗi dd/mm/yyyy (kể cả có giờ phía sau),
+// và chuỗi ISO yyyy-mm-dd sẵn có. Quan trọng vì DATA_DMS thường xuất dạng "15/06/2026 13:52" dạng text, không phải
+// Date thật, nếu chỉ .slice(0,10) như các hàm map cũ sẽ ra sai định dạng và làm hỏng bộ lọc tháng.
+function toDateSmart(v){
+  if(!v) return '';
+  if(v instanceof Date) return v.toISOString().slice(0,10);
+  const s = String(v).trim();
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  return '';
+}
+// ADDED: parse số linh hoạt — chấp nhận "388,800", "1.184.760", số có khoảng trắng, ô trống/"-" -> 0
+function toNum(v){
+  if(v===undefined||v===null||v==='') return 0;
+  if(typeof v==='number') return v;
+  const cleaned = String(v).replace(/[^\d.,-]/g,'').replace(/\./g,'').replace(/,/g,'');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
+// ADDED: map 1 dòng DATA_DMS (lệnh sửa chữa) sang cấu trúc lưu trong DB.dms
+function mapDMSTxRow(raw){
+  const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return raw[c];return '';};
+  return{
+    soLenh:   String(colVal(['Lệnh sửa chữa','soLenh'])||'').trim(),
+    ngayGD:   toDateSmart(colVal(['Ngày giao dịch','ngayGD'])),
+    trangThai:String(colVal(['Trạng thái','trangThai'])||'').trim(),
+    bienSo:   String(colVal(['Biển số xe','bienSo'])||'').trim(),
+    dongXe:   String(colVal(['Dòng xe','dongXe'])||'').trim(),
+    yeuCau:   String(colVal(['Yêu cầu khách hàng','yeuCau'])||'').trim(),
+    tienNhanCong: toNum(colVal(['Tiền nhân công','tienNhanCong'])),
+    tienPhuTung:  toNum(colVal(['Tiền phụ tùng','tienPhuTung'])),
+    tongTien: toNum(colVal(['Tổng tiền','tongTien'])),
+    cvdv:     String(colVal(['Cố vấn dịch vụ','cvdv'])||'').trim(),
+    mucUuTien:String(colVal(['Mức ưu tiên','mucUuTien'])||'').trim(),
+    phanLoai: String(colVal(['Phân loại Doanh thu (Auto)','Phân loại Doanh thu','phanLoai'])||'').trim(),
+    ghichu:   '',
+  };
+}
+// ADDED: map 1 dòng Lịch Hẹn (đặt hẹn DMS)
+function mapLichHenRow(raw){
+  const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return raw[c];return '';};
+  const ngayDuKien = toDateSmart(colVal(['Ngày bắt đầu dự kiến','ngayDuKien']));
+  const ngayGocKH  = toDateSmart(colVal(['Original Arrival Date','ngayGocKH']));
+  const trangThai  = String(colVal(['Trạng thái bản ghi','trangThai'])||'').trim();
+  const daHuy = /hủy|huỷ/i.test(trangThai);
+  return{
+    maDatHen: String(colVal(['Mã đặt hẹn','maDatHen'])||'').trim(),
+    lenhSC:   String(colVal(['Lệnh sửa chữa','lenhSC'])||'').trim(),
+    trangThai,
+    bienSo:   String(colVal(['Biển số xe','bienSo'])||'').trim(),
+    model:    String(colVal(['Vehicle Model Name','model'])||'').trim(),
+    khachHang:String(colVal(['Người mang xe đến','khachHang'])||'').trim(),
+    sdt:      String(colVal(['SĐT liên hệ','sdt'])||'').trim().replace(/^=\+?/,''),
+    ngayDatHen: toDateSmart(colVal(['Ngày đặt hẹn','ngayDatHen'])),
+    ngayDuKien,
+    ngayGocKH,
+    bookingSource: String(colVal(['Booking Source','bookingSource'])||'').trim(),
+    serviceType:   String(colVal(['Service Type','serviceType'])||'').trim(),
+    // SỬA: tự đánh giá đúng/trễ hẹn — so khớp ngày bắt đầu dự kiến với ngày khách yêu cầu ban đầu, loại trừ các lịch đã hủy
+    danhGia: daHuy ? 'Đã hủy' : (ngayDuKien && ngayGocKH && ngayDuKien===ngayGocKH) ? 'Đúng hẹn' : (trangThai==='Hoàn thành'?'Đúng hẹn':'Trễ hẹn'),
+    ghichu:   '',
+  };
+}
+// ADDED: map 1 dòng Tồn Kho Phụ Tùng. Hỗ trợ cột "Hạn mức tối thiểu" trực tiếp trong cùng file Import
+// (đơn giản hoá so với bảng tra cứu hạn mức riêng theo quy mô XDV — có thể bổ sung sau nếu anh cần chi tiết hơn)
+function mapTonKhoRow(raw){
+  const colVal=(candidates)=>{for(const c of candidates)if(raw[c]!==undefined&&raw[c]!=='')return raw[c];return '';};
+  return{
+    maHang:   String(colVal(['Mã hàng','maHang'])||'').trim(),
+    tenHang:  String(colVal(['Tên hàng','Tên phụ tùng','tenHang'])||'').trim(),
+    nhomHang: String(colVal(['Nhóm hàng','nhomHang'])||'').trim(),
+    dvt:      String(colVal(['ĐVT','dvt'])||'').trim(),
+    queKe:    String(colVal(['Quầy kệ','queKe'])||'').trim(),
+    slTon:    toNum(colVal(['SL tồn','SL tồn thực tế','slTon'])),
+    giaVon:   toNum(colVal(['Giá vốn','giaVon'])),
+    dongXeApDung: String(colVal(['Dòng xe áp dụng','dongXeApDung'])||'').trim(),
+    hanMuc:   toNum(colVal(['Hạn mức tối thiểu','hanMuc'])),
+  };
+}
 
 function parseFile(file,type){
   const name=file.name.toLowerCase();
@@ -2716,20 +3309,43 @@ function mapKhoRow(raw){
   };
 }
 
+// ADDED: cấu hình hiển thị xem trước cho từng loại import — gọn hơn khi có nhiều loại dữ liệu
+const IMPORT_TYPE_CFG = {
+  ycbh: {
+    label:'YCBH', mapper:mapDMSRow,
+    hdrs:['VIN','Model','WO','Ngày HT LSC','Số YCBH','Giá trị','Ngày PD','Trạng thái'],
+    row:r=>`<tr><td class="mono fs10">${esc(r.vin)}</td><td>${esc(r.model)}</td><td class="mono fs10">${esc(r.wo)}</td><td>${r.htLSC}</td><td class="mono fs10">${esc(r.soYCBH)}</td><td>${fmtMoney(r.gt)}</td><td>${r.ngayPD}</td><td>${esc(r.tt)}</td></tr>`
+  },
+  kho: {
+    label:'Phụ tùng kho (BH/Bảo hành)', mapper:mapKhoRow,
+    hdrs:['VIN','Mã PT','Tên PT','Phân loại','SL','Ngày PD','Loại kho'],
+    row:r=>`<tr><td class="mono fs10">${esc(r.vin)}</td><td class="mono fs10">${esc(r.maPT)}</td><td>${esc(r.tenPT)}</td><td class="fc-muted fs10">${esc(r.phanLoai)}</td><td>${r.sl}</td><td>${r.ngayPD}</td><td class="fc-muted fs10">${r.loaiKho===30?'≥30ng (Ắc quy)':'≥60ng (PT)'}</td></tr>`
+  },
+  dms: {
+    label:'Doanh thu DMS', mapper:mapDMSTxRow,
+    hdrs:['Lệnh SC','Ngày GD','Biển số','CVDV','Tiền NC','Tiền PT','Tổng tiền','Phân loại'],
+    row:r=>`<tr><td class="mono fs10">${esc(r.soLenh)}</td><td>${r.ngayGD}</td><td class="mono fs10">${esc(r.bienSo)}</td><td>${esc(r.cvdv)}</td><td>${fmtMoney(r.tienNhanCong)}</td><td>${fmtMoney(r.tienPhuTung)}</td><td class="fw7">${fmtMoney(r.tongTien)}</td><td class="fc-muted fs10">${esc(r.phanLoai)}</td></tr>`
+  },
+  lichhen: {
+    label:'Lịch hẹn', mapper:mapLichHenRow,
+    hdrs:['Mã đặt hẹn','Biển số','Khách hàng','Ngày dự kiến','Trạng thái','Đánh giá'],
+    row:r=>`<tr><td class="mono fs10">${esc(r.maDatHen)}</td><td class="mono fs10">${esc(r.bienSo)}</td><td>${esc(r.khachHang)}</td><td>${r.ngayDuKien}</td><td class="fc-muted fs10">${esc(r.trangThai)}</td><td>${esc(r.danhGia)}</td></tr>`
+  },
+  tonkho: {
+    label:'Tồn kho phụ tùng', mapper:mapTonKhoRow,
+    hdrs:['Mã hàng','Tên hàng','SL tồn','Hạn mức','Giá vốn','Dòng xe'],
+    row:r=>`<tr><td class="mono fs10">${esc(r.maHang)}</td><td>${esc(r.tenHang)}</td><td>${r.slTon}</td><td>${r.hanMuc}</td><td>${fmtMoney(r.giaVon)}</td><td class="fc-muted fs10">${esc(r.dongXeApDung)}</td></tr>`
+  },
+};
 function processImportData(data,type){
   importBuf={type,data};
-  const mapped=type==='ycbh'?data.slice(0,6).map(mapDMSRow):data.slice(0,6).map(mapKhoRow);
-  const hdrs=type==='ycbh'
-    ?['VIN','Model','WO','Ngày HT LSC','Số YCBH','Giá trị','Ngày PD','Trạng thái']
-    :['VIN','Mã PT','Tên PT','Phân loại','SL','Ngày PD','Loại kho'];
-  document.getElementById('prev-thead').innerHTML='<tr>'+hdrs.map(h=>`<th>${h}</th>`).join('')+'</tr>';
-  document.getElementById('prev-tbody').innerHTML=mapped.map(r=>{
-    if(type==='ycbh')return`<tr><td class="mono fs10">${esc(r.vin)}</td><td>${esc(r.model)}</td><td class="mono fs10">${esc(r.wo)}</td><td>${r.htLSC}</td><td class="mono fs10">${esc(r.soYCBH)}</td><td>${fmtMoney(r.gt)}</td><td>${r.ngayPD}</td><td>${esc(r.tt)}</td></tr>`;
-    return`<tr><td class="mono fs10">${esc(r.vin)}</td><td class="mono fs10">${esc(r.maPT)}</td><td>${esc(r.tenPT)}</td><td class="fc-muted fs10">${esc(r.phanLoai)}</td><td>${r.sl}</td><td>${r.ngayPD}</td><td class="fc-muted fs10">${r.loaiKho===30?'≥30ng (Ắc quy)':'≥60ng (PT)'}</td></tr>`;
-  }).join('');
+  const cfg=IMPORT_TYPE_CFG[type];
+  const mapped=data.slice(0,6).map(cfg.mapper);
+  document.getElementById('prev-thead').innerHTML='<tr>'+cfg.hdrs.map(h=>`<th>${h}</th>`).join('')+'</tr>';
+  document.getElementById('prev-tbody').innerHTML=mapped.map(cfg.row).join('');
   const stats=`<span class="chip chip-blue">📄 ${data.length} dòng dữ liệu</span>
     <span class="chip chip-green">Xem trước ${Math.min(6,data.length)} dòng</span>
-    <span class="chip chip-gray">Loại: ${type==='ycbh'?'YCBH':'Phụ tùng kho'}</span>`;
+    <span class="chip chip-gray">Loại: ${cfg.label}</span>`;
   document.getElementById('import-stats').innerHTML=stats;
   document.getElementById('import-preview').style.display='block';
   document.getElementById('import-preview').scrollIntoView({behavior:'smooth'});
@@ -2740,7 +3356,32 @@ function confirmImport(){
   const autoKho=document.getElementById('auto-kho-pt').checked;
   const {type,data}=importBuf;
   let added=0,updated=0,skipped=0,khoAdded=0;
-  
+
+  // ADDED: hàm dùng chung cho các loại import CHỈ ADMIN (Doanh thu DMS, Lịch hẹn, Tồn kho phụ tùng)
+  // — gộp logic thay vì lặp lại 3 lần, dễ bảo trì hơn khi cần thêm loại dữ liệu mới sau này.
+  function importBulkAdmin(dbArrKey, keyField, mapper, sheetType, label){
+    if(!CU || CU.role!=='admin'){ toast(`Chỉ Admin được import ${label}`,'err'); cancelImport(); return; }
+    data.forEach(raw=>{
+      const m=mapper(raw);
+      const key=m[keyField];
+      if(!key)return;
+      const existing=DB[dbArrKey].find(r=>r[keyField]===key);
+      if(existing){
+        if(mode==='skip'){skipped++;return;}
+        if(mode==='update'){Object.assign(existing,m,{id:existing.id});updated++;}
+        if(mode==='add'){DB[dbArrKey].unshift({...m,id:uid()});added++;}
+      } else {DB[dbArrKey].unshift({...m,id:uid()});added++;}
+    });
+    logAction('them','he_thong',`Import ${label}: +${added} mới, ${updated} cập nhật`);
+    cancelImport(); saveLocal(); refreshAll();
+    toast(`✅ Import ${label} xong: +${added} mới, ${updated} cập nhật, ${skipped} bỏ qua`);
+    if(SCRIPT_URL) syncToSheet(sheetType, DB[dbArrKey]);
+  }
+
+  if(type==='dms'){ importBulkAdmin('dms','soLenh',mapDMSTxRow,'bulkDMS','Doanh thu DMS'); return; }
+  if(type==='lichhen'){ importBulkAdmin('lichhen','maDatHen',mapLichHenRow,'bulkLichHen','Lịch hẹn'); return; } // ADDED
+  if(type==='tonkho'){ importBulkAdmin('tonkho','maHang',mapTonKhoRow,'bulkTonKho','Tồn kho phụ tùng'); return; } // ADDED
+
   if(type==='ycbh'){
     data.forEach(raw=>{
       const m=mapDMSRow(raw);
@@ -2840,6 +3481,9 @@ function refreshData(){
         if(r.bh)DB.bh=r.bh;           // Load BH
         if(r.ktbh)DB.ktbh=r.ktbh;     // Load KTBH
         if(r.log)DB.log=r.log;        // ADDED: Load lịch sử thao tác (nếu Apps Script đã hỗ trợ sheet "Log")
+        if(r.dms)DB.dms=r.dms;        // ADDED: Load dữ liệu doanh thu DMS (nếu Apps Script đã hỗ trợ sheet "DMS")
+        if(r.lichhen)DB.lichhen=r.lichhen; // ADDED: Load lịch hẹn
+        if(r.tonkho)DB.tonkho=r.tonkho;    // ADDED: Load tồn kho phụ tùng
         saveLocal(); 
         refreshAll();
         document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
@@ -2884,6 +3528,9 @@ function startAutoSync(){
           DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           DB.bh=r.bh||[]; DB.ktbh=r.ktbh||{}; // Auto sync BH
           if(r.log) DB.log=r.log; // ADDED: đồng bộ lịch sử thao tác từ Sheet (nếu backend đã hỗ trợ)
+          if(r.dms) DB.dms=r.dms; // ADDED: đồng bộ dữ liệu doanh thu DMS từ Sheet (nếu backend đã hỗ trợ)
+          if(r.lichhen) DB.lichhen=r.lichhen; // ADDED
+          if(r.tonkho) DB.tonkho=r.tonkho;    // ADDED
           saveLocal(); refreshAll();
           document.getElementById('sync-status').textContent='✅ Đồng bộ '+new Date().toLocaleTimeString('vi-VN');
         }
@@ -2897,6 +3544,19 @@ function stopAutoSync(){
 
 // INIT
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('auth-overlay')&&!document.getElementById('auth-overlay').classList.contains('hidden'))doLogin();});
+
+// ADDED: Hạn chế xem/lưu mã nguồn qua trình duyệt — đây CHỈ LÀ RÀO CẢN CƠ BẢN cho người dùng thông
+// thường, KHÔNG ngăn được người rành kỹ thuật (xem ghi chú trong tin nhắn). Không chặn Ctrl+C/V/A
+// để không ảnh hưởng việc copy VIN/biển số/dữ liệu bình thường trong các ô nhập liệu.
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key.toUpperCase();
+  if (k === 'F12') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(k)) { e.preventDefault(); return; } // DevTools / Inspect
+  if (e.ctrlKey && (k === 'U' || k === 'S')) { e.preventDefault(); return; } // View Source / Save Page
+});
 </script>
+<!-- ADDED: khung phiếu nhận dạng phụ tùng, chỉ hiện ra khi bấm in -->
+<div id="pt-tag-print"></div>
 </body>
 </html>
