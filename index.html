@@ -1094,134 +1094,271 @@ textarea.fi{resize:vertical;min-height:64px}
       </div>
 
       <div class="pane" id="pane-qd">
-        <div style="max-width:900px">
-          <div class="sec-hdr mb12"><span class="sec-title">📌 Quy định mốc thời gian — VF_HM13.1 & ĐC 06/05/2026</span><div class="sec-line"></div></div>
-          <div class="form-grid g2">
-            <div class="card">
-              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">⏱️ Mốc xử lý YCBH</div>
-              <table style="min-width:unset"><tbody>
-                <tr><td style="padding:10px 14px"><span class="badge badge-red">D+7</span></td><td style="padding:10px 14px;font-size:12px">Gửi YCBH lần đầu — quá hạn DMS khóa</td></tr>
-                <tr><td style="padding:10px 14px"><span class="badge badge-yellow">+3 ngày</span></td><td style="padding:10px 14px;font-size:12px">Bổ sung sau khi bị trả về</td></tr>
-                <tr><td style="padding:10px 14px"><span class="badge badge-blue">D+16</span></td><td style="padding:10px 14px;font-size:12px">Phê duyệt YCBH (tự động / QLDV / Vận hành BH TT)</td></tr>
-                <tr><td style="padding:10px 14px"><span class="badge badge-gray">26-28/N</span></td><td style="padding:10px 14px;font-size:12px">Lập bảng kê thanh toán DMS</td></tr>
-              </tbody></table>
-            </div>
-            <div class="card">
-              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">📦 Quy định kho phụ tùng</div>
-              <table style="min-width:unset"><tbody>
-                <tr><td style="padding:10px 14px"><span class="badge badge-yellow">≥30 ngày</span></td><td style="padding:10px 14px;font-size:12px">Lưu kho tối thiểu — Ắc quy / Pin xe máy điện</td></tr>
-                <tr><td style="padding:10px 14px"><span class="badge badge-yellow">≥60 ngày</span></td><td style="padding:10px 14px;font-size:12px">Lưu kho tối thiểu — Phụ tùng khác</td></tr>
-                <tr><td style="padding:10px 14px"><span class="badge badge-blue">Ngày 7/tháng</span></td><td style="padding:10px 14px;font-size:12px">Hạn nộp danh sách PT xin hủy</td></tr>
-              </tbody></table>
-            </div>
+        <div style="max-width:960px">
+
+          <!-- ═══ TIÊU ĐỀ ═══ -->
+          <div class="sec-hdr mb12">
+            <span class="sec-title">📋 Quy Định Nhập Liệu & Quy Trình Phối Hợp</span>
+            <div class="sec-line"></div>
           </div>
-          <div class="card mt12">
-            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">⏱️ Tiêu chuẩn Cam Kết Thời Gian Sửa Chữa (CKTGSC)</div>
-            <table style="min-width:unset"><tbody>
-              <tr><td style="padding:10px 14px;font-size:12px">Bảo dưỡng định kỳ</td><td style="padding:10px 14px"><span class="badge badge-gray">0,66 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Lỗi kỹ thuật thông thường</td><td style="padding:10px 14px"><span class="badge badge-gray">1 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa động cơ</td><td style="padding:10px 14px"><span class="badge badge-gray">10,5 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Thay thế động cơ</td><td style="padding:10px 14px"><span class="badge badge-gray">1,8 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Thay thế Pin</td><td style="padding:10px 14px"><span class="badge badge-gray">0,8 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa PDU/POD</td><td style="padding:10px 14px"><span class="badge badge-gray">18,5 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa Pin nặng — VinES / Gotion / CATL</td><td style="padding:10px 14px"><span class="badge badge-yellow">39,5 / 41,5 / 18,5 ngày</span></td></tr>
-              <tr><td style="padding:10px 14px;font-size:12px">Sửa chữa đồng sơn — Nhẹ / TB / TB nặng / Nặng</td><td style="padding:10px 14px"><span class="badge badge-yellow">4 / 8 / 24 / 34 ngày</span></td></tr>
-            </tbody></table>
-          </div>
-          <div class="card mt12">
-            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">👥 Phân quyền</div>
-            <table style="min-width:unset">
-              <thead><tr><th>Role</th><th>Tài khoản</th><th>Truy cập</th></tr></thead>
-              <tbody>
-                <tr><td><span class="badge badge-green">Admin</span></td><td class="mono">admin, gdx</td><td style="font-size:12px">Toàn bộ</td></tr>
-                <tr><td><span class="badge badge-blue">CVDV</span></td><td class="mono">cvdv1, cvdv2, cvdv3, cvdv4</td><td style="font-size:12px">YCBH, Bảo hiểm, CKTGSC, Import — Kho PT (chỉ xem)</td></tr>
-                <tr><td><span class="badge badge-purple">Kế Toán</span></td><td class="mono">ketoan1</td><td style="font-size:12px">Kế toán TT</td></tr>
-                <tr><td><span class="badge badge-yellow">Kho BH</span></td><td class="mono">kho1</td><td style="font-size:12px">Kho phụ tùng (toàn quyền)</td></tr>
-              </tbody>
-            </table>
-          </div>
-           <div class="card mt12">
-            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">
-              🔄 Quy trình làm việc phối hợp các bộ phận
-            </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Căn cứ: VF_HM13.1 · VF_KD02 · VF_KD22 · Điều chỉnh nội bộ 06/05/2026</div>
+
+          <!-- ═══ KHỐI 1: PHÂN CÔNG NHẬP LIỆU THEO MODULE ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">① PHÂN CÔNG NHẬP LIỆU THEO MODULE</span><div class="sec-line"></div></div>
+          <div class="card mb12">
             <div class="tbl-wrap">
               <table style="min-width:700px">
                 <thead>
                   <tr>
-                    <th style="width: 50px">Bước</th>
-                    <th style="width: 120px">Bộ phận</th>
-                    <th>Trách nhiệm & Thao tác trên hệ thống</th>
-                    <th style="width: 120px">SLA cam kết</th>
+                    <th style="width:160px">Module / Tab</th>
+                    <th style="width:130px">Người nhập chính</th>
+                    <th style="width:130px">Người kiểm tra</th>
+                    <th>Dữ liệu cần nhập</th>
+                    <th style="width:130px">Deadline nhập</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="fw7" style="text-align: center">1</td>
+                    <td><span style="font-weight:700">🛡️ YCBH Bảo Hành</span></td>
+                    <td><span class="badge badge-blue">CVDV phụ trách</span></td>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td style="font-size:12px">VIN, số WO, ngày mở LSC, ngày hoàn thành LSC, hạng mục bảo hành, số YCBH DMS, giá trị, trạng thái xử lý</td>
+                    <td><span class="badge badge-red">Ngay khi mở LSC</span></td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td><span style="font-weight:700">🎨 Bảo Hiểm Đồng Sơn</span></td>
+                    <td><span class="badge badge-blue">CVDV phụ trách</span></td>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td style="font-size:12px">Biển số, ngày vào xưởng, hãng BH, trạng thái sửa chữa, trạng thái BH, giá trị quyết toán, ngày duyệt</td>
+                    <td><span class="badge badge-red">Ngay khi nhận xe</span></td>
+                  </tr>
+                  <tr>
+                    <td><span style="font-weight:700">📦 Kho Phụ Tùng</span></td>
+                    <td><span class="badge badge-yellow">Kho (kho1)</span></td>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td style="font-size:12px">Mã PT, tên PT, phân loại, số lượng, ngày phê duyệt, loại kho (30/60 ngày), trạng thái lưu kho</td>
+                    <td><span class="badge badge-gray">Khi hoàn thành SC</span></td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td><span style="font-weight:700">⏱️ CKTGSC</span></td>
+                    <td><span class="badge badge-blue">CVDV phụ trách</span></td>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td style="font-size:12px">VIN, ngày nhận xe, ngày giao cam kết, loại hình SC, nguyên nhân vượt hạn (nếu có), trạng thái hậu kiểm</td>
+                    <td><span class="badge badge-red">Ngay khi nhận xe</span></td>
+                  </tr>
+                  <tr>
+                    <td><span style="font-weight:700">💳 Kế Toán / Thanh Toán</span></td>
+                    <td><span class="badge badge-purple">Kế Toán (ketoan1)</span></td>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td style="font-size:12px">Tháng bảng kê, ngày thanh toán VF, xác nhận tiền về, ghi chú đối chiếu</td>
+                    <td><span class="badge badge-gray">Ngày 26–28 hằng tháng</span></td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td><span style="font-weight:700">📊 Import DMS</span></td>
+                    <td><span class="badge badge-green">Admin</span></td>
+                    <td><span class="badge badge-green">GĐX</span></td>
+                    <td style="font-size:12px">File DATA_DMS (doanh thu), file Lịch Hẹn, file Tồn Kho PT từ DMS export (.xlsx/.csv)</td>
+                    <td><span class="badge badge-blue">Đầu tuần / cuối tháng</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ═══ KHỐI 2: QUY TẮC NHẬP LIỆU BẮT BUỘC ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">② QUY TẮC NHẬP LIỆU BẮT BUỘC</span><div class="sec-line"></div></div>
+          <div class="form-grid g2 mb12" style="gap:12px">
+            <div class="card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;color:var(--vf)">📝 Quy tắc chung — Mọi module</div>
+              <div style="padding:12px 14px">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--vf);font-weight:700;flex-shrink:0">①</span><span>Nhập <b>ngay trong ngày</b> phát sinh — không để sang hôm sau.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--vf);font-weight:700;flex-shrink:0">②</span><span>Điền <b>đầy đủ tất cả trường bắt buộc</b> trước khi bấm Lưu. Không bỏ trống VIN / biển số / số WO.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--vf);font-weight:700;flex-shrink:0">③</span><span>Chọn đúng <b>CVDV phụ trách</b> — ảnh hưởng trực tiếp đến KPI cá nhân và dashboard doanh thu.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--vf);font-weight:700;flex-shrink:0">④</span><span><b>Cập nhật trạng thái kịp thời</b> mỗi khi có thay đổi thực tế — hệ thống tính deadline theo trạng thái hiện tại.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--vf);font-weight:700;flex-shrink:0">⑤</span><span>Mỗi người chỉ được <b>sửa/xóa hồ sơ do mình tạo</b> hoặc được Admin phân quyền. Mọi thay đổi đều được ghi log.</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px;color:var(--warn)">⚠️ Lỗi nhập liệu thường gặp — CẦN TRÁNH</div>
+              <div style="padding:12px 14px">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--err);font-weight:700;flex-shrink:0">✗</span><span>Nhập <b>sai ngày hoàn thành LSC</b> (htLSC) → deadline D+7/D+16 tính sai toàn bộ.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--err);font-weight:700;flex-shrink:0">✗</span><span>Bỏ trống <b>ngày gửi YCBH</b> → hệ thống không nhận diện được trạng thái đúng hạn / quá hạn.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--err);font-weight:700;flex-shrink:0">✗</span><span>Không cập nhật <b>Kho PT</b> sau khi hoàn thành SC → PT thu hồi không được theo dõi, mất điều kiện gửi hủy đúng hạn.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--err);font-weight:700;flex-shrink:0">✗</span><span>Import file DMS sai sheet / sai định dạng cột → dữ liệu dashboard bị lệch hoặc không hiển thị.</span></div>
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px"><span style="color:var(--err);font-weight:700;flex-shrink:0">✗</span><span>Không đồng bộ sau khi làm việc trên nhiều thiết bị → bấm 🔄 <b>Tải lại</b> trước khi nhập liệu.</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ KHỐI 3: MỐC THỜI GIAN & DEADLINE ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">③ MỐC THỜI GIAN & DEADLINE THEO QUY ĐỊNH</span><div class="sec-line"></div></div>
+          <div class="form-grid g3 mb12" style="gap:12px">
+            <div class="card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">🛡️ YCBH Bảo Hành <span class="fc-muted fw4">(VF_HM13.1)</span></div>
+              <table style="min-width:unset"><tbody>
+                <tr>
+                  <td style="padding:8px 14px"><span class="badge badge-red">D+7</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Gửi YCBH lần đầu</b> lên DMS — quá hạn hệ thống DMS tự khóa, không thể gửi.</td>
+                </tr>
+                <tr style="background:var(--surface2)">
+                  <td style="padding:8px 14px"><span class="badge badge-yellow">+3 ngày</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Bổ sung hồ sơ bị trả về</b> — tính từ ngày nhận thông báo trả về từ VinFast.</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 14px"><span class="badge badge-blue">D+16</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Phê duyệt YCBH</b> — tự động / QLDV / Vận hành BH Trung tâm duyệt.</td>
+                </tr>
+                <tr style="background:var(--surface2)">
+                  <td style="padding:8px 14px"><span class="badge badge-gray">26–28/N</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Lập bảng kê thanh toán</b> trên DMS — Kế Toán thực hiện.</td>
+                </tr>
+              </tbody></table>
+            </div>
+            <div class="card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">📦 Kho Phụ Tùng Thu Hồi</div>
+              <table style="min-width:unset"><tbody>
+                <tr>
+                  <td style="padding:8px 14px"><span class="badge badge-yellow">≥ 30 ngày</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Ắc quy / Pin xe máy điện</b> — thời gian lưu kho tối thiểu trước khi đủ điều kiện hủy.</td>
+                </tr>
+                <tr style="background:var(--surface2)">
+                  <td style="padding:8px 14px"><span class="badge badge-yellow">≥ 60 ngày</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Phụ tùng thông thường</b> — thời gian lưu kho tối thiểu trước khi đủ điều kiện hủy.</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 14px"><span class="badge badge-blue">Ngày 7/N</span></td>
+                  <td style="padding:8px 14px;font-size:12px"><b>Hạn nộp danh sách PT xin hủy</b> — Kho lập danh sách, Admin/GĐX ký trình VinFast.</td>
+                </tr>
+              </tbody></table>
+            </div>
+            <div class="card">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:12px">⏱️ CKTGSC — Tiêu chuẩn ngày SC</div>
+              <table style="min-width:unset"><tbody>
+                <tr><td style="padding:6px 14px;font-size:12px">Bảo dưỡng định kỳ</td><td style="padding:6px 14px"><span class="badge badge-gray">0,66 ngày</span></td></tr>
+                <tr style="background:var(--surface2)"><td style="padding:6px 14px;font-size:12px">Lỗi kỹ thuật thông thường</td><td style="padding:6px 14px"><span class="badge badge-gray">1 ngày</span></td></tr>
+                <tr><td style="padding:6px 14px;font-size:12px">Sửa chữa / Thay động cơ</td><td style="padding:6px 14px"><span class="badge badge-gray">10,5 / 1,8 ngày</span></td></tr>
+                <tr style="background:var(--surface2)"><td style="padding:6px 14px;font-size:12px">Thay thế Pin</td><td style="padding:6px 14px"><span class="badge badge-gray">0,8 ngày</span></td></tr>
+                <tr><td style="padding:6px 14px;font-size:12px">Sửa chữa PDU/POD</td><td style="padding:6px 14px"><span class="badge badge-gray">18,5 ngày</span></td></tr>
+                <tr style="background:var(--surface2)"><td style="padding:6px 14px;font-size:12px">Pin nặng VinES / Gotion / CATL</td><td style="padding:6px 14px"><span class="badge badge-yellow">39,5 / 41,5 / 18,5 N</span></td></tr>
+                <tr><td style="padding:6px 14px;font-size:12px">Đồng sơn Nhẹ/TB/TB nặng/Nặng</td><td style="padding:6px 14px"><span class="badge badge-yellow">4 / 8 / 24 / 34 N</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <!-- ═══ KHỐI 4: QUY TRÌNH PHỐI HỢP 7 BƯỚC ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">④ QUY TRÌNH PHỐI HỢP NHẬP LIỆU GIỮA CÁC BỘ PHẬN</span><div class="sec-line"></div></div>
+          <div class="card mb12">
+            <div class="tbl-wrap">
+              <table style="min-width:780px">
+                <thead>
+                  <tr>
+                    <th style="width:48px;text-align:center">Bước</th>
+                    <th style="width:140px">Bộ phận thực hiện</th>
+                    <th style="width:200px">Hành động thực tế</th>
+                    <th>Nhập liệu vào hệ thống</th>
+                    <th style="width:130px">Deadline / SLA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">1</div>
+                    </td>
                     <td><span class="badge badge-blue">CVDV</span></td>
-                    <td>
-                      <div class="fw7 mb4">Tiếp nhận xe & Tạo hồ sơ</div>
-                      <div class="fs11 fc-muted">- Mở LSC trên DMS. Đánh giá sơ bộ thuộc diện Bảo hành (VF) hay Bảo hiểm.</div>
-                      <div class="fs11 fc-muted">- Thêm mới YCBH hoặc Hồ sơ Bảo Hiểm trên hệ thống quản trị này.</div>
+                    <td style="font-size:12px;font-weight:700">Tiếp nhận xe & Phân loại hồ sơ</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• Mở LSC trên DMS, đánh giá: <b>Bảo hành VF</b> hay <b>Bảo hiểm Đồng Sơn</b>.</div>
+                      <div>• Tạo hồ sơ mới trên tab <b>YCBH</b> hoặc <b>Bảo Hiểm</b> — điền VIN/biển số, ngày mở LSC, CVDV phụ trách.</div>
                     </td>
-                    <td><span class="badge badge-gray">Ngay khi nhận xe</span></td>
+                    <td><span class="badge badge-red">Ngay khi nhận xe</span></td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">2</div>
+                    </td>
+                    <td>
+                      <span class="badge badge-blue">CVDV</span><br>
+                      <span class="badge badge-yellow" style="margin-top:4px;display:inline-block">Kho</span>
+                    </td>
+                    <td style="font-size:12px;font-weight:700">Xác nhận phụ tùng & Lập CKTGSC</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• <b>CVDV:</b> Lên danh sách PT cần dùng. Tạo hồ sơ <b>CKTGSC</b> — chọn loại hình SC, nhập ngày nhận xe, ngày giao cam kết.</div>
+                      <div>• <b>Kho:</b> Kiểm tra tồn kho thực tế, phản hồi ETA nếu thiếu PT. Ghi chú vào ô ghi chú của hồ sơ CKTGSC.</div>
+                    </td>
+                    <td><span class="badge badge-yellow">Trong 2–4 giờ</span></td>
                   </tr>
                   <tr>
-                    <td class="fw7" style="text-align: center">2</td>
-                    <td><span class="badge badge-blue">CVDV</span><br><span class="badge badge-yellow mt4">Kho</span></td>
-                    <td>
-                      <div class="fw7 mb4">Xác nhận phụ tùng & CKTGSC</div>
-                      <div class="fs11 fc-muted">- <b>CVDV:</b> Lên danh sách PT cần thiết. Tính toán mốc CKTGSC.</div>
-                      <div class="fs11 fc-muted">- <b>Kho:</b> Kiểm tra tồn kho, phản hồi thời gian đặt hàng (ETA) nếu thiếu.</div>
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">3</div>
                     </td>
-                    <td><span class="badge badge-gray">Trong 2h-4h</span></td>
-                  </tr>
-                  <tr>
-                    <td class="fw7" style="text-align: center">3</td>
-                    <td><span class="badge badge-gray">Kỹ thuật</span><br><span class="badge badge-blue mt4">CVDV</span></td>
                     <td>
-                      <div class="fw7 mb4">Thi công & Theo dõi tiến độ</div>
-                      <div class="fs11 fc-muted">- Tiến hành sửa chữa/đồng sơn/thay Pin theo chuẩn VinFast.</div>
-                      <div class="fs11 fc-muted">- <b>CVDV:</b> Cập nhật trạng thái LSC. Nếu có rủi ro vượt CKTGSC phải cập nhật ngay vào mục CKTGSC để xin chỉ đạo.</div>
+                      <span class="badge badge-gray">Kỹ thuật</span><br>
+                      <span class="badge badge-blue" style="margin-top:4px;display:inline-block">CVDV</span>
+                    </td>
+                    <td style="font-size:12px;font-weight:700">Thi công & Theo dõi tiến độ</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• Kỹ thuật tiến hành SC theo chuẩn VinFast. CVDV theo dõi tiến độ thực tế hằng ngày.</div>
+                      <div>• Nếu <b>có rủi ro vượt CKTGSC</b>: CVDV cập nhật ngay trạng thái và ghi chú nguyên nhân vào tab <b>CKTGSC</b> để Admin/GĐX biết và xin chỉ đạo kịp thời.</div>
                     </td>
                     <td><span class="badge badge-red">Đúng hạn CKTGSC</span></td>
                   </tr>
-                  <tr>
-                    <td class="fw7" style="text-align: center">4</td>
-                    <td><span class="badge badge-blue">CVDV</span><br><span class="badge badge-green mt4">Admin / GĐX</span></td>
-                    <td>
-                      <div class="fw7 mb4">Gửi duyệt YCBH / Bảo hiểm</div>
-                      <div class="fs11 fc-muted">- <b>CVDV:</b> Hoàn thiện hồ sơ trên DMS (trước D+7). Cập nhật trạng thái "Đã gửi - chờ PD".</div>
-                      <div class="fs11 fc-muted">- Nếu bị trả về: Xử lý bổ sung ngay trong vòng 3 ngày.</div>
+                  <tr style="background:var(--surface2)">
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">4</div>
                     </td>
-                    <td><span class="badge badge-red">D+7</span></td>
+                    <td>
+                      <span class="badge badge-blue">CVDV</span><br>
+                      <span class="badge badge-green" style="margin-top:4px;display:inline-block">Admin / GĐX</span>
+                    </td>
+                    <td style="font-size:12px;font-weight:700">Hoàn thiện & Gửi duyệt hồ sơ</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• <b>CVDV:</b> Hoàn thiện hồ sơ YCBH/BH trên DMS. Cập nhật <b>ngày hoàn thành LSC</b> và <b>số YCBH</b> vào hệ thống. Chuyển trạng thái → <i>"Đã gửi - chờ PD"</i>.</div>
+                      <div class="mb4">• Nếu <b>bị trả về</b>: Ghi rõ số lần trả, cập nhật trạng thái → <i>"Bị trả lại - bổ sung"</i> và xử lý trong vòng <b>3 ngày</b>.</div>
+                      <div>• <b>Admin/GĐX:</b> Theo dõi dashboard cảnh báo <span class="badge badge-red" style="font-size:10px">QUÁ HẠN</span> / <span class="badge badge-yellow" style="font-size:10px">SẮP HẠN</span> để nhắc nhở kịp thời.</div>
+                    </td>
+                    <td><span class="badge badge-red">Trước D+7</span></td>
                   </tr>
                   <tr>
-                    <td class="fw7" style="text-align: center">5</td>
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">5</div>
+                    </td>
                     <td><span class="badge badge-yellow">Kho</span></td>
-                    <td>
-                      <div class="fw7 mb4">Nhập kho PT thu hồi</div>
-                      <div class="fs11 fc-muted">- Nhận PT cũ/lỗi từ xưởng. In phiếu dán nhận diện.</div>
-                      <div class="fs11 fc-muted">- Nhập thông tin vào tab <b>Kho PT</b> trên hệ thống. Lưu kho đủ 30 ngày (Ắc quy/Pin) hoặc 60 ngày (PT khác).</div>
+                    <td style="font-size:12px;font-weight:700">Nhập kho PT thu hồi & Dán phiếu</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• Nhận PT cũ/lỗi từ xưởng sau khi SC hoàn thành. In phiếu nhận diện và dán lên PT.</div>
+                      <div>• Nhập đầy đủ vào tab <b>Kho PT</b>: mã PT, tên PT, số lượng, ngày phê duyệt, loại kho (<b>30 ngày</b> cho Ắc quy/Pin — <b>60 ngày</b> cho PT khác). Hệ thống tự tính deadline hủy và cảnh báo khi đủ điều kiện.</div>
                     </td>
                     <td><span class="badge badge-gray">Khi hoàn thành SC</span></td>
                   </tr>
-                  <tr>
-                    <td class="fw7" style="text-align: center">6</td>
-                    <td><span class="badge badge-purple">Kế Toán</span></td>
-                    <td>
-                      <div class="fw7 mb4">Khớp bảng kê & Thanh toán</div>
-                      <div class="fs11 fc-muted">- Kiểm tra các hồ sơ "Đã phê duyệt". Làm bảng kê thanh toán với VinFast hoặc xuất hóa đơn cho Bảo hiểm.</div>
-                      <div class="fs11 fc-muted">- Khai báo "Đã TT VF" hoặc "Tiền đã về" để đóng luồng hồ sơ.</div>
+                  <tr style="background:var(--surface2)">
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">6</div>
                     </td>
-                    <td><span class="badge badge-gray">Ngày 26-28 hằng tháng</span></td>
+                    <td><span class="badge badge-purple">Kế Toán</span></td>
+                    <td style="font-size:12px;font-weight:700">Khớp bảng kê & Xác nhận thanh toán</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• Vào tab <b>Kế Toán</b>, lọc các hồ sơ trạng thái <i>"Đã phê duyệt (PD)"</i>. Lập bảng kê thanh toán theo tháng.</div>
+                      <div class="mb4">• Sau khi nhận tiền từ VinFast/BH: cập nhật trạng thái → <i>"Đã TT VF"</i> hoặc <i>"Tiền đã về"</i> để đóng luồng hồ sơ.</div>
+                      <div>• <b>Lưu ý:</b> Không được đóng hồ sơ thanh toán nếu chưa có xác nhận từ Admin.</div>
+                    </td>
+                    <td><span class="badge badge-gray">Ngày 26–28 hằng tháng</span></td>
                   </tr>
                   <tr>
-                    <td class="fw7" style="text-align: center">7</td>
-                    <td><span class="badge badge-yellow">Kho</span><br><span class="badge badge-green mt4">Admin / GĐX</span></td>
+                    <td style="text-align:center">
+                      <div style="width:28px;height:28px;border-radius:50%;background:var(--vf);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:auto">7</div>
+                    </td>
                     <td>
-                      <div class="fw7 mb4">Xử lý Phụ tùng tồn</div>
-                      <div class="fs11 fc-muted">- Theo dõi cảnh báo "Đủ ĐK hủy" trên hệ thống. Đề xuất hủy.</div>
-                      <div class="fs11 fc-muted">- Trình GĐX/VinFast phê duyệt biên bản tiêu hủy.</div>
+                      <span class="badge badge-yellow">Kho</span><br>
+                      <span class="badge badge-green" style="margin-top:4px;display:inline-block">Admin / GĐX</span>
+                    </td>
+                    <td style="font-size:12px;font-weight:700">Xử lý PT tồn & Lập hồ sơ hủy</td>
+                    <td style="font-size:12px">
+                      <div class="mb4">• <b>Kho:</b> Theo dõi cột cảnh báo <span class="badge badge-yellow" style="font-size:10px">Đủ ĐK hủy</span> trên tab Kho PT. Lập danh sách PT đề xuất hủy mỗi tháng.</div>
+                      <div>• <b>Admin/GĐX:</b> Ký biên bản đề xuất hủy. Trình VinFast phê duyệt trước ngày 7 hằng tháng. Cập nhật trạng thái → <i>"Đã hủy"</i> sau khi có biên bản tiêu hủy.</div>
                     </td>
                     <td><span class="badge badge-blue">Ngày 7 hằng tháng</span></td>
                   </tr>
@@ -1229,6 +1366,108 @@ textarea.fi{resize:vertical;min-height:64px}
               </table>
             </div>
           </div>
+
+          <!-- ═══ KHỐI 5: PHÂN QUYỀN HỆ THỐNG ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">⑤ PHÂN QUYỀN TÀI KHOẢN HỆ THỐNG</span><div class="sec-line"></div></div>
+          <div class="card mb12">
+            <div class="tbl-wrap">
+              <table style="min-width:700px">
+                <thead>
+                  <tr>
+                    <th style="width:120px">Vai trò</th>
+                    <th style="width:160px">Tài khoản</th>
+                    <th>Module có thể truy cập</th>
+                    <th style="width:180px">Quyền thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-green">Admin / GĐX</span></td>
+                    <td class="mono" style="font-size:12px">admin · gdx</td>
+                    <td style="font-size:12px">Dashboard, YCBH, Bảo Hiểm, Kho PT, CKTGSC, Kế Toán, Import, Quy Định, Log thao tác</td>
+                    <td style="font-size:12px"><b>Toàn quyền</b> — xem, thêm, sửa, xóa, import, xuất báo cáo</td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td><span class="badge badge-blue">CVDV</span></td>
+                    <td class="mono" style="font-size:12px">cvdv1 · cvdv2 · cvdv3 · cvdv4</td>
+                    <td style="font-size:12px">Dashboard, YCBH, Bảo Hiểm, Kho PT (chỉ xem), CKTGSC, Import, Quy Định</td>
+                    <td style="font-size:12px">Thêm/sửa YCBH · BH · CKTGSC · Import DMS — <b>Không được xóa hàng loạt</b></td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-purple">Kế Toán</span></td>
+                    <td class="mono" style="font-size:12px">ketoan1</td>
+                    <td style="font-size:12px">Dashboard, Kế Toán / Thanh Toán, Quy Định</td>
+                    <td style="font-size:12px">Cập nhật trạng thái thanh toán — <b>không sửa được nội dung hồ sơ gốc</b></td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td><span class="badge badge-yellow">Kho</span></td>
+                    <td class="mono" style="font-size:12px">kho1</td>
+                    <td style="font-size:12px">Dashboard, Kho Phụ Tùng, Quy Định</td>
+                    <td style="font-size:12px">Toàn quyền trên Kho PT — nhập, sửa, in phiếu, cập nhật trạng thái hủy</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ═══ KHỐI 6: LỊCH NHẬP LIỆU ĐỊNH KỲ ═══ -->
+          <div class="sec-hdr mb12"><span class="sec-title" style="font-size:12px">⑥ LỊCH NHẬP LIỆU ĐỊNH KỲ HẰNG THÁNG</span><div class="sec-line"></div></div>
+          <div class="card">
+            <div class="tbl-wrap">
+              <table style="min-width:600px">
+                <thead>
+                  <tr>
+                    <th style="width:130px">Thời điểm</th>
+                    <th style="width:140px">Bộ phận</th>
+                    <th>Công việc nhập liệu cần hoàn thành</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight:700;font-size:12px">Ngày 1–7/N</td>
+                    <td>
+                      <span class="badge badge-yellow">Kho</span>
+                      <span class="badge badge-green" style="margin-left:4px">Admin</span>
+                    </td>
+                    <td style="font-size:12px">Lập & nộp danh sách PT đề xuất hủy. Admin/GĐX phê duyệt và cập nhật trạng thái hủy trên hệ thống.</td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td style="font-weight:700;font-size:12px">Hằng ngày</td>
+                    <td><span class="badge badge-blue">CVDV</span></td>
+                    <td style="font-size:12px">Cập nhật trạng thái YCBH/BH/CKTGSC theo tiến độ thực tế. Không để hồ sơ "treo" qua đêm mà không có trạng thái mới.</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:700;font-size:12px">Đầu tuần</td>
+                    <td><span class="badge badge-green">Admin</span></td>
+                    <td style="font-size:12px">Import file DATA_DMS và Lịch Hẹn từ DMS export. Kiểm tra dashboard — đối chiếu số liệu doanh thu và lượt xe với DMS gốc.</td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td style="font-weight:700;font-size:12px">Ngày 25/N</td>
+                    <td>
+                      <span class="badge badge-blue">CVDV</span>
+                      <span class="badge badge-green" style="margin-left:4px">Admin</span>
+                    </td>
+                    <td style="font-size:12px">Rà soát toàn bộ hồ sơ YCBH/BH chưa có trạng thái thanh toán. Xử lý tồn đọng trước khi Kế Toán lập bảng kê.</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:700;font-size:12px">Ngày 26–28/N</td>
+                    <td><span class="badge badge-purple">Kế Toán</span></td>
+                    <td style="font-size:12px">Lập bảng kê thanh toán DMS. Đối chiếu với danh sách "Đã phê duyệt" trên hệ thống. Cập nhật trạng thái <i>"Đã TT VF"</i> sau khi nhận tiền.</td>
+                  </tr>
+                  <tr style="background:var(--surface2)">
+                    <td style="font-weight:700;font-size:12px">Cuối tháng</td>
+                    <td><span class="badge badge-green">Admin</span></td>
+                    <td style="font-size:12px">Import file Tồn Kho PT từ DMS. Chốt báo cáo tháng — xuất dữ liệu để lưu trữ. Đánh giá KPI nhập liệu của từng CVDV.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--vf);font-size:11px;color:var(--muted)">
+            ⚡ <b>Lưu ý:</b> Mọi thao tác thêm/sửa/xóa đều được ghi log tự động. Admin có thể xem lại lịch sử toàn bộ tại tab <b>Log Thao Tác</b>. Khi phát hiện nhập sai, liên hệ Admin để được hỗ trợ chỉnh sửa và ghi chú lý do vào ô ghi chú hồ sơ.
+          </div>
+
         </div>
       </div>
 
@@ -1704,14 +1943,18 @@ function loadLocal(){
   try{
     const raw=localStorage.getItem(LS_KEY); if(!raw)return false;
     const parsed=JSON.parse(raw);
-    if(parsed.ycbh && parsed.ycbh.length>0){
-      DB.ycbh=parsed.ycbh; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; DB.cktgsc=parsed.cktgsc||[];
-      DB.bh=parsed.bh||[]; DB.ktbh=parsed.ktbh||{}; // Load thêm
-      DB.log=parsed.log||[]; // ADDED: load lịch sử thao tác
-      DB.dms=parsed.dms||[]; // ADDED: load dữ liệu doanh thu DMS
-      DB.lichhen=parsed.lichhen||[]; // ADDED: load lịch hẹn
-      DB.tonkho=parsed.tonkho||[]; // ADDED: load tồn kho phụ tùng
-      return true;
+    // FIX: bỏ điều kiện ycbh.length>0 — trước đây nếu chưa có hồ sơ YCBH thì hàm trả false
+    // khiến DB.dms/lichhen/tonkho không được restore từ localStorage, dẫn đến seed data bị
+    // ghi đè sau khi refreshData() fetch Sheet về và gọi refreshAll() lần 2 → dashboard biến mất.
+    if(typeof parsed === 'object' && parsed !== null){
+      DB.ycbh=parsed.ycbh||[]; DB.kho=parsed.kho||[]; DB.kt=parsed.kt||{}; DB.cktgsc=parsed.cktgsc||[];
+      DB.bh=parsed.bh||[]; DB.ktbh=parsed.ktbh||{};
+      DB.log=parsed.log||[];
+      DB.dms=parsed.dms||[];
+      DB.lichhen=parsed.lichhen||[];
+      DB.tonkho=parsed.tonkho||[];
+      // Coi là "có local" chỉ khi ít nhất một trong các mảng chính có dữ liệu thật
+      return (DB.ycbh.length>0 || DB.dms.length>0 || DB.lichhen.length>0 || DB.tonkho.length>0 || DB.kho.length>0 || DB.cktgsc.length>0 || DB.bh.length>0);
     }
   }catch(e){console.warn('loadLocal error',e);}
   return false;
@@ -1811,16 +2054,7 @@ document.getElementById('more-sheet-body').addEventListener('click', e=>{
 // LỌC DỮ LIỆU THEO THÁNG
 // ============================================================
 let filterMonth = (function(){ try{ return localStorage.getItem('vf_dvc_filter_month')||''; }catch(e){ return ''; } })();
-function getMonthKey(dateStr){
-  if(!dateStr) return null;
-  const str = String(dateStr).trim();
-  // Nếu đã chuẩn ISO (VD: 2026-06-15) thì cắt lấy YYYY-MM
-  if (/^\d{4}-\d{2}/.test(str)) return str.slice(0, 7);
-  // Nếu trả về dạng DD/MM/YYYY từ Sheet, dùng toDateSmart để parse lại
-  const smartDate = toDateSmart(str);
-  if (smartDate) return smartDate.slice(0, 7);
-  return str.slice(0, 7);
-}
+function getMonthKey(dateStr){ if(!dateStr) return null; return String(dateStr).slice(0,7); }
 function matchMonth(dateStr){ if(!filterMonth) return true; return getMonthKey(dateStr)===filterMonth; }
 // ADDED: chống lỗi "lưu xong hồ sơ tự biến mất" do bộ lọc tháng đang chọn khác tháng của hồ sơ vừa lưu.
 // Nếu hồ sơ vừa lưu không thuộc tháng đang lọc, tự động chuyển bộ lọc sang đúng tháng đó và báo cho người dùng biết.
@@ -1847,6 +2081,10 @@ function getAllMonths(){
   DB.kho.forEach(r=>{ if(r.ngayPD) set.add(r.ngayPD.slice(0,7)); });
   DB.cktgsc.forEach(r=>{ if(r.ngayNhan) set.add(r.ngayNhan.slice(0,7)); });
   DB.bh.forEach(r=>{ if(r.ngayVao) set.add(r.ngayVao.slice(0,7)); }); // Thêm dòng này cho Bảo hiểm
+  // FIX: thêm tháng từ DB.dms — trước đây thiếu nên khi chỉ có DMS data mà không có YCBH/Kho,
+  // bộ lọc tháng không nhận diện được tháng → filterMonth không match → dashboard DMS biến mất sau lần render thứ 2
+  DB.dms.forEach(r=>{ if(r.ngayGD) set.add(String(r.ngayGD).slice(0,7)); });
+  DB.lichhen.forEach(r=>{ if(r.ngayDatHen) set.add(String(r.ngayDatHen).slice(0,7)); });
   set.add(today().slice(0,7));
   return [...set].filter(Boolean).sort().reverse();
 }
@@ -3707,12 +3945,15 @@ function refreshData(){
         if(r.bh)DB.bh=r.bh;            // Load BH
         if(r.ktbh)DB.ktbh=r.ktbh;      // Load KTBH
         
-        // CHỈNH SỬA LỖI MẤT DỮ LIỆU: Chỉ đè dữ liệu Dashboard nếu Sheet trả về mảng có thật (tránh đè rỗng)
+        // FIX: Chỉ đè dữ liệu Dashboard nếu Sheet trả về mảng có dữ liệu thật (tránh đè rỗng).
+        // Trước đây nếu Sheet không có tab DMS (hoặc trả về mảng rỗng), DB.dms bị giữ nguyên
+        // nhưng sau đó populateMonthFilter() không nhận tháng DMS (do getAllMonths thiếu DMS) →
+        // filterMonth mismatch → renderDMSDashboard() render "không có dữ liệu" → dashboard biến mất.
+        // Với Fix 2 (getAllMonths đã thêm DMS), lỗi này đã được khắc phục; dòng dưới giữ nguyên an toàn.
         if(r.log && r.log.length > 0) DB.log=r.log;        
-        if(r.dms && r.dms.length > 0) DB.dms = r.dms.filter(x => x.soLenh || x.bienSo);
-      if(r.lichhen && r.lichhen.length > 0) DB.lichhen = r.lichhen.filter(x => x.maDatHen || x.bienSo);
-      if(r.tonkho && r.tonkho.length > 0) DB.tonkho = r.tonkho.filter(x => x.maHang || x.tenHang);
-      if(r.ycbh && r.ycbh.length > 0) DB.ycbh = r.ycbh.filter(x => x.vin);    
+        if(r.dms && r.dms.length > 0) DB.dms=r.dms;        
+        if(r.lichhen && r.lichhen.length > 0) DB.lichhen=r.lichhen; 
+        if(r.tonkho && r.tonkho.length > 0) DB.tonkho=r.tonkho;    
         
         saveLocal(); 
         refreshAll();
@@ -3758,7 +3999,8 @@ function startAutoSync(){
           DB.ycbh=r.ycbh; DB.kho=r.kho||[]; DB.kt=r.kt||{}; DB.cktgsc=r.cktgsc||DB.cktgsc;
           DB.bh=r.bh||[]; DB.ktbh=r.ktbh||{}; // Auto sync BH
           
-          // CHỈNH SỬA LỖI MẤT DỮ LIỆU: Tương tự như refreshData
+          // FIX: giữ nguyên logic chỉ đè khi có dữ liệu thật — bảo vệ DB.dms/lichhen/tonkho
+          // khỏi bị xóa khi Sheet không trả về các tab này (VD: Sheet mới chưa có tab DMS)
           if(r.log && r.log.length > 0) DB.log=r.log; 
           if(r.dms && r.dms.length > 0) DB.dms=r.dms; 
           if(r.lichhen && r.lichhen.length > 0) DB.lichhen=r.lichhen; 
