@@ -13,23 +13,23 @@ export function PostCard({ post }: { post: PostMeta }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block rounded-xl border border-border-color p-5 transition-colors hover:border-foreground/30"
+      className="group block rounded-2xl border border-border-color bg-surface/40 p-6 backdrop-blur-xl transition-all hover:border-border-hover hover:shadow-[0_0_40px_-8px_var(--accent)]"
     >
-      <div className="flex items-center gap-3 text-sm text-foreground/50">
+      <div className="flex items-center gap-3 font-mono text-xs text-foreground-muted">
         <time dateTime={post.date}>{formatDate(post.date)}</time>
         <span>·</span>
         <span>{post.readingTime}</span>
       </div>
-      <h3 className="mt-2 font-medium group-hover:text-accent">
+      <h3 className="mt-2 font-display font-medium transition-colors group-hover:text-accent-2">
         {post.title}
       </h3>
-      <p className="mt-2 text-sm text-foreground/70">{post.excerpt}</p>
+      <p className="mt-2 text-sm text-foreground-muted">{post.excerpt}</p>
       {post.tags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-surface px-2.5 py-1 text-xs text-foreground/60"
+              className="rounded-full border border-border-color px-2.5 py-1 font-mono text-xs text-foreground-muted"
             >
               {tag}
             </span>

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getAllSlugs, getPostBySlug } from "@/lib/posts";
 import { PostBody } from "@/components/blog/PostBody";
+import { Reveal } from "@/components/motion/Reveal";
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("vi-VN", {
@@ -42,31 +43,33 @@ export default async function BlogPostPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-16">
+    <div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
       <Link
         href="/blog"
-        className="inline-flex items-center gap-1.5 text-sm text-foreground/60 transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border-color bg-white/5 px-3 py-1.5 text-sm text-foreground-muted transition-all hover:border-border-hover hover:text-foreground"
       >
         <ArrowLeft size={14} />
         Quay lại blog
       </Link>
 
-      <article className="mt-6">
-        <header>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            {post.title}
-          </h1>
-          <div className="mt-2 flex items-center gap-3 text-sm text-foreground/50">
-            <time dateTime={post.date}>{formatDate(post.date)}</time>
-            <span>·</span>
-            <span>{post.readingTime}</span>
-          </div>
-        </header>
+      <Reveal className="mt-6">
+        <article>
+          <header>
+            <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-4xl">
+              {post.title}
+            </h1>
+            <div className="mt-2 flex items-center gap-3 font-mono text-sm text-foreground-muted">
+              <time dateTime={post.date}>{formatDate(post.date)}</time>
+              <span>·</span>
+              <span>{post.readingTime}</span>
+            </div>
+          </header>
 
-        <div className="mt-8">
-          <PostBody content={post.content} />
-        </div>
-      </article>
+          <div className="mt-8">
+            <PostBody content={post.content} />
+          </div>
+        </article>
+      </Reveal>
     </div>
   );
 }
