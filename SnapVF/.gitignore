@@ -1,0 +1,5 @@
+SnapVF.exe
+dist/
+build/
+*.spec
+__pycache__/
